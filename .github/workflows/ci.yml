@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # TODO(Pha 2): thêm bước cài runtime và công cụ theo tech stack đã chọn
       - run: make lint
 
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # TODO(Pha 2): thêm bước cài runtime, dịch vụ phụ trợ (database test...) theo stack
       - run: make test
 
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # TODO(Pha 2): thêm bước cài runtime theo stack
       - run: make build
 
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # TODO(Pha 2): thêm quét bí mật, quét phụ thuộc, phân tích tĩnh phù hợp stack
       - run: make security
 

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # TODO(Pha 5): thay bằng lệnh triển khai staging thật (bí mật lấy từ GitHub Secrets)
       - run: echo "STUB deploy staging cho ${{ github.sha }}"
 
@@ -28,6 +28,6 @@ jobs:
     # GATE TRIỂN KHAI: environment "production" yêu cầu người duyệt, GitHub sẽ dừng chờ phê duyệt.
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # TODO(Pha 5): thay bằng lệnh triển khai production thật
       - run: echo "STUB deploy production cho ${{ github.ref_name }}"
