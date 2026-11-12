@@ -1,0 +1,33 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-staging:
+    name: deploy-staging
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(Pha 5): thay bằng lệnh triển khai staging thật (bí mật lấy từ GitHub Secrets)
+      - run: echo "STUB deploy staging cho ${{ github.sha }}"
+
+  deploy-production:
+    name: deploy-production
+    # Chỉ chạy khi gắn tag phiên bản vX.Y.Z
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    # GATE TRIỂN KHAI: environment "production" yêu cầu người duyệt, GitHub sẽ dừng chờ phê duyệt.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(Pha 5): thay bằng lệnh triển khai production thật
+      - run: echo "STUB deploy production cho ${{ github.ref_name }}"

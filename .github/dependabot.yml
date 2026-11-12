@@ -1,0 +1,8 @@
+version: 2
+updates:
+  # Cập nhật phiên bản các action trong workflow
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # TODO(Pha 2): thêm hệ sinh thái gói của tech stack đã chọn (npm, pip, gomod, ...)

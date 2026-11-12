@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(Pha 2): thêm bước cài runtime và công cụ theo tech stack đã chọn
+      - run: make lint
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(Pha 2): thêm bước cài runtime, dịch vụ phụ trợ (database test...) theo stack
+      - run: make test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(Pha 2): thêm bước cài runtime theo stack
+      - run: make build
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(Pha 2): thêm quét bí mật, quét phụ thuộc, phân tích tĩnh phù hợp stack
+      - run: make security
+
+  # Job tổng hợp: đây là check DUY NHẤT mà branch protection yêu cầu (merge gate).
+  ci-gate:
+    name: ci-gate
+    if: always()
+    needs: [lint, test, build, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kiểm tra kết quả các job
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') }}" = "true" ] || [ "${{ contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "::error::CI chưa đạt, không được merge."
+            exit 1
+          fi
+          echo "Tất cả job đã đạt."
