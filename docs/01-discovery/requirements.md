@@ -1,6 +1,6 @@
 # Khảo sát yêu cầu: Quản lý Dự án CNTT
 
-Ngày: 2026-11-13 · Pha 1 · Trạng thái: Đã duyệt (2026-11-13)
+Ngày: 2026-11-13 · Pha 1 · Trạng thái: Đã duyệt lại (2026-11-13, sau điều chỉnh theo OpenProject, xem mục 0b)
 
 ## 0. Bảng Epic đã duyệt
 | Epic | MVP? |
@@ -14,9 +14,27 @@ Ngày: 2026-11-13 · Pha 1 · Trạng thái: Đã duyệt (2026-11-13)
 | E7 Template dự án | Có |
 | E8 Phụ thuộc giữa các task | Có |
 | E10 Đa ngôn ngữ (Việt/Anh) và responsive | Có |
+| E12 Timeline/Gantt | **Có (đưa lại vào MVP ngày 2026-11-13)** |
+| E13 Chế độ xem đã lưu | **Có (mới, 2026-11-13)** |
 | E9 Theo dõi thời gian | Đợt sau |
 | E11 Cộng tác mở rộng (bình luận, tệp đính kèm, thùng rác) | Đợt sau |
-| E12 Timeline/Gantt | Đợt sau |
+| E14 Nhập dữ liệu từ OpenProject | Đợt sau (mới, 2026-11-13) |
+
+## 0b. Điều chỉnh ngày 2026-11-13 sau khi tham chiếu OpenProject (cần duyệt lại)
+Team đang dùng OpenProject và muốn chuyển sang app mới mà không phải làm quen lại. Sếp chọn: giống OpenProject về **thuật ngữ và chức năng**, giữ giao diện hiện đại v1 (S02, S03, S04 đã duyệt vẫn giữ). Thay đổi so với phạm vi đã duyệt ở Pha 1:
+
+| Thay đổi | Trước | Sau |
+|---|---|---|
+| Gantt (E12) | Đợt sau | **Vào MVP** (team dùng hằng ngày) |
+| Theo dõi thời gian (E9) | Đợt sau | Đợt sau (team không dùng hằng ngày) |
+| Quan hệ giữa task (E8) | Chỉ "bị chặn bởi" | Nhiều kiểu quan hệ như OpenProject (liên quan, chặn/bị chặn, đứng trước/đứng sau, trùng lặp); kiểu nào vào MVP: **[CẦN XÁC NHẬN]** |
+| Chế độ xem đã lưu (E13, mới) | Không có | **Vào MVP**: bộ lọc, sắp xếp, nhóm, cột có thể lưu; chế độ xem mặc định như OpenProject |
+| Bảng phân cấp | Danh sách thụt 3 cấp | Bảng phân cấp thu gọn/mở rộng, nhóm theo thuộc tính (E3) |
+| Vai trò | 1 vai trò toàn hệ thống mỗi người | **Vai trò theo từng dự án** (PM, Thành viên, Người xem) cộng quyền Admin toàn hệ thống (E1) |
+| Nhập dữ liệu từ OpenProject (E14, mới) | Không có | **Đợt sau MVP**: nhập từ tệp xuất (CSV/Excel) |
+| Thuật ngữ | "Task" | Dùng thuật ngữ OpenProject; bảng thuật ngữ **[CẦN XÁC NHẬN]** (xem business-analysis.md mục 10) |
+
+Rủi ro mới: R-003 tăng lại (Gantt vào MVP), R-009 (quy mô giống OpenProject so với 6 đến 8 tuần). Nguyên tắc: bắt chước cách làm việc, bố cục khái niệm và thuật ngữ; không sao chép mã, logo, tên OpenProject (phần mềm có giấy phép riêng).
 
 ## 1. Mục tiêu kinh doanh
 | Hạng mục | Nội dung (nguyên văn trả lời của sếp) |
@@ -81,11 +99,12 @@ Câu hỏi nhóm A4 (mức thành thạo công nghệ), B7 (offline), C2 (tuân 
 - Xuất báo cáo tiến độ ra Excel và Word theo template công ty (cần template mẫu từ sếp).
 - Thông báo trong app và email.
 - Nhãn, mức ưu tiên, trạng thái tùy chỉnh; tìm kiếm và bộ lọc; dashboard tiến độ.
-- Subtask; nhật ký hoạt động; template dự án; phụ thuộc giữa task.
+- Subtask; nhật ký hoạt động; template dự án; quan hệ giữa task.
+- Timeline/Gantt (đưa lại vào MVP ngày 2026-11-13); chế độ xem đã lưu và chế độ xem mặc định; bảng phân cấp; vai trò theo từng dự án.
 - Giao diện tiếng Việt và tiếng Anh; responsive trên điện thoại.
 
 **Ngoài phạm vi MVP (đợt sau)**
-- Timeline/Gantt; theo dõi thời gian (chuyển sang đợt sau khi duyệt gate, 2026-11-13).
+- Theo dõi thời gian; nhập dữ liệu từ OpenProject (CSV/Excel).
 - Bình luận và @mention; tệp đính kèm; thùng rác và khôi phục; sprint và backlog.
 - Tích hợp GitHub, Jira, Linear, Excel import; thông báo Zalo/Slack; AI; app mobile native; đa khách hàng (SaaS); SSO.
 

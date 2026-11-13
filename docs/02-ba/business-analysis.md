@@ -1,6 +1,6 @@
 # Phân tích nghiệp vụ: Quản lý Dự án CNTT
 
-Ngày: 2026-11-13 · Pha 2 · Trạng thái: Chờ duyệt
+Ngày: 2026-11-13 · Pha 2 · Trạng thái: Đã duyệt lại (2026-11-13, gồm điều chỉnh theo OpenProject ở mục 10)
 Nguồn: [requirements.md](../01-discovery/requirements.md). Mục đánh dấu **[CẦN XÁC NHẬN]** là chỗ chưa rõ, chưa tự điền; xem mục 8.
 
 ## 1. Actor và hệ thống ngoài
@@ -69,7 +69,7 @@ sequenceDiagram
 | Mã | Yêu cầu | Use case |
 |---|---|---|
 | FR-01 | Đăng nhập bằng email và mật khẩu, và bằng Google | UC-01 |
-| FR-02 | Admin mời người dùng, gán 1 trong 4 vai trò, khóa/mở tài khoản | UC-02 |
+| FR-02 | Admin mời người dùng, gán Phòng ban (một phòng ban mỗi người, danh mục do Admin quản lý), khóa/mở tài khoản, cấp quyền Admin; danh sách người dùng hiển thị Phòng ban và lọc theo Phòng ban (sếp yêu cầu 2026-11-13); PM của dự án gán vai trò (PM, Thành viên, Người xem) cho thành viên dự án đó | UC-02 |
 | FR-03 | Tạo, sửa, lưu trữ dự án; quản lý thành viên dự án | UC-03 |
 | FR-04 | Tạo dự án từ template dự án; lưu dự án hiện có thành template | UC-04 |
 | FR-05 | Tạo, sửa, xóa task với tên, mô tả, người phụ trách, hạn chót, mức ưu tiên | UC-05 |
@@ -90,7 +90,7 @@ sequenceDiagram
 ## 5. Quy tắc nghiệp vụ (BR)
 | Mã | Quy tắc |
 |---|---|
-| BR-01 | Có 4 vai trò: Admin, PM, Thành viên, Người xem. Mỗi người dùng có đúng 1 vai trò toàn hệ thống |
+| BR-01 | (Sửa 2026-11-13) Admin là quyền toàn hệ thống. Trong mỗi dự án, người dùng có đúng 1 vai trò: PM, Thành viên hoặc Người xem; một người có thể có vai trò khác nhau ở các dự án khác nhau (như OpenProject). Người không phải Admin và chưa thuộc dự án thì không thấy dự án đó |
 | BR-02 | Người xem chỉ đọc; không tạo, sửa, xóa, kéo thả, xuất báo cáo |
 | BR-03 | Thành viên sửa được task mình phụ trách và task do mình tạo; PM và Admin sửa được mọi task trong dự án; Thành viên không sửa task của người khác (đã chốt 2026-11-13) |
 | BR-04 | Không đóng task cha khi còn subtask chưa hoàn thành |
@@ -120,7 +120,7 @@ Chỉ số có đánh dấu "đề xuất" do mình tính từ cỡ dự án (d�
 | NFR-11 | Đa ngôn ngữ | Việt và English | 100% chuỗi giao diện qua file ngôn ngữ; không có chuỗi gõ cứng | Đã chốt (A5) |
 | NFR-12 | Chi phí | Hạ tầng | Dưới 25 USD mỗi tháng | Đã chốt (D1) |
 | NFR-13 | Bảo trì | Chất lượng mã | TypeScript chế độ nghiêm ngặt, lint và test chạy trong CI, độ phủ test mục tiêu ở Pha 3 | Đề xuất |
-| NFR-14 | Tuân thủ | Dữ liệu cá nhân nhân sự | Chỉ lưu tên, email, vai trò; rà soát theo quy định về dữ liệu cá nhân khi vào vận hành **[CẦN XÁC NHẬN]** | C1, C2 chưa hỏi |
+| NFR-14 | Tuân thủ | Dữ liệu cá nhân nhân sự | Chỉ lưu tên, email, phòng ban, vai trò; rà soát theo quy định về dữ liệu cá nhân khi vào vận hành **[CẦN XÁC NHẬN]** | C1, C2 chưa hỏi |
 
 ## 7. Ma trận truy vết
 Cột Story điền ở Pha 4, cột Test điền ở Pha 5.
@@ -148,5 +148,53 @@ Còn mở:
 3. Nhắc hạn gửi trước bao lâu (ví dụ 1 ngày, 3 ngày)? (FR-11, FR-12)
 4. Template báo cáo: file mẫu .docx và .xlsx hiện dùng, các trường cần điền. (R-005)
 
-## 9. Rủi ro mới ở Pha 2
-Đã ghi vào `PROJECT_STATE.md`: R-007 (MVP xóa vĩnh viễn vì thùng rác để đợt sau), R-008 (giá và giới hạn gói dịch vụ đổi theo thời gian, số liệu trong ma trận stack chưa xác minh từ trang chính thức).
+## 10. Điều chỉnh ngày 2026-11-13 theo OpenProject (cần duyệt lại)
+Nguồn: sếp yêu cầu giống OpenProject về thuật ngữ và chức năng, giữ giao diện v1; tài liệu chính thức của OpenProject (xem [work-package-views](https://www.openproject.org/docs/user-guide/work-packages/work-package-views/), [gantt-chart](https://www.openproject.org/docs/user-guide/gantt-chart/), [relations-hierarchies](https://www.openproject.org/docs/user-guide/work-packages/work-package-relations-hierarchies/), [exporting](https://www.openproject.org/docs/user-guide/work-packages/exporting/)); tra ngày 2026-11-13, chưa kiểm chứng trên bản OpenProject team đang dùng.
+
+### 10.1 Use case mới hoặc đổi
+| Mã | Tên | Actor | Mô tả ngắn |
+|---|---|---|---|
+| UC-08 (đổi) | Quản lý quan hệ giữa task | PM, Thành viên | Đặt quan hệ: liên quan, chặn/bị chặn bởi, đứng trước/đứng sau, trùng lặp (kiểu vào MVP: **[CẦN XÁC NHẬN]**) |
+| UC-14 | Quản lý chế độ xem đã lưu | Mọi vai trò | Lưu bộ lọc, sắp xếp, nhóm, cột thành chế độ xem riêng, công khai hoặc yêu thích; dùng chế độ xem mặc định (Tất cả đang mở, Hoạt động gần nhất, Mới tạo, Quá hạn, Tóm tắt, Tạo bởi tôi, Giao cho tôi) |
+| UC-15 | Xem và lập lịch trên Gantt | PM, Thành viên (xem: Người xem) | Xem task theo thời gian, kéo chỉnh ngày bắt đầu và kết thúc, thấy quan hệ đứng trước/đứng sau |
+| UC-16 | Xem bảng phân cấp | Mọi vai trò | Bảng có thu gọn/mở rộng cha-con, nhóm theo thuộc tính, chọn cột |
+
+### 10.2 Yêu cầu chức năng mới hoặc đổi
+| Mã | Yêu cầu | Use case |
+|---|---|---|
+| FR-10 (đổi) | Nhiều kiểu quan hệ giữa task; chặn vòng cho quan hệ có thứ tự (chặn, đứng trước) | UC-08 |
+| FR-19 | Chế độ xem đã lưu (riêng, công khai, yêu thích) và các chế độ xem mặc định | UC-14 |
+| FR-20 | Gantt: hiển thị task theo ngày bắt đầu và kết thúc, kéo chỉnh ngày, hiển thị quan hệ, thu phóng | UC-15 |
+| FR-21 | Task có ngày bắt đầu, ngày kết thúc (thay cho chỉ có hạn); quy tắc lập lịch tự động hay thủ công **[CẦN XÁC NHẬN]** | UC-15 |
+| FR-22 | Bảng phân cấp thu gọn/mở rộng, nhóm theo thuộc tính, chọn và sắp xếp cột | UC-16 |
+| FR-23 | Loại task (ví dụ Task, Bug, Milestone, Phase) như loại work package của OpenProject **[CẦN XÁC NHẬN]** | UC-05 |
+
+### 10.3 Quy tắc nghiệp vụ đổi
+- BR-01 sửa như mục 5: vai trò theo từng dự án.
+- BR-12 (mới): chế độ xem công khai chỉ thấy task mà người xem đủ quyền xem (không lộ task của dự án khác).
+- BR-13 (mới): task có ngày kết thúc không được sớm hơn ngày bắt đầu; task "đứng sau" không bắt đầu trước ngày kết thúc của task "đứng trước" (cảnh báo hay chặn theo quyết định ở FR-21).
+
+### 10.4 Yêu cầu phi chức năng thêm (đề xuất)
+| Mã | Yêu cầu | Chỉ số |
+|---|---|---|
+| NFR-15 | Gantt tải nhanh | Dự án 500 task hiển thị dưới 2 giây ở P95 (đề xuất) |
+| NFR-16 | Bảng phân cấp và chế độ xem đã lưu | Áp dụng bộ lọc và nhóm trên 2.000 task dưới 1 giây phản hồi API (đề xuất) |
+
+### 10.5 Truy vết bổ sung
+| Yêu cầu | Epic |
+|---|---|
+| FR-10, BR-05, BR-06 | E8 Quan hệ giữa các task (QLDA-19, đổi tên) |
+| FR-19, BR-12 | E13 Chế độ xem đã lưu (mới) |
+| FR-20, FR-21, BR-13, NFR-15 | E12 Timeline/Gantt (QLDA-23, vào MVP) |
+| FR-22, NFR-16 | E3 Chế độ xem và tìm kiếm (QLDA-14) |
+| FR-23 | E2 Dự án và task cốt lõi (QLDA-13) |
+| FR-02, BR-01 (sửa) | E1 Nền tảng, đăng nhập, RBAC (QLDA-12) |
+
+### 10.6 Thuật ngữ OpenProject cần chốt (chưa tự điền)
+Các từ cần thống nhất giữa tiếng Việt và tiếng Anh với team: Work package (task), Type (loại), Status (trạng thái), Priority (ưu tiên), Assignee (người thực hiện), Version (phiên bản), View (chế độ xem), Relation (quan hệ), Parent/Child (cha/con), Follows/Precedes (đứng sau/đứng trước), Blocks/Blocked by (chặn/bị chặn bởi). Cách gọi chính thức: **[CẦN XÁC NHẬN]** với team đang dùng OpenProject (tiếng Anh hay tiếng Việt).
+
+### 10.7 Thông tin cần từ sếp
+Ảnh chụp các màn OpenProject team dùng nhiều nhất, danh sách module đang bật, phiên bản OpenProject và gói (Community hay Enterprise), vì mình chưa vào được hệ thống của team.
+
+## 11. Rủi ro mới ở Pha 2 và sau điều chỉnh OpenProject
+Đã ghi vào `PROJECT_STATE.md`: R-007 (MVP xóa vĩnh viễn vì thùng rác để đợt sau), R-009 (quy mô giống OpenProject so với 6 đến 8 tuần), R-008 (giá và giới hạn gói dịch vụ đổi theo thời gian, số liệu trong ma trận stack chưa xác minh từ trang chính thức).

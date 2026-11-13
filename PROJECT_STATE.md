@@ -7,15 +7,15 @@
 | Linear Team, Project | Team `QLDA` · Project [Quản lý Dự án CNTT](https://linear.app/justintran/project/quan-ly-du-an-cntt-c429c5997d32) (P-QLDA-5) · issue QLDA-1 đến QLDA-11 |
 | Repo | [gunzok/quan-ly-du-an-cntt](https://github.com/gunzok/quan-ly-du-an-cntt) (public) |
 | Ngày khởi tạo | 2026-11-12 |
-| Pha hiện tại | 2 BA + stack (đã duyệt), chuẩn bị Pha 3 |
+| Pha hiện tại | 3 Thiết kế (đã duyệt), chuẩn bị Pha 4 WBS |
 
 ## Gate
 | Pha | Trạng thái | Ngày duyệt | Ghi chú |
 |---|---|---|---|
 | 0 Khởi tạo | Đã duyệt | 2026-11-12 | Repo chuyển public để bật gate (R-001 đã đóng) |
-| 1 Khảo sát | Đã duyệt | 2026-11-13 | [requirements.md](docs/01-discovery/requirements.md): 16 câu, 12 tính năng đề xuất; Gantt và theo dõi thời gian chuyển sang đợt sau |
-| 2 BA + stack | Đã duyệt | 2026-11-13 | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
-| 3 Thiết kế | Chưa bắt đầu | | |
+| 1 Khảo sát | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [requirements.md](docs/01-discovery/requirements.md) mục 0b: điều chỉnh theo OpenProject (Gantt vào MVP, chế độ xem đã lưu, vai trò theo dự án, nhập dữ liệu đợt sau); duyệt lại cùng gate Pha 3 |
+| 2 BA + stack | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
+| 3 Thiết kế | Đã duyệt | 2026-11-13 | [docs/03-design](docs/03-design/): đủ 4 phần (kiến trúc và bảo mật; DB và API; UI/UX 12 màn; design system và chiến lược test). Các điểm [CẦN XÁC NHẬN] trong tài liệu chốt trước khi code phần liên quan ở Pha 5 |
 | 4 WBS | Chưa bắt đầu | | |
 | 5 Phát triển | Chưa bắt đầu | | |
 | 6 Nghiệm thu, bàn giao | Chưa bắt đầu | | |
@@ -28,10 +28,12 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | Quy tắc nghiệp vụ đã chốt | Subtask tối đa 3 cấp; Thành viên chỉ sửa task mình phụ trách hoặc tạo; task bị chặn chỉ cảnh báo, vẫn cho hoàn thành | business-analysis.md |
 | Nơi làm code | IDE Orca. Repo code: `~/orca/projects/app-quanlyduan` (origin = gunzok/quan-ly-du-an-cntt); worktree/nhánh code nằm local trong `~/orca/workspaces/app-quanlyduan/`. Nhánh chỉ đẩy lên GitHub khi mở PR để CI chạy và merge; main được kéo về Orca sau khi merge. Bản clone `~/Projects/quan-ly-du-an-cntt` dùng cho tài liệu và PROJECT_STATE | Sếp yêu cầu 2026-11-13 |
 | Quy ước đặt tên | Định danh kỹ thuật tiếng Anh không dấu; tài liệu, issue, PR tiếng Việt | Skill |
-| Màu, phong cách | Chưa chốt (Pha 3) | |
+| Màu, phong cách | Tối giản, gọn, nhiều thông tin; bảng màu A Xanh dương (#1D4ED8); sáng và tối theo hệ thống; phông Inter; tương phản tính bằng code (design-system.md) | Pha 3 (2026-11-13) |
+| Quy ước đặt tên (Pha 3) | DB snake_case số nhiều; API REST /api/v1/<tài-nguyên>; file kebab-case, component PascalCase; nhánh type/QLDA-123-slug, Conventional Commits | Pha 3 (2026-11-13) |
+| Tham chiếu OpenProject | Team đang dùng OpenProject; giống thuật ngữ và chức năng, giữ giao diện hiện đại v1. Team dùng hằng ngày: Work packages (bảng, phân cấp, quan hệ, bộ lọc đã lưu), Gantt, Boards. Không cần theo dõi thời gian và chi phí. Vai trò theo từng dự án. Nhập dữ liệu từ OpenProject làm sau MVP. Không sao chép mã, logo, tên OpenProject | Sếp quyết định 2026-11-13 |
 | Thang ước lượng, độ dài sprint | Chưa chốt (Pha 4); Cycles Linear đề xuất 1 tuần | |
 | Loại app, quy mô | Nội bộ một công ty, dưới 100 người, web responsive, Việt + Anh | Pha 1 (A1-A5) |
-| Phạm vi MVP | Dự án/task, Kanban + danh sách, RBAC 4 vai trò, xuất báo cáo xlsx/docx theo template, thông báo app + email, nhãn/ưu tiên/trạng thái, tìm kiếm, dashboard, subtask, nhật ký, template dự án, phụ thuộc task. Đợt sau: Gantt, theo dõi thời gian, bình luận, tệp đính kèm, thùng rác | Pha 1 (đã duyệt 2026-11-13) |
+| Phạm vi MVP | Dự án/task, Kanban + danh sách, vai trò theo từng dự án (PM, Thành viên, Người xem) cộng Admin toàn hệ thống, xuất báo cáo xlsx/docx theo template, thông báo app + email, nhãn/ưu tiên/trạng thái, tìm kiếm, dashboard, subtask, nhật ký, template dự án, quan hệ giữa task, Gantt, chế độ xem đã lưu, bảng phân cấp. Đợt sau: theo dõi thời gian, bình luận, tệp đính kèm, thùng rác, nhập dữ liệu từ OpenProject | Pha 1 (điều chỉnh 2026-11-13, cần duyệt lại) |
 | Cách làm việc liên quan đến code | Mọi việc code của dự án (dựng khung, Makefile thật, tính năng, test, sửa lỗi) giao cho agent riêng chạy song song, dùng mô hình Opus 5.5 (`claude-opus-5-5`). Chỉ song song khi các việc không đụng cùng file; việc phụ thuộc nhau chạy tuần tự. Phiên chính điều phối, rà kết quả và merge. Tài liệu, Linear, gate do phiên chính làm | Sếp yêu cầu 2026-11-13 |
 | Triển khai, ngân sách, nhân sự | Cloud PaaS, dưới 25 USD/tháng, một người cùng Claude, MVP 6-8 tuần | Pha 1 (C4, D1-D3) |
 | Repo | Public (gói Free không bật được gate với repo private), squash merge, approval PR = 0 (làm một mình). Không commit bí mật, dữ liệu khách hàng | Pha 0 |
@@ -42,7 +44,8 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 |---|---|---|---|---|---|
 | R-001 | Repo private trên gói GitHub Free không bật được branch protection và environment có người duyệt | Cao | Cao | Chuyển repo sang public (sếp duyệt 2026-11-12), bật lại bảo vệ và kiểm tra bằng `gh api` | Đã đóng |
 | R-002 | Repo public: mã nguồn ai cũng xem được, rủi ro lộ bí mật hoặc dữ liệu thật | Trung bình | Cao | Không commit bí mật; dùng GitHub secret scanning và biến môi trường; xem lại khi có dữ liệu thật (Pha 3 threat model) | Mở |
-| R-003 | Phạm vi lớn so với hạn 6-8 tuần, một người làm | Trung bình | Cao | Đã chuyển Gantt và theo dõi thời gian sang đợt sau; đánh giá lại ở Pha 4 khi ước lượng | Giảm, còn theo dõi |
+| R-003 | Phạm vi lớn so với hạn 6-8 tuần, một người làm; Gantt, chế độ xem đã lưu, quan hệ nhiều kiểu, vai trò theo dự án đã vào MVP | Cao | Cao | Đánh giá lại ở Pha 4 khi ước lượng; sẵn sàng cắt kiểu quan hệ, lập lịch tự động hoặc kéo dài hạn | Tăng lại (2026-11-13) |
+| R-009 | Muốn giống OpenProject (sản phẩm lớn, nhiều năm phát triển) nên kỳ vọng của team về độ giống có thể vượt MVP | Cao | Trung bình | Giống thuật ngữ và chức năng đã chọn, không giống mọi chi tiết; lấy ảnh màn hình thật của team để xác định phần dùng nhiều nhất | Mở |
 | R-004 | Bình luận bị để đợt sau dù mục tiêu là cộng tác PM và team kỹ thuật | Trung bình | Trung bình | Xác nhận ở gate Pha 1 | Mở |
 | R-005 | Chưa có template báo cáo Word/Excel của công ty | Cao | Cao | Sếp cung cấp mẫu trước Pha 3 | Mở |
 | R-006 | Xuất Word/Excel trên Vercel (serverless) có giới hạn thời gian, bộ nhớ | Trung bình | Trung bình | Thử nghiệm sớm ở Pha 3-5 với dự án 2.000 task (NFR-03); nếu không đạt thì xem lại ADR-001 | Mở |
@@ -52,6 +55,18 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 ## UI/UX
 | Màn hình | Phiên bản | Trạng thái | Ngày |
 |---|---|---|---|
+| S01 Đăng nhập | v1 | Đã duyệt | 2026-11-13 |
+| S02 Danh sách dự án | v1 | Đã duyệt | 2026-11-13 |
+| S03 Bảng Kanban | v1 | Đã duyệt | 2026-11-13 |
+| S04 Danh sách task và bộ lọc | v1 | Đã duyệt | 2026-11-13 |
+| S05 Chi tiết task | v2 | Đã duyệt | 2026-11-13 |
+| S06 Dashboard tiến độ | v1 | Đã duyệt | 2026-11-13 |
+| S07 Xuất báo cáo | v1 | Đã duyệt | 2026-11-13 |
+| S08 Quản lý người dùng | v2 (có Phòng ban) | Đã duyệt | 2026-11-13 |
+| S09 Kanban điện thoại | v1 | Đã duyệt | 2026-11-13 |
+| S10 Kanban chế độ tối | v1 | Đã duyệt | 2026-11-13 |
+| S11 Gantt | v1 | Đã duyệt | 2026-11-13 |
+| S12 Chế độ xem đã lưu | v1 | Đã duyệt | 2026-11-13 |
 
 ## Hạn chế đã biết
 - Cycles Linear chưa bật (bật ở Team settings nếu muốn dùng).
@@ -63,9 +78,12 @@ Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), buil
 
 ## Câu hỏi mở
 - Cần bật Cycles Linear không, và độ dài sprint (1 hay 2 tuần)?
-- Template báo cáo tiến độ hiện dùng (file mẫu)? Ngưỡng số cho thước đo thành công? Có cần theo dõi chi phí/ngân sách dự án không?
+- Template báo cáo tiến độ hiện dùng (file mẫu)? Ngưỡng số cho thước đo thành công?
+- OpenProject: ảnh chụp các màn team dùng nhiều nhất, danh sách module đang bật, phiên bản, gói (Community hay Enterprise).
+- Thuật ngữ chính thức: giữ tiếng Anh (Work package, Type, Status...) hay tiếng Việt; kiểu quan hệ vào MVP (liên quan, chặn, đứng trước, trùng lặp); Gantt lập lịch tự động hay thủ công; loại task mặc định (Task, Bug, Milestone, Phase).
+- Các câu BA còn mở: RPO/RTO, quy định dữ liệu cá nhân, thời điểm nhắc hạn; email, bộ lập lịch, thư viện xuất báo cáo, thư viện UI, thư viện Gantt cần ADR.
 
 ## Bước tiếp theo
-1. Pha 3 Thiết kế: kiến trúc, DB, API, threat model, chiến lược test, UI/UX, design system. Việc code (nếu có) giao agent Opus 5.5 trong Orca.
-2. Sếp trả lời các câu BA còn mở (RPO/RTO, quy định dữ liệu cá nhân, nhắc hạn) và gửi template báo cáo Word/Excel (R-005).
-3. Gate Pha 2, rồi Pha 3 Thiết kế.
+1. Pha 4 WBS: Epic, Story, Task, ước lượng, lịch sprint; đánh giá lại R-003, R-009 khi ước lượng.
+2. Sếp trả lời các câu mở ở trên, gửi template báo cáo và ảnh chụp OpenProject.
+3. Xem Dependabot PR 6 (TypeScript 5.9.3 lên 6.0.3) và PR 7 (React 19.3.1) trước khi merge.

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Chi tiết task</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<div style="flex: 999 1 380px; min-width: 0; background: #E2E8F0; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 14px; color: #475569; font-weight: 500">Cổng thông tin nội bộ · Bảng (nền mờ khi mở chi tiết)</div>
+<div style="height: 64px; border-radius: 8px; background: #F1F5F9"></div>
+<div style="height: 64px; border-radius: 8px; background: #F1F5F9"></div>
+<div style="height: 64px; border-radius: 8px; background: #F1F5F9"></div>
+<div style="height: 64px; border-radius: 8px; background: #F1F5F9"></div>
+</div>
+<aside style="flex: 1 1 560px; max-width: 640px; box-sizing: border-box; background: #FFFFFF; border-left: 1px solid #E2E8F0; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; color: #475569">CTTT-24 · Xây dựng trang danh sách dự án</span>
+<button aria-label="Đóng" style="border: 1px solid #64748B; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0F172A">×</button>
+</div>
+<h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600">Xây dựng trang danh sách dự án</h1>
+<div style="display: flex; align-items: center; gap: 10px; background: #FEF3C7; border: 1px solid #B45309; border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 18px; color: #78350F">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#78350F" stroke-width="2" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>
+<span>Task này bị chặn bởi <b>Cấu hình môi trường staging</b> (chưa xong). Bạn vẫn có thể đánh dấu hoàn thành.</span>
+</div>
+<div style="display: grid; grid-template-columns: 120px 1fr; row-gap: 10px; column-gap: 12px; font-size: 14px; align-items: center">
+<span style="color: #475569">Trạng thái</span><span><span style="border: 1px solid #64748B; border-radius: 6px; padding: 4px 10px; font-weight: 500">Đang làm</span></span>
+<span style="color: #475569">Người phụ trách</span><span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 22px; height: 22px; border-radius: 11px; background: #DBEAFE; color: #1E3A8A; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">MA</span>Nguyễn Minh Anh</span>
+<span style="color: #475569">Ưu tiên</span><span><span style="font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #FEE2E2; color: #B91C1C; font-weight: 500">▲▲ Khẩn cấp</span></span>
+<span style="color: #475569">Hạn</span><span style="color: #B91C1C; font-weight: 600">Trễ hạn 15/11/2026</span>
+<span style="color: #475569">Nhãn</span><span style="display: flex; gap: 6px"><span style="font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; color: #475569">Tính năng</span><span style="font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; color: #475569">Giao diện</span></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 14px; font-weight: 600">Mô tả</span>
+<p style="margin: 0; font-size: 14px; line-height: 22px; color: #0F172A">Trang hiển thị dự án dạng thẻ, kèm thanh tiến độ, số task trễ hạn và thành viên. Hỗ trợ lọc theo tên và chuyển giữa dự án đang hoạt động và lưu trữ.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 600">Việc con (2/4)</span><a href="#" style="font-size: 13px">+ Thêm việc con</a></div>
+<div style="height: 6px; border-radius: 3px; background: #E2E8F0"><div style="height: 6px; width: 50%; border-radius: 3px; background: #15803D"></div></div>
+<sc-for list="{{subs}}" as="s" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 4px 0; padding-left: {{s.indent}}">
+<span style="width: 16px; height: 16px; border: 1.5px solid {{s.cb}}; border-radius: 4px; background: {{s.cbBg}}; display: inline-flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 11px; line-height: 11px">{{s.tick}}</span>
+<span style="color: {{s.color}}; text-decoration: {{s.deco}}">{{s.title}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 600">Phụ thuộc</span><a href="#" style="font-size: 13px">+ Thêm phụ thuộc</a></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; border: 1px solid #E2E8F0; border-radius: 6px; padding: 8px 10px"><span>Bị chặn bởi: Cấu hình môi trường staging</span><span style="color: #B45309; font-weight: 500">Chưa xong</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 14px; font-weight: 600">Nhật ký</span>
+<div style="font-size: 13px; color: #475569; line-height: 20px">Nguyễn Minh Anh đổi trạng thái từ Cần làm sang Đang làm · 14/11 09:12<br>Trần Quốc Bảo thêm phụ thuộc vào Cấu hình môi trường staging · 13/11 16:40</div>
+</div>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = (title, level, done) => ({
+title, indent: ((level - 1) * 24) + 'px', color: done ? '#475569' : '#0F172A', deco: done ? 'line-through' : 'none',
+cb: done ? '#15803D' : '#64748B', cbBg: done ? '#15803D' : '#FFFFFF', tick: done ? '✓' : ''
+});
+return { subs: [
+s('Dựng khung trang và điều hướng', 1, true),
+s('Thẻ dự án và thanh tiến độ', 1, false),
+s('Biến thể theo kích thước màn hình', 2, false),
+s('Kiểm thử trợ năng bằng bàn phím', 1, true)
+] };
+}
+}
+</script>
+</body>
+</html>
