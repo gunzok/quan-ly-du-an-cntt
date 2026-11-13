@@ -46,7 +46,7 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | `GET /api/v1/projects` | Dự án của tôi | A P M V | FR-03 |
 | `POST /api/v1/projects` | Tạo dự án (kèm `template_id` tùy chọn) | A P | FR-03, FR-04 |
 | `GET/PATCH /api/v1/projects/{id}` | Xem, sửa dự án | đọc: tất cả trong dự án; sửa: A P | FR-03 |
-| `DELETE /api/v1/projects/{id}` | Xóa vĩnh viễn (BR-11) | A P | FR-03 |
+| `DELETE /api/v1/projects/{id}` | Xóa vĩnh viễn (BR-11); PM dùng `PATCH` đặt `status = archived` để lưu trữ | A (chỉ Admin, sếp chốt 2026-11-13) | FR-03 |
 | `PUT /api/v1/projects/{id}/members/{user_id}` | Thêm thành viên hoặc đổi vai trò trong dự án (`role`: `pm`/`member`/`viewer`) | A P (PM của dự án đó) | FR-02, FR-03 |
 | `DELETE /api/v1/projects/{id}/members/{user_id}` | Bỏ thành viên | A P | FR-03 |
 | `GET/POST /api/v1/projects/{id}/statuses` | Trạng thái tùy chỉnh | đọc: tất cả; ghi: A P | FR-06 |
