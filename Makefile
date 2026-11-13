@@ -5,7 +5,8 @@
 # Yêu cầu: Node theo .nvmrc, pnpm theo trường packageManager trong package.json,
 # gitleaks (cho target security). Thiếu công cụ thì target báo lỗi kèm cách cài, không bỏ qua.
 
-.PHONY: install lint test build security check-pnpm check-gitleaks
+.PHONY: install lint test build security check-pnpm check-gitleaks \
+	check-supabase db-start db-stop db-reset db-seed db-test
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -42,3 +43,35 @@ build: check-pnpm
 security: check-pnpm check-gitleaks
 	gitleaks git --redact --no-banner .
 	pnpm audit --audit-level $(AUDIT_LEVEL)
+
+# ---------------------------------------------------------------------------
+# Target phụ cho phát triển cục bộ (CI KHÔNG gọi). Cần Supabase CLI + Docker đang chạy.
+# Xem README.md mục "Chạy cục bộ".
+# ---------------------------------------------------------------------------
+check-supabase:
+	@command -v supabase >/dev/null 2>&1 || { \
+		echo "::error::Thiếu Supabase CLI. Cài: brew install supabase/tap/supabase (xem https://supabase.com/docs/guides/local-development/cli/getting-started)"; \
+		exit 1; }
+	@docker info >/dev/null 2>&1 || { \
+		echo "::error::Docker chưa chạy. Bật Docker Desktop hoặc Colima (colima start) rồi chạy lại."; \
+		exit 1; }
+
+# Khởi động stack Supabase cục bộ và áp migration (lần đầu sẽ kéo image, khá lâu).
+db-start: check-supabase
+	supabase start
+
+db-stop: check-supabase
+	supabase stop
+
+# Dựng lại CSDL cục bộ từ đầu: chạy toàn bộ migration rồi supabase/seed.sql.
+# Xóa sạch dữ liệu cục bộ, kể cả tài khoản thử (chạy lại db-seed sau đó).
+db-reset: check-supabase
+	supabase db reset
+
+# Tạo/cập nhật tài khoản thử cho 4 persona. Cần SEED_PASSWORD (shell hoặc .env.local).
+db-seed: check-supabase
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/seed-local-users.ts
+
+# Chạy test pgTAP trong supabase/tests/ trên stack cục bộ.
+db-test: check-supabase
+	supabase test db

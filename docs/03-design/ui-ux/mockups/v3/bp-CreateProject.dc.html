@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tạo dự án và chọn template</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Inter+Tight:wght@300;400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background-color: #0A0F1F; background-image: linear-gradient(rgba(123,151,255,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(123,151,255,0.10) 1px, transparent 1px); background-size: 24px 24px; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #0A0F1F"><div role="dialog" aria-label="Tạo dự án" style="width: 600px; max-width: 100%; background: #FFFFFF; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 16px 40px rgba(0,0,0,0.45)"><div style="display: flex; justify-content: space-between; align-items: flex-start"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Dự án / Mới</span><h1 style="margin: 0; font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-size: 26px; line-height: 32px; font-weight: 400; letter-spacing: -0.02em">Tạo dự án<span aria-hidden="true" style="color: #E56DAF">.</span></h1></div><button aria-label="Đóng" style="border: 1px solid #6B7385; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0A0F1F">×</button></div><div style="display: flex; flex-direction: column; gap: 6px"><label for="pn" style="font-size: 14px; font-weight: 500">Tên dự án</label><input id="pn" type="text" value="Hệ thống quản lý tài sản CNTT" style="border: 2px solid #2054F0; border-radius: 6px; padding: 8px 11px; font: 400 14px Inter, sans-serif; color: #0A0F1F"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="pd" style="font-size: 14px; font-weight: 500">Mô tả</label><textarea id="pd" rows="2" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0A0F1F; resize: none">Theo dõi tài sản phần cứng, phần mềm và vòng đời bảo trì.</textarea></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px"><div style="display: flex; flex-direction: column; gap: 6px"><label for="d1" style="font-size: 14px; font-weight: 500">Ngày bắt đầu</label><input id="d1" type="text" value="16/11/2026" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #0A0F1F"></div><div style="display: flex; flex-direction: column; gap: 6px"><label for="d2" style="font-size: 14px; font-weight: 500">Ngày kết thúc</label><input id="d2" type="text" value="30/04/2027" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #0A0F1F"></div></div>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="padding: 0; margin-bottom: 8px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">Bắt đầu từ</span></legend>
+<sc-for list="{{options}}" as="o" hint-placeholder-count="3">
+<label style="display: flex; align-items: center; gap: 12px; border: {{o.border}}; background: {{o.bg}}; border-radius: 10px; padding: {{o.pad}}; font-size: 14px"><input type="radio" name="tpl" checked="{{o.checked}}" style="margin: 0"><span style="display: flex; flex-direction: column; gap: 2px; flex: 1"><b>{{o.name}}</b><span style="color: #4A5163; font-size: 13px">{{o.note}}</span></span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: {{o.codeColor}}">{{o.code}}</span></label>
+</sc-for>
+</fieldset>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button style="background: #FFFFFF; color: #2054F0; border: 1px solid #6B7385; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Hủy</button><button style="background: #2054F0; color: #FFFFFF; border: 1px solid #2054F0; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Tạo dự án <span aria-hidden="true">→</span></button></div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const o = (code, name, note, sel) => ({ code, name, note, checked: sel, border: sel ? '2px solid #2054F0' : '1px solid #6B7385', pad: sel ? '11px 13px' : '12px 14px', bg: sel ? '#EEF2FD' : '#FFFFFF', codeColor: sel ? '#2054F0' : '#4A5163' });
+return { options: [
+o('TPL / 00', 'Dự án trống', 'Trạng thái mặc định: Cần làm, Đang làm, Chờ review, Hoàn thành', false),
+o('TPL / 01', 'Template: Phát triển phần mềm', 'Trạng thái, loại task, nhãn và 24 task mẫu (đợt sau, cần Story E7-1)', true),
+o('TPL / 02', 'Template: Triển khai hạ tầng', 'Trạng thái, nhãn và 18 task mẫu (đợt sau, cần Story E7-1)', false)
+] };
+}
+}
+</script>
+</body>
+</html>

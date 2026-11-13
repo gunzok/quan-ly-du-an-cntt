@@ -1,13 +1,109 @@
+/*
+ * Design tokens: Blueprint v2.
+ * Nguồn và tỷ lệ tương phản: docs/03-design/design-system.md
+ * Chế độ: theo hệ thống; ghi đè bằng <html data-theme="light|dark">.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f8fa;
+  --color-bg-muted: #eef2fd;
+  --color-canvas: #cddbf2;
+  --color-text: #0a0f1f;
+  --color-text-muted: #4a5163;
+  --color-primary: #2054f0;
+  --color-primary-hover: #1840c8;
+  --color-on-primary: #ffffff;
+  --color-brand: #2054f0;
+  --color-on-brand: #ffffff;
+  --color-accent: #e56daf; /* chỉ trang trí, không dùng cho chữ */
+  --color-accent-text: #b0256e;
+  --color-success: #137035;
+  --color-warning: #a34a06;
+  --color-danger: #c0262d;
+  --color-border: #e3e7ef;
+  --color-border-strong: #6b7385;
+  --color-blueprint: rgb(32 84 240 / 0.1);
+  --color-chart-1: var(--color-primary);
+  --color-chart-2: var(--color-accent);
+  --color-chart-3: #8a93a6;
+  --color-chart-4: #9db2ff;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display:
+    var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  --shadow-pop: 0 8px 24px rgb(10 15 31 / 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #05060a;
+    --color-bg-subtle: #0d1020;
+    --color-bg-muted: #161b33;
+    --color-canvas: #030304;
+    --color-text: #e8eaf2;
+    --color-text-muted: #9aa2b8;
+    --color-primary: #7b97ff;
+    --color-primary-hover: #9db2ff;
+    --color-on-primary: #05060a;
+    --color-accent: #f07dba;
+    --color-accent-text: #f28cc4;
+    --color-success: #4ade80;
+    --color-warning: #fbbf24;
+    --color-danger: #f87171;
+    --color-border: #232a45;
+    --color-border-strong: #7d87a6;
+    --color-blueprint: rgb(123 151 255 / 0.1);
+    --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.5);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #05060a;
+  --color-bg-subtle: #0d1020;
+  --color-bg-muted: #161b33;
+  --color-canvas: #030304;
+  --color-text: #e8eaf2;
+  --color-text-muted: #9aa2b8;
+  --color-primary: #7b97ff;
+  --color-primary-hover: #9db2ff;
+  --color-on-primary: #05060a;
+  --color-accent: #f07dba;
+  --color-accent-text: #f28cc4;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-border: #232a45;
+  --color-border-strong: #7d87a6;
+  --color-blueprint: rgb(123 151 255 / 0.1);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
@@ -24,26 +120,53 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
 a {
-  color: inherit;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Nhãn mono in hoa: "● TIẾN ĐỘ", "01 / CẦN LÀM" */
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Lưới bản vẽ, chỉ để trang trí (đăng nhập, trạng thái rỗng) */
+.blueprint-grid {
+  background-image:
+    linear-gradient(var(--color-blueprint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-blueprint) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
