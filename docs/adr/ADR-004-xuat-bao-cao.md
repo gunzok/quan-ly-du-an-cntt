@@ -1,6 +1,6 @@
 # ADR-004: Thư viện xuất báo cáo xlsx và docx theo template
 
-- **Trạng thái**: Đề xuất (chờ sếp duyệt; chốt cuối sau spike với template thật)
+- **Trạng thái**: Đã chấp nhận (2026-11-13)
 - **Ngày**: 2026-11-13
 - **Người quyết định**: Justin Tran (chủ dự án)
 

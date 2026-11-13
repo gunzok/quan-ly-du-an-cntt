@@ -1,6 +1,6 @@
 # ADR-003: Bộ lập lịch nhắc hạn
 
-- **Trạng thái**: Đề xuất (chờ sếp duyệt)
+- **Trạng thái**: Đã chấp nhận (2026-11-13)
 - **Ngày**: 2026-11-13
 - **Người quyết định**: Justin Tran (chủ dự án)
 
