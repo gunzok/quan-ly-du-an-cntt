@@ -7,7 +7,7 @@
 | Linear Team, Project | Team `QLDA` · Project [Quản lý Dự án CNTT](https://linear.app/justintran/project/quan-ly-du-an-cntt-c429c5997d32) (P-QLDA-5) · issue QLDA-1 đến QLDA-11 |
 | Repo | [gunzok/quan-ly-du-an-cntt](https://github.com/gunzok/quan-ly-du-an-cntt) (public) |
 | Ngày khởi tạo | 2026-11-12 |
-| Pha hiện tại | 3 Thiết kế (đã duyệt), chuẩn bị Pha 4 WBS |
+| Pha hiện tại | 4 WBS (đang làm, chờ duyệt) |
 
 ## Gate
 | Pha | Trạng thái | Ngày duyệt | Ghi chú |
@@ -16,7 +16,7 @@
 | 1 Khảo sát | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [requirements.md](docs/01-discovery/requirements.md) mục 0b: điều chỉnh theo OpenProject (Gantt vào MVP, chế độ xem đã lưu, vai trò theo dự án, nhập dữ liệu đợt sau); duyệt lại cùng gate Pha 3 |
 | 2 BA + stack | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
 | 3 Thiết kế | Đã duyệt | 2026-11-13 | [docs/03-design](docs/03-design/): đủ 4 phần (kiến trúc và bảo mật; DB và API; UI/UX 12 màn; design system và chiến lược test). Các điểm [CẦN XÁC NHẬN] trong tài liệu chốt trước khi code phần liên quan ở Pha 5 |
-| 4 WBS | Chưa bắt đầu | | |
+| 4 WBS | Chờ duyệt | | [wbs.md](docs/04-wbs/wbs.md), [stories/](docs/04-wbs/stories/), [plan.py](docs/04-wbs/plan.py): 269 điểm (Must 232), velocity giả định 20, sprint 1 tuần từ 16/11/2026; kế hoạch vượt mục tiêu 6-8 tuần, cần sếp quyết phạm vi hoặc hạn |
 | 5 Phát triển | Chưa bắt đầu | | |
 | 6 Nghiệm thu, bàn giao | Chưa bắt đầu | | |
 Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt · Cần rà soát.
@@ -31,7 +31,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | Màu, phong cách | Tối giản, gọn, nhiều thông tin; bảng màu A Xanh dương (#1D4ED8); sáng và tối theo hệ thống; phông Inter; tương phản tính bằng code (design-system.md) | Pha 3 (2026-11-13) |
 | Quy ước đặt tên (Pha 3) | DB snake_case số nhiều; API REST /api/v1/<tài-nguyên>; file kebab-case, component PascalCase; nhánh type/QLDA-123-slug, Conventional Commits | Pha 3 (2026-11-13) |
 | Tham chiếu OpenProject | Team đang dùng OpenProject; giống thuật ngữ và chức năng, giữ giao diện hiện đại v1. Team dùng hằng ngày: Work packages (bảng, phân cấp, quan hệ, bộ lọc đã lưu), Gantt, Boards. Không cần theo dõi thời gian và chi phí. Vai trò theo từng dự án. Nhập dữ liệu từ OpenProject làm sau MVP. Không sao chép mã, logo, tên OpenProject | Sếp quyết định 2026-11-13 |
-| Thang ước lượng, độ dài sprint | Chưa chốt (Pha 4); Cycles Linear đề xuất 1 tuần | |
+| Thang ước lượng, độ dài sprint | Story point Fibonacci 1-8; sprint 1 tuần bắt đầu thứ Hai 16/11/2026; velocity giả định 20 điểm (hiệu chỉnh từ sprint 2) | Pha 4 (2026-11-13) |
 | Loại app, quy mô | Nội bộ một công ty, dưới 100 người, web responsive, Việt + Anh | Pha 1 (A1-A5) |
 | Phạm vi MVP | Dự án/task, Kanban + danh sách, vai trò theo từng dự án (PM, Thành viên, Người xem) cộng Admin toàn hệ thống, xuất báo cáo xlsx/docx theo template, thông báo app + email, nhãn/ưu tiên/trạng thái, tìm kiếm, dashboard, subtask, nhật ký, template dự án, quan hệ giữa task, Gantt, chế độ xem đã lưu, bảng phân cấp. Đợt sau: theo dõi thời gian, bình luận, tệp đính kèm, thùng rác, nhập dữ liệu từ OpenProject | Pha 1 (điều chỉnh 2026-11-13, cần duyệt lại) |
 | Cách làm việc liên quan đến code | Mọi việc code của dự án (dựng khung, Makefile thật, tính năng, test, sửa lỗi) giao cho agent riêng chạy song song, dùng mô hình Opus 5.5 (`claude-opus-5-5`). Chỉ song song khi các việc không đụng cùng file; việc phụ thuộc nhau chạy tuần tự. Phiên chính điều phối, rà kết quả và merge. Tài liệu, Linear, gate do phiên chính làm | Sếp yêu cầu 2026-11-13 |
