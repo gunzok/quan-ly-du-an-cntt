@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# supabase cục bộ (trạng thái CLI, không commit)
+/supabase/.branches
+/supabase/.temp
+
 # vercel
 .vercel
 
