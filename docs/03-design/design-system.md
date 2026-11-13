@@ -1,6 +1,6 @@
 # Design system
 
-Phiên bản: **v2 "Blueprint"** · Ngày: 2026-11-13 · Pha 3 (bổ sung) · Trạng thái: **Chờ duyệt**
+Phiên bản: **v2 "Blueprint"** · Ngày: 2026-11-13 · Pha 3 (bổ sung) · Trạng thái: **Đã duyệt** (sếp duyệt 2026-11-13)
 - v1 (đã duyệt 2026-11-13): tối giản kiểu Linear, xanh dương `#1D4ED8`, Inter. Toàn bộ giá trị v1 vẫn còn trong lịch sử git (commit `fe70395`).
 - v2: sếp yêu cầu áp dụng phong cách Dribbble samoctav. Nghiên cứu và nguồn ở [style-research-samoctav.md](style-research-samoctav.md).
 
@@ -134,4 +134,4 @@ Biểu tượng: bộ Lucide nét 1,5px, cỡ 16px trong bảng, 20px ở điề
 - Component PascalCase, file kebab-case (`task-card.tsx`).
 - Chuỗi giao diện chỉ qua file ngôn ngữ vi, en (NFR-11), không gõ cứng trong component.
 - Thư viện UI: đề xuất Tailwind CSS cùng bộ thành phần nền tảng trợ năng (kiểu shadcn/ui, Radix), ánh xạ token ở trên vào theme Tailwind. **[CẦN XÁC NHẬN]** chốt bằng ADR-005 trước khi code giao diện.
-- Mockup tham chiếu v3 (Blueprint): [mockups/v3/blueprint-preview.html](ui-ux/mockups/v3/blueprint-preview.html).
+- Mockup tham chiếu: 19 màn `bp-*.dc.html` trong [mockups/v3](ui-ux/mockups/v3/) (cùng nội dung với canvas UI/UX) và trang style guide [blueprint-preview.html](ui-ux/mockups/v3/blueprint-preview.html).

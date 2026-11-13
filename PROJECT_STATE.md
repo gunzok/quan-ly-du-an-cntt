@@ -28,8 +28,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | Quy tắc nghiệp vụ đã chốt | Subtask tối đa 3 cấp; Thành viên chỉ sửa task mình phụ trách hoặc tạo; task bị chặn chỉ cảnh báo, vẫn cho hoàn thành | business-analysis.md |
 | Nơi làm code | IDE Orca. Repo code: `~/orca/projects/app-quanlyduan` (origin = gunzok/quan-ly-du-an-cntt); worktree/nhánh code nằm local trong `~/orca/workspaces/app-quanlyduan/`. Nhánh chỉ đẩy lên GitHub khi mở PR để CI chạy và merge; main được kéo về Orca sau khi merge. Bản clone `~/Projects/quan-ly-du-an-cntt` dùng cho tài liệu và PROJECT_STATE | Sếp yêu cầu 2026-11-13 |
 | Quy ước đặt tên | Định danh kỹ thuật tiếng Anh không dấu; tài liệu, issue, PR tiếng Việt | Skill |
-| Màu, phong cách | Tối giản, gọn, nhiều thông tin; bảng màu A Xanh dương (#1D4ED8); sáng và tối theo hệ thống; phông Inter; tương phản tính bằng code (design-system.md) | Pha 3 (2026-11-13) |
-| Màu, phong cách v2 "Blueprint" (**chờ duyệt**) | Theo nghiên cứu Dribbble samoctav (dự án ordivalabs): xanh điện #2054F0 là màu chính, hồng #E56DAF chỉ làm điểm nhấn trang trí (chữ hồng dùng #B0256E); nhãn mono JetBrains Mono đánh số kỹ thuật; tiêu đề Inter Tight nét mảnh; đường kẻ mảnh thay bóng; lưới bản vẽ chỉ trang trí. Giữ: gọn, nhiều thông tin, sáng và tối, Inter, WCAG AA. Token đã vào app/globals.css; khi duyệt thì thay dòng v1 ở trên | [style-research-samoctav.md](docs/03-design/style-research-samoctav.md), [design-system.md](docs/03-design/design-system.md) v2 (2026-11-13) |
+| Màu, phong cách | **Blueprint (v2, sếp duyệt 2026-11-13)** theo nghiên cứu Dribbble samoctav: xanh điện #2054F0 màu chính, hồng #E56DAF chỉ trang trí (chữ hồng #B0256E); Inter (nội dung), Inter Tight (tiêu đề), JetBrains Mono (nhãn, mã, số); nhãn đánh số kỹ thuật; đường kẻ mảnh thay bóng; lưới bản vẽ chỉ trang trí; sáng và tối theo hệ thống; WCAG AA tính bằng code. Thay cho v1 (kiểu Linear, #1D4ED8). Token trong app/globals.css | [style-research-samoctav.md](docs/03-design/style-research-samoctav.md), [design-system.md](docs/03-design/design-system.md) |
 | Quy ước đặt tên (Pha 3) | DB snake_case số nhiều; API REST /api/v1/<tài-nguyên>; file kebab-case, component PascalCase; nhánh type/QLDA-123-slug, Conventional Commits | Pha 3 (2026-11-13) |
 | Tham chiếu OpenProject | Team đang dùng OpenProject; giống thuật ngữ và chức năng, giữ giao diện hiện đại v1. Team dùng hằng ngày: Work packages (bảng, phân cấp, quan hệ, bộ lọc đã lưu), Gantt, Boards. Không cần theo dõi thời gian và chi phí. Vai trò theo từng dự án. Nhập dữ liệu từ OpenProject làm sau MVP. Không sao chép mã, logo, tên OpenProject | Sếp quyết định 2026-11-13 |
 | Thang ước lượng, độ dài sprint | Story point Fibonacci 1-8; sprint 1 tuần bắt đầu thứ Hai 16/11/2026; velocity baseline 20 điểm, lịch xếp theo 30 để kịp 8 tuần (hiệu chỉnh từ sprint 2); danh sách cắt dự phòng ở wbs.md | Pha 4 (2026-11-13) |
@@ -54,21 +53,29 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | R-008 | Giá, giới hạn gói Supabase/Vercel/Neon/Render chưa xác minh từ trang chính thức; Vercel Hobby cấm dùng thương mại, lên Pro/Supabase Pro dễ vượt 25 USD/tháng | Cao | Trung bình | Đối chiếu trang giá chính thức trước khi mua gói; sếp duyệt riêng khi chi phí vượt 25 USD (ADR-001) | Mở |
 
 ## UI/UX
+Canvas: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW, trang "Blueprint (đã duyệt)". Bản cũ giữ ở trang "Bản cũ trước Blueprint (lưu trữ)". File: `docs/03-design/ui-ux/mockups/v3/bp-*.dc.html`.
+
 | Màn hình | Phiên bản | Trạng thái | Ngày |
 |---|---|---|---|
-| S01 Đăng nhập | v1 | Đã duyệt | 2026-11-13 |
-| S02 Danh sách dự án | v1 | Đã duyệt | 2026-11-13 |
-| S03 Bảng Kanban | v1 | Đã duyệt | 2026-11-13 |
-| S04 Danh sách task và bộ lọc | v1 | Đã duyệt | 2026-11-13 |
-| S05 Chi tiết task | v2 | Đã duyệt | 2026-11-13 |
-| S06 Dashboard tiến độ | v1 | Đã duyệt | 2026-11-13 |
-| S07 Xuất báo cáo | v1 | Đã duyệt | 2026-11-13 |
-| S08 Quản lý người dùng | v2 (có Phòng ban) | Đã duyệt | 2026-11-13 |
-| S09 Kanban điện thoại | v1 | Đã duyệt | 2026-11-13 |
-| S10 Kanban chế độ tối | v1 | Đã duyệt | 2026-11-13 |
-| S11 Gantt | v1 | Đã duyệt | 2026-11-13 |
-| S12 Chế độ xem đã lưu | v1 | Đã duyệt | 2026-11-13 |
-| Style guide, S06, S03 theo Blueprint | v3 | Chờ duyệt | 2026-11-13 |
+| S01 Đăng nhập | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S02 Danh sách dự án | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S03 Bảng Kanban | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S04 Danh sách task và bộ lọc | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S05 Chi tiết task | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S06 Dashboard tiến độ | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S07 Xuất báo cáo | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S08 Quản lý người dùng (có Phòng ban) | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S09 Kanban điện thoại | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S10 Kanban chế độ tối | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S11 Gantt | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S12 Chế độ xem đã lưu | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S13 Tạo dự án và chọn template | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S14 Tạo task nhanh | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S15 Nhật ký hoạt động | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S16 Thông báo và cài đặt email | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S17 Quản lý template dự án và báo cáo | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S18 Hồ sơ cá nhân | Blueprint (v3) | Đã duyệt | 2026-11-13 |
+| S19 Cấu hình dự án: trạng thái, loại task, nhãn | Blueprint (v3) | Đã duyệt | 2026-11-13 |
 
 ## Hạn chế đã biết
 - Cycles Linear chưa bật (bật ở Team settings nếu muốn dùng).
@@ -79,7 +86,6 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), build (next build), security (gitleaks toàn lịch sử + pnpm audit mức high). Chưa có: Playwright (Pha 5), kiểm thử phân quyền RLS (Pha 5), deploy staging/production vẫn là STUB trong `cd.yml` (Pha 5).
 
 ## Câu hỏi mở
-- Duyệt design system v2 "Blueprint" và mockup v3 (style guide, S06, S03)? Nếu duyệt, các màn còn lại làm lại theo Blueprint trước khi code giao diện ở Pha 5.
 - Cần bật Cycles Linear không, và độ dài sprint (1 hay 2 tuần)?
 - Template báo cáo tiến độ hiện dùng (file mẫu)? Ngưỡng số cho thước đo thành công?
 - OpenProject: ảnh chụp các màn team dùng nhiều nhất, danh sách module đang bật, phiên bản, gói (Community hay Enterprise).

@@ -1,6 +1,6 @@
 # Nghiên cứu phong cách: Samuel Oktavianus (Dribbble samoctav)
 
-Ngày: 2026-11-13 · Pha 3 (bổ sung) · Trạng thái: Chờ duyệt
+Ngày: 2026-11-13 · Pha 3 (bổ sung) · Trạng thái: Đã duyệt (2026-11-13)
 Yêu cầu của sếp: nghiên cứu phong cách https://dribbble.com/samoctav, áp dụng vào app và đưa vào design system.
 
 ## 1. Nguồn
