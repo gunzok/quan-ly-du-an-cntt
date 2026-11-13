@@ -7,15 +7,15 @@
 | Linear Team, Project | Team `QLDA` · Project [Quản lý Dự án CNTT](https://linear.app/justintran/project/quan-ly-du-an-cntt-c429c5997d32) (P-QLDA-5) · issue QLDA-1 đến QLDA-11 |
 | Repo | [gunzok/quan-ly-du-an-cntt](https://github.com/gunzok/quan-ly-du-an-cntt) (public) |
 | Ngày khởi tạo | 2026-11-12 |
-| Pha hiện tại | 3 Thiết kế (đang làm); Pha 1 và 2 cần rà soát lại do điều chỉnh theo OpenProject |
+| Pha hiện tại | 3 Thiết kế (đã duyệt), chuẩn bị Pha 4 WBS |
 
 ## Gate
 | Pha | Trạng thái | Ngày duyệt | Ghi chú |
 |---|---|---|---|
 | 0 Khởi tạo | Đã duyệt | 2026-11-12 | Repo chuyển public để bật gate (R-001 đã đóng) |
-| 1 Khảo sát | Cần rà soát | 2026-11-13 (duyệt lần đầu) | [requirements.md](docs/01-discovery/requirements.md) mục 0b: điều chỉnh theo OpenProject (Gantt vào MVP, chế độ xem đã lưu, vai trò theo dự án, nhập dữ liệu đợt sau); duyệt lại cùng gate Pha 3 |
-| 2 BA + stack | Cần rà soát | 2026-11-13 (duyệt lần đầu) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
-| 3 Thiết kế | Đang làm | | [docs/03-design](docs/03-design/): kiến trúc, DB, API, bảo mật, test, design system, UI/UX; S02-S04 đã duyệt, các màn còn lại chờ duyệt, S11 Gantt và S12 chế độ xem đã lưu là màn mới |
+| 1 Khảo sát | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [requirements.md](docs/01-discovery/requirements.md) mục 0b: điều chỉnh theo OpenProject (Gantt vào MVP, chế độ xem đã lưu, vai trò theo dự án, nhập dữ liệu đợt sau); duyệt lại cùng gate Pha 3 |
+| 2 BA + stack | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
+| 3 Thiết kế | Đã duyệt | 2026-11-13 | [docs/03-design](docs/03-design/): đủ 4 phần (kiến trúc và bảo mật; DB và API; UI/UX 12 màn; design system và chiến lược test). Các điểm [CẦN XÁC NHẬN] trong tài liệu chốt trước khi code phần liên quan ở Pha 5 |
 | 4 WBS | Chưa bắt đầu | | |
 | 5 Phát triển | Chưa bắt đầu | | |
 | 6 Nghiệm thu, bàn giao | Chưa bắt đầu | | |
@@ -62,7 +62,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | S05 Chi tiết task | v2 | Đã duyệt | 2026-11-13 |
 | S06 Dashboard tiến độ | v1 | Đã duyệt | 2026-11-13 |
 | S07 Xuất báo cáo | v1 | Đã duyệt | 2026-11-13 |
-| S08 Quản lý người dùng | v2 (có Phòng ban) | Chờ duyệt | 2026-11-13 |
+| S08 Quản lý người dùng | v2 (có Phòng ban) | Đã duyệt | 2026-11-13 |
 | S09 Kanban điện thoại | v1 | Đã duyệt | 2026-11-13 |
 | S10 Kanban chế độ tối | v1 | Đã duyệt | 2026-11-13 |
 | S11 Gantt | v1 | Đã duyệt | 2026-11-13 |
@@ -84,6 +84,6 @@ Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), buil
 - Các câu BA còn mở: RPO/RTO, quy định dữ liệu cá nhân, thời điểm nhắc hạn; email, bộ lập lịch, thư viện xuất báo cáo, thư viện UI, thư viện Gantt cần ADR.
 
 ## Bước tiếp theo
-1. Sếp duyệt các màn mockup còn lại (S01, S05 v2, S06 đến S12) và 4 phần của gate Pha 3, đồng thời duyệt lại phạm vi Pha 1 và 2 đã điều chỉnh theo OpenProject.
-2. Sếp trả lời các câu mở ở trên và gửi template báo cáo, ảnh chụp OpenProject.
-3. Pha 4 WBS: Epic, Story, Task, ước lượng, lịch sprint (cần đánh giá lại R-003).
+1. Pha 4 WBS: Epic, Story, Task, ước lượng, lịch sprint; đánh giá lại R-003, R-009 khi ước lượng.
+2. Sếp trả lời các câu mở ở trên, gửi template báo cáo và ảnh chụp OpenProject.
+3. Xem Dependabot PR 6 (TypeScript 5.9.3 lên 6.0.3) và PR 7 (React 19.3.1) trước khi merge.

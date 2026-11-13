@@ -15,7 +15,7 @@ Canvas mockup v1: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW (riêng tư,
 | S06 Dashboard tiến độ | v1 | 2026-11-13 | Đã duyệt | |
 | S07 Xuất báo cáo | v1 | 2026-11-13 | Đã duyệt | Nội dung báo cáo vẫn chờ template mẫu (R-005) |
 | S08 Quản lý người dùng | v1 | 2026-11-13 | Thay bằng v2 | "Quản lý người dùng hiển thị cả bộ phận làm việc của người dùng đó theo tên Phòng ban"; vai trò chuyển sang theo dự án |
-| S08 Quản lý người dùng | v2 | 2026-11-13 | Chờ duyệt | Thêm cột Phòng ban, Quyền (Admin/Không), Dự án tham gia; lọc theo Phòng ban |
+| S08 Quản lý người dùng | v2 | 2026-11-13 | Đã duyệt | Thêm cột Phòng ban, Quyền (Admin/Không), Dự án tham gia; lọc theo Phòng ban |
 | S09 Kanban trên điện thoại | v1 | 2026-11-13 | Đã duyệt | |
 | S10 Kanban chế độ tối | v1 | 2026-11-13 | Đã duyệt | |
 | S11 Gantt | v1 | 2026-11-13 | Đã duyệt | Mới: team dùng Gantt hằng ngày |

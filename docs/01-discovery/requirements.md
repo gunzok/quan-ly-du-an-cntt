@@ -1,6 +1,6 @@
 # Khảo sát yêu cầu: Quản lý Dự án CNTT
 
-Ngày: 2026-11-13 · Pha 1 · Trạng thái: Cần rà soát (đã duyệt 2026-11-13, phạm vi điều chỉnh theo OpenProject, xem mục 0b)
+Ngày: 2026-11-13 · Pha 1 · Trạng thái: Đã duyệt lại (2026-11-13, sau điều chỉnh theo OpenProject, xem mục 0b)
 
 ## 0. Bảng Epic đã duyệt
 | Epic | MVP? |

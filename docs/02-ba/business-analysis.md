@@ -1,6 +1,6 @@
 # Phân tích nghiệp vụ: Quản lý Dự án CNTT
 
-Ngày: 2026-11-13 · Pha 2 · Trạng thái: Cần rà soát (đã duyệt 2026-11-13; điều chỉnh theo OpenProject ở mục 10 cần duyệt lại)
+Ngày: 2026-11-13 · Pha 2 · Trạng thái: Đã duyệt lại (2026-11-13, gồm điều chỉnh theo OpenProject ở mục 10)
 Nguồn: [requirements.md](../01-discovery/requirements.md). Mục đánh dấu **[CẦN XÁC NHẬN]** là chỗ chưa rõ, chưa tự điền; xem mục 8.
 
 ## 1. Actor và hệ thống ngoài
