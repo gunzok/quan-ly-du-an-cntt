@@ -5,4 +5,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-  # TODO(Pha 2): thêm hệ sinh thái gói của tech stack đã chọn (npm, pip, gomod, ...)
+  # Cập nhật phụ thuộc npm (pnpm-lock.yaml)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      # Gộp các bản vá/minor của devDependencies để giảm số PR
+      dev-dependencies:
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
