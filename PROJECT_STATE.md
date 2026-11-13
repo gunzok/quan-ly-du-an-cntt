@@ -7,14 +7,14 @@
 | Linear Team, Project | Team `QLDA` · Project [Quản lý Dự án CNTT](https://linear.app/justintran/project/quan-ly-du-an-cntt-c429c5997d32) (P-QLDA-5) · issue QLDA-1 đến QLDA-11 |
 | Repo | [gunzok/quan-ly-du-an-cntt](https://github.com/gunzok/quan-ly-du-an-cntt) (public) |
 | Ngày khởi tạo | 2026-11-12 |
-| Pha hiện tại | 2 BA + stack (đang làm) |
+| Pha hiện tại | 2 BA + stack (đã duyệt), chuẩn bị Pha 3 |
 
 ## Gate
 | Pha | Trạng thái | Ngày duyệt | Ghi chú |
 |---|---|---|---|
 | 0 Khởi tạo | Đã duyệt | 2026-11-12 | Repo chuyển public để bật gate (R-001 đã đóng) |
 | 1 Khảo sát | Đã duyệt | 2026-11-13 | [requirements.md](docs/01-discovery/requirements.md): 16 câu, 12 tính năng đề xuất; Gantt và theo dõi thời gian chuyển sang đợt sau |
-| 2 BA + stack | Chờ duyệt | | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
+| 2 BA + stack | Đã duyệt | 2026-11-13 | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
 | 3 Thiết kế | Chưa bắt đầu | | |
 | 4 WBS | Chưa bắt đầu | | |
 | 5 Phát triển | Chưa bắt đầu | | |
@@ -55,18 +55,17 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 
 ## Hạn chế đã biết
 - Cycles Linear chưa bật (bật ở Team settings nếu muốn dùng).
-- CI thật nằm ở PR 5 (khung Next.js + Makefile thật); trước khi PR 5 merge thì `main` vẫn chạy STUB.
-- Dependabot PR 1 (nâng `actions/checkout` 4 lên 7) trùng với PR 5 (đã dùng v7), đóng sau khi PR 5 merge.
+- CI thật đã vào `main` qua PR 5 (2026-11-13); Dependabot PR 1 đã đóng vì trùng.
 - Build cục bộ cần `NODE_ENV` không bị đặt sai (nếu shell đặt `NODE_ENV=development` thì `next build` lỗi; CI không bị). Chạy `env -u NODE_ENV make build`.
 
 ## CI còn STUB
-Không còn sau khi PR 5 merge: lint (ESLint, Prettier, tsc), test (Vitest), build (next build), security (gitleaks toàn lịch sử + pnpm audit mức high). Chưa có: Playwright (Pha 5), kiểm thử phân quyền RLS (Pha 5), deploy staging/production vẫn là STUB trong `cd.yml` (Pha 5).
+Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), build (next build), security (gitleaks toàn lịch sử + pnpm audit mức high). Chưa có: Playwright (Pha 5), kiểm thử phân quyền RLS (Pha 5), deploy staging/production vẫn là STUB trong `cd.yml` (Pha 5).
 
 ## Câu hỏi mở
 - Cần bật Cycles Linear không, và độ dài sprint (1 hay 2 tuần)?
 - Template báo cáo tiến độ hiện dùng (file mẫu)? Ngưỡng số cho thước đo thành công? Có cần theo dõi chi phí/ngân sách dự án không?
 
 ## Bước tiếp theo
-1. Duyệt gate Pha 2, merge PR 4 và PR 5, đóng Dependabot PR 1, đóng QLDA-4 và QLDA-2 (đã Done) trên Linear.
+1. Pha 3 Thiết kế: kiến trúc, DB, API, threat model, chiến lược test, UI/UX, design system. Việc code (nếu có) giao agent Opus 5.5 trong Orca.
 2. Sếp trả lời các câu BA còn mở (RPO/RTO, quy định dữ liệu cá nhân, nhắc hạn) và gửi template báo cáo Word/Excel (R-005).
 3. Gate Pha 2, rồi Pha 3 Thiết kế.
