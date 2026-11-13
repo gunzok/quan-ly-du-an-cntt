@@ -7,7 +7,7 @@
 | Linear Team, Project | Team `QLDA` · Project [Quản lý Dự án CNTT](https://linear.app/justintran/project/quan-ly-du-an-cntt-c429c5997d32) (P-QLDA-5) · issue QLDA-1 đến QLDA-11 (pha), Epic QLDA-12 đến QLDA-26, Story QLDA-27 đến QLDA-78; Cycles 1 tuần từ 16/11/2026, thang Fibonacci |
 | Repo | [gunzok/quan-ly-du-an-cntt](https://github.com/gunzok/quan-ly-du-an-cntt) (public) |
 | Ngày khởi tạo | 2026-11-12 |
-| Pha hiện tại | 5 Phát triển, sprint 1 (bắt đầu sớm từ 13/11/2026; lịch chính thức 16/11 đến 20/11) |
+| Pha hiện tại | 5 Phát triển, sprint 1 xong (làm sớm từ 13/11/2026), đang vào sprint 2 |
 
 ## Gate
 | Pha | Trạng thái | Ngày duyệt | Ghi chú |
@@ -17,7 +17,7 @@
 | 2 BA + stack | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
 | 3 Thiết kế | Đã duyệt | 2026-11-13 | [docs/03-design](docs/03-design/): đủ 4 phần (kiến trúc và bảo mật; DB và API; UI/UX 12 màn; design system và chiến lược test). Các điểm [CẦN XÁC NHẬN] trong tài liệu chốt trước khi code phần liên quan ở Pha 5 |
 | 4 WBS | Đã duyệt | 2026-11-13 | [wbs.md](docs/04-wbs/wbs.md), [stories/](docs/04-wbs/stories/), [plan.py](docs/04-wbs/plan.py): 52 Story, 269 điểm (Must 211), sprint 1 tuần từ 16/11/2026; sếp chọn giữ hạn 8 tuần và bỏ Gantt khỏi MVP; cần velocity thật khoảng 28-30 điểm mỗi sprint (baseline 20), R-003 vẫn cao |
-| 5 Phát triển | Đang làm | | Sprint 1: xong E0-1 (PR 12), E0-6, E0-8, E1-1 (PR 15), E1-3 (PR 14); E1-2 (QLDA-35, đăng nhập Google) đang do agent Opus 5.5 làm; chưa tính velocity (làm xong cuối sprint) |
+| 5 Phát triển | Đang làm | | Sprint 1 xong (13/11/2026): 6 Story, 29 điểm (E0-1, E0-6, E0-8, E1-1, E1-2, E1-3), velocity thực tế 29 so với kế hoạch 29 (baseline 20; cần khoảng 26 cho 7 sprint còn lại). Đang làm: E0-3 (QLDA-34), E1-4 (QLDA-36) |
 | 6 Nghiệm thu, bàn giao | Chưa bắt đầu | | |
 Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt · Cần rà soát.
 
@@ -101,3 +101,9 @@ Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), buil
 2. Sếp gửi template báo cáo Word/Excel (trước sprint 6), ảnh chụp OpenProject, chốt loại task và trạng thái mặc định (trước sprint 3), kiểu quan hệ vào MVP.
 3. Sau sprint 1 và 2: tính velocity thật, đánh giá lại R-003, dùng danh sách cắt dự phòng nếu cần.
 4. Xem Dependabot PR 6 (TypeScript 5.9.3 lên 6.0.3) và PR 7 (React 19.3.1) trước khi merge.
+
+## Retro sprint 1 (2026-11-13)
+- Giữ: agent Opus 5.5 trong Orca làm song song, phiên điều phối rà độc lập (chạy lại lệnh, không chỉ tin báo cáo); test pgTAP và test tích hợp bắt lỗi thật.
+- Bỏ: để nhiều worktree dùng chung một stack Supabase cục bộ mà không báo nhau. E1-3 reset DB làm E1-1 gặp vòng chuyển hướng (đã sửa bằng `getUser()`); từ nay chỉ một agent reset DB tại một thời điểm hoặc chạy test không reset.
+- Thử: giao Story khi phụ thuộc đã merge, không chờ hết sprint; velocity tính khi cuối sprint.
+- Rủi ro: R-003 còn cao (velocity 29 đạt mức cần, nhưng các Story sau phức tạp hơn: báo cáo, quan hệ, chế độ xem); R-008 chi phí; chưa kiểm chứng Google thật.

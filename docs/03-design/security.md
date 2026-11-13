@@ -33,7 +33,7 @@ flowchart LR
 | F2 | **T**ampering: sửa hoặc xóa nhật ký | `activity_logs` chỉ cho phép INSERT, không UPDATE/DELETE qua RLS (BR-09) |
 | F3 | **I**nformation disclosure: lộ khóa email, nội dung thông báo | Khóa chỉ ở biến môi trường máy chủ; thông báo email chỉ chứa tên task và liên kết, không chứa mô tả dài |
 | F4 | **T**ampering: tải template độc hại | Chỉ Admin tải lên (BR-08); kiểm tra loại và kích thước tệp; xử lý template ở máy chủ, không thực thi macro |
-| F5 | **S**poofing: đăng nhập giả mạo | Chỉ nhà cung cấp đã cấu hình; xác minh redirect URL; mời người dùng bằng email (không đăng ký tự do, **[CẦN XÁC NHẬN]**) |
+| F5 | **S**poofing: đăng nhập giả mạo | Chỉ nhà cung cấp đã cấu hình; xác minh redirect URL; mời người dùng bằng email; chặn đăng ký tự do ở Auth bằng `enable_signup = false` (E1-2, PR 17), tài khoản Google chỉ gắn vào người đã được mời, email lạ bị từ chối |
 | Chung | **R**epudiation: chối bỏ thao tác | Nhật ký hoạt động ghi người làm, thời gian, trước và sau (FR-16) |
 
 ## 4. Quản lý bí mật (repo công khai)
