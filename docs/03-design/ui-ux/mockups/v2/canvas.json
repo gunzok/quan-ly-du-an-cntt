@@ -12,7 +12,7 @@
     "TaskDetail.dc.html": { "x": 1360, "y": 920, "w": 1280, "h": 800, "title": "S05 Chi tiết task (v2: loại, ngày, quan hệ)", "expand": "fill" },
     "Dashboard.dc.html": { "x": 2720, "y": 920, "w": 1280, "h": 800, "title": "S06 Dashboard tiến độ (v1)", "expand": "fill" },
     "Report.dc.html": { "x": 0, "y": 1840, "w": 1280, "h": 800, "title": "S07 Xuất báo cáo (v1)", "expand": "fill" },
-    "Admin.dc.html": { "x": 1360, "y": 1840, "w": 1280, "h": 800, "title": "S08 Quản lý người dùng (v1)", "expand": "fill" },
+    "Admin.dc.html": { "x": 1360, "y": 1840, "w": 1280, "h": 800, "title": "S08 Quản lý người dùng (v2: có phòng ban)", "expand": "fill" },
     "Mobile.dc.html": { "x": 2720, "y": 1840, "w": 390, "h": 844, "title": "S09 Kanban trên điện thoại 390px (v1)" },
     "KanbanDark.dc.html": { "x": 3190, "y": 1840, "w": 1280, "h": 800, "title": "S10 Kanban chế độ tối (v1)", "expand": "fill" },
     "Gantt.dc.html": { "x": 0, "y": 2760, "w": 1280, "h": 800, "title": "S11 Gantt (v1, mới)", "expand": "fill" },

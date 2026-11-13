@@ -69,7 +69,7 @@ sequenceDiagram
 | Mã | Yêu cầu | Use case |
 |---|---|---|
 | FR-01 | Đăng nhập bằng email và mật khẩu, và bằng Google | UC-01 |
-| FR-02 | Admin mời người dùng, khóa/mở tài khoản, cấp quyền Admin; PM của dự án gán vai trò (PM, Thành viên, Người xem) cho thành viên dự án đó | UC-02 |
+| FR-02 | Admin mời người dùng, gán Phòng ban (một phòng ban mỗi người, danh mục do Admin quản lý), khóa/mở tài khoản, cấp quyền Admin; danh sách người dùng hiển thị Phòng ban và lọc theo Phòng ban (sếp yêu cầu 2026-11-13); PM của dự án gán vai trò (PM, Thành viên, Người xem) cho thành viên dự án đó | UC-02 |
 | FR-03 | Tạo, sửa, lưu trữ dự án; quản lý thành viên dự án | UC-03 |
 | FR-04 | Tạo dự án từ template dự án; lưu dự án hiện có thành template | UC-04 |
 | FR-05 | Tạo, sửa, xóa task với tên, mô tả, người phụ trách, hạn chót, mức ưu tiên | UC-05 |
@@ -120,7 +120,7 @@ Chỉ số có đánh dấu "đề xuất" do mình tính từ cỡ dự án (d�
 | NFR-11 | Đa ngôn ngữ | Việt và English | 100% chuỗi giao diện qua file ngôn ngữ; không có chuỗi gõ cứng | Đã chốt (A5) |
 | NFR-12 | Chi phí | Hạ tầng | Dưới 25 USD mỗi tháng | Đã chốt (D1) |
 | NFR-13 | Bảo trì | Chất lượng mã | TypeScript chế độ nghiêm ngặt, lint và test chạy trong CI, độ phủ test mục tiêu ở Pha 3 | Đề xuất |
-| NFR-14 | Tuân thủ | Dữ liệu cá nhân nhân sự | Chỉ lưu tên, email, vai trò; rà soát theo quy định về dữ liệu cá nhân khi vào vận hành **[CẦN XÁC NHẬN]** | C1, C2 chưa hỏi |
+| NFR-14 | Tuân thủ | Dữ liệu cá nhân nhân sự | Chỉ lưu tên, email, phòng ban, vai trò; rà soát theo quy định về dữ liệu cá nhân khi vào vận hành **[CẦN XÁC NHẬN]** | C1, C2 chưa hỏi |
 
 ## 7. Ma trận truy vết
 Cột Story điền ở Pha 4, cột Test điền ở Pha 5.

@@ -12,7 +12,7 @@ Chỉ màn có trạng thái "Đã duyệt" trong [review-log.md](review-log.md)
 | S05 | Chi tiết task (v2) | Sửa task: loại, ngày bắt đầu, ngày kết thúc, việc con, nhiều kiểu quan hệ, cảnh báo bị chặn, nhật ký task | UC-05, UC-08, UC-12, E2, E6, E8 | PM, Thành viên, Admin | `mockups/v2/TaskDetail.dc.html` (v1 giữ ở `mockups/v1/`) |
 | S06 | Dashboard tiến độ | % hoàn thành, trễ hạn, phân bố, theo người | UC-10, E5 | PM, Người xem, Admin | `Dashboard.dc.html` |
 | S07 | Xuất báo cáo | Chọn định dạng, kỳ, template, tải file | UC-11, E5 | PM, Admin | `Report.dc.html` |
-| S08 | Quản lý người dùng | Mời, gán vai trò, khóa/mở | UC-02, E1 | Admin | `Admin.dc.html` |
+| S08 | Quản lý người dùng (v2) | Mời, gán phòng ban, cấp quyền Admin, khóa/mở; hiển thị Phòng ban, số dự án tham gia | UC-02, E1 | Admin | `mockups/v2/Admin.dc.html` |
 | S09 | Kanban trên điện thoại | Dùng được từ 360 px, vùng bấm 44 px, thay kéo thả bằng menu | FR-18, NFR-10, E10 | Mọi vai trò | `Mobile.dc.html` |
 | S10 | Kanban chế độ tối | Kiểm tra token chế độ tối | NFR-11 liên quan chế độ sáng/tối | Mọi vai trò | `KanbanDark.dc.html` |
 | S11 | Gantt | Xem task theo ngày bắt đầu, kết thúc, quan hệ đứng trước/đứng sau, kéo chỉnh ngày | UC-15, FR-20, E12 | PM, Thành viên (Người xem chỉ đọc) | `Gantt.dc.html` (v1) |

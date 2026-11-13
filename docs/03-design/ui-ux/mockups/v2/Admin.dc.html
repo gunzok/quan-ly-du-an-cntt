@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Quản lý người dùng</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<aside style="width: 232px; flex-shrink: 0; box-sizing: border-box; background: #F8FAFC; border-right: 1px solid #E2E8F0; padding: 16px 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+<div style="width: 28px; height: 28px; border-radius: 6px; background: #1D4ED8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">Q</div>
+<span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span>
+</div>
+<nav style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<a href="Projects.dc.html" style="display: flex; align-items: center; padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Dự án</a>
+<a href="#" style="display: flex; align-items: center; padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Việc của tôi</a>
+<a href="#" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none"><span>Thông báo</span><span style="background: #1D4ED8; color: #FFFFFF; border-radius: 10px; padding: 0 7px; font-size: 12px; line-height: 18px">3</span></a>
+</nav>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569; margin-bottom: 4px">Quản trị</div>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; background: #E2E8F0; color: #0F172A; font-weight: 600; text-decoration: none">Người dùng</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Template</a>
+</div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-top: 1px solid #E2E8F0">
+<div style="width: 28px; height: 28px; border-radius: 14px; background: #FEF3C7; color: #78350F; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">AD</div>
+<div style="display: flex; flex-direction: column; font-size: 13px; line-height: 16px"><span style="font-weight: 500">Quản trị viên</span><span style="color: #475569; font-size: 12px">Admin</span></div>
+</div>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600">Người dùng</h1>
+<span style="font-size: 14px; color: #475569">Mời người dùng, gán phòng ban, cấp quyền Admin, khóa hoặc mở tài khoản. Vai trò trong dự án gán ở trang Thành viên của từng dự án.</span>
+</div>
+<button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 14px; font: 500 14px Inter, sans-serif; min-height: 36px">+ Mời người dùng</button>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+<div style="border: 1px solid #64748B; border-radius: 6px; padding: 6px 12px; font-size: 14px; color: #475569; min-width: 240px">Tìm theo tên hoặc email…</div>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 6px 12px; font-size: 14px">Phòng ban: Tất cả</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 6px 12px; font-size: 14px">Quyền: Tất cả</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 6px 12px; font-size: 14px">Trạng thái: Tất cả</span>
+</div>
+<div style="border: 1px solid #E2E8F0; border-radius: 8px; overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 920px">
+<thead>
+<tr style="text-align: left; color: #475569; font-size: 12px; font-weight: 500; background: #F8FAFC">
+<th style="padding: 10px 14px">Người dùng</th>
+<th style="padding: 10px 14px">Phòng ban</th>
+<th style="padding: 10px 14px">Quyền</th>
+<th style="padding: 10px 14px">Dự án tham gia</th>
+<th style="padding: 10px 14px">Trạng thái</th>
+<th style="padding: 10px 14px">Đăng nhập gần nhất</th>
+<th style="padding: 10px 14px"></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{users}}" as="u" hint-placeholder-count="5">
+<tr>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0"><div style="display: flex; align-items: center; gap: 10px"><span style="width: 28px; height: 28px; border-radius: 14px; background: {{u.bg}}; color: #0F172A; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">{{u.init}}</span><span style="display: flex; flex-direction: column; line-height: 18px"><span style="font-weight: 500">{{u.name}}</span><span style="font-size: 12px; color: #475569">{{u.email}}</span></span></div></td>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0">{{u.dept}}</td>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0"><span style="border: 1px solid #64748B; border-radius: 6px; padding: 4px 10px; font-size: 13px">{{u.role}}</span></td>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; color: #475569">{{u.projects}}</td>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0"><span style="font-size: 12px; padding: 2px 8px; border-radius: 4px; background: {{u.sbg}}; color: {{u.sfg}}; font-weight: 500">{{u.status}}</span></td>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; color: #475569">{{u.last}}</td>
+<td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; text-align: right"><a href="#" style="font-size: 13px">{{u.action}}</a></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const u = (name, email, init, bg, dept, role, projects, active, last) => ({
+name, email, init, bg, dept, role, projects, status: active ? 'Hoạt động' : 'Đã khóa',
+sbg: active ? '#DCFCE7' : '#F1F5F9', sfg: active ? '#14532D' : '#475569',
+last, action: active ? 'Khóa' : 'Mở khóa'
+});
+return { users: [
+u('Quản trị viên', 'admin@congty.example', 'AD', '#FEF3C7', 'Công nghệ thông tin', 'Admin', 'Tất cả', true, 'Hôm nay 08:02'),
+u('Nguyễn Minh Anh', 'minh.anh@congty.example', 'MA', '#DBEAFE', 'Quản lý dự án', 'Không', '4 dự án (PM ở 3)', true, 'Hôm nay 08:30'),
+u('Trần Quốc Bảo', 'quoc.bao@congty.example', 'QB', '#DCFCE7', 'Phát triển phần mềm', 'Không', '3 dự án', true, 'Hôm qua 17:45'),
+u('Lê Thu Hà', 'thu.ha@congty.example', 'TH', '#FEF3C7', 'Kiểm thử', 'Không', '2 dự án', true, 'Hôm qua 16:10'),
+u('Phạm Gia Huy', 'gia.huy@congty.example', 'GH', '#FCE7F3', 'Kinh doanh', 'Không', '1 dự án (Người xem)', false, '02/11/2026')
+] };
+}
+}
+</script>
+</body>
+</html>
