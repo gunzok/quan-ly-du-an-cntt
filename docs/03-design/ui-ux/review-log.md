@@ -20,3 +20,10 @@ Canvas mockup v1: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW (riêng tư,
 | S10 Kanban chế độ tối | v1 | 2026-11-13 | Đã duyệt | |
 | S11 Gantt | v1 | 2026-11-13 | Đã duyệt | Mới: team dùng Gantt hằng ngày |
 | S12 Chế độ xem đã lưu và mặc định | v1 | 2026-11-13 | Đã duyệt | Mới: theo OpenProject |
+| S13 Tạo dự án và chọn template | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 |
+| S14 Tạo task nhanh | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 |
+| S15 Nhật ký hoạt động | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 |
+| S16 Thông báo và cài đặt email | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 |
+| S17 Quản lý template dự án và báo cáo | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 |
+| S18 Hồ sơ cá nhân | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 |
+| S19 Cấu hình dự án: trạng thái, loại task, nhãn | v1 | 2026-11-13 | Chờ duyệt | Mới, Story E0-8 (cần cho E2-7) |

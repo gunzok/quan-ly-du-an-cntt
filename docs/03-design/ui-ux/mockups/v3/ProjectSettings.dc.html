@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Cấu hình dự án</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<aside style="width: 232px; flex-shrink: 0; box-sizing: border-box; background: #F8FAFC; border-right: 1px solid #E2E8F0; padding: 16px 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #1D4ED8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">Q</div><span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span></div>
+<a href="Kanban.dc.html" style="font-size: 13px; text-decoration: none; padding: 0 10px; color: #475569">← Cổng thông tin nội bộ</a>
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569">Cấu hình dự án</div>
+<nav style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Thông tin chung</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Thành viên và vai trò</a>
+<a href="ProjectSettings.dc.html" style="padding: 7px 10px; border-radius: 6px; background: #E2E8F0; color: #0F172A; font-weight: 600; text-decoration: none">Trạng thái, loại task, nhãn</a>
+</nav>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 2px"><h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600">Trạng thái, loại task, nhãn</h1><span style="font-size: 14px; color: #475569">Chỉ PM của dự án và Admin được sửa; Thành viên và Người xem chỉ đọc.</span></div>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 16px; font-weight: 600">Trạng thái</span><a href="#" style="font-size: 13px">+ Thêm trạng thái</a></div>
+<div style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden">
+<sc-for list="{{statuses}}" as="s" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid #E2E8F0; font-size: 14px"><span style="color: #475569; cursor: grab">⋮⋮</span><span style="flex: 1; font-weight: 500">{{s.name}}</span><span style="font-size: 12px; padding: 2px 8px; border-radius: 4px; background: #F1F5F9; color: #475569">{{s.cat}}</span><span style="color: #475569; font-size: 13px">{{s.count}} task</span><a href="#" style="font-size: 13px">Sửa</a></div>
+</sc-for>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 16px; font-weight: 600">Loại task</span><a href="#" style="font-size: 13px">+ Thêm loại</a></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{types}}" as="t" hint-placeholder-count="4">
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 6px 12px; font-size: 14px">{{t.name}}<span style="color: #475569; font-size: 12px"> {{t.note}}</span></span>
+</sc-for>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 16px; font-weight: 600">Nhãn</span><a href="#" style="font-size: 13px">+ Thêm nhãn</a></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{labels}}" as="l" hint-placeholder-count="5">
+<span style="font-size: 13px; padding: 4px 10px; border-radius: 4px; background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0">{{l}}</span>
+</sc-for>
+</div>
+</section>
+<div style="background: #FEF3C7; border: 1px solid #B45309; border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 18px; color: #78350F">Xóa một trạng thái đang có task sẽ yêu cầu chọn trạng thái thay thế cho các task đó.</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+statuses: [
+{ name: 'Cần làm', cat: 'Chưa bắt đầu', count: 7 },
+{ name: 'Đang làm', cat: 'Đang thực hiện', count: 9 },
+{ name: 'Chờ review', cat: 'Đang thực hiện', count: 2 },
+{ name: 'Hoàn thành', cat: 'Đã xong', count: 30 }
+],
+types: [
+{ name: 'Task', note: '(mặc định)' }, { name: 'Bug', note: '' }, { name: 'Milestone', note: '(mốc)' }, { name: 'Phase', note: '(giai đoạn)' }
+],
+labels: ['Tính năng', 'Giao diện', 'Bảo mật', 'Hạ tầng', 'Tài liệu']
+};
+}
+}
+</script>
+</body>
+</html>

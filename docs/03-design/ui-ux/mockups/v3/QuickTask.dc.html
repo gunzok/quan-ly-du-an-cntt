@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tạo task nhanh</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background: #475569; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: Inter, system-ui, sans-serif">
+<div role="dialog" aria-label="Tạo task" style="width: 640px; max-width: 100%; background: #FFFFFF; border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 16px 40px rgba(15,23,42,0.35)">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 2px"><h1 style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600">Tạo task</h1><span style="font-size: 13px; color: #475569">Dự án: Cổng thông tin nội bộ</span></div>
+<button aria-label="Đóng" style="border: 1px solid #64748B; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0F172A">×</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="t" style="font-size: 14px; font-weight: 500">Tiêu đề</label>
+<input id="t" type="text" value="Thiết kế trang quản lý phòng ban" style="border: 2px solid #1D4ED8; border-radius: 6px; padding: 8px 11px; font: 400 14px Inter, sans-serif; color: #0F172A">
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; font-weight: 500">{{f.label}}</span><span style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font-size: 14px; display: flex; justify-content: space-between"><span>{{f.value}}</span><span style="color: #475569">▾</span></span></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="s" style="font-size: 14px; font-weight: 500">Ngày bắt đầu</label><input id="s" type="text" value="23/11/2026" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="e" style="font-size: 14px; font-weight: 500">Ngày kết thúc (hạn)</label><input id="e" type="text" value="27/11/2026" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="d" style="font-size: 14px; font-weight: 500">Mô tả</label>
+<textarea id="d" rows="3" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A; resize: none">Màn Admin quản lý danh mục phòng ban, thêm, sửa, sắp xếp.</textarea>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input type="checkbox" style="margin: 0">Tạo tiếp task khác</label>
+<div style="display: flex; gap: 8px">
+<button style="border: 1px solid #64748B; background: #FFFFFF; color: #0F172A; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Hủy</button>
+<button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Tạo task</button>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return { fields: [
+{ label: 'Loại', value: 'Task' },
+{ label: 'Trạng thái', value: 'Cần làm' },
+{ label: 'Người thực hiện', value: 'Trần Quốc Bảo' },
+{ label: 'Ưu tiên', value: '■ Trung bình' },
+{ label: 'Nhãn', value: 'Tính năng' },
+{ label: 'Task cha (tùy chọn)', value: 'Không có' }
+] };
+}
+}
+</script>
+</body>
+</html>
