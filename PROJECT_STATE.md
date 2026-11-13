@@ -29,6 +29,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | Nơi làm code | IDE Orca. Repo code: `~/orca/projects/app-quanlyduan` (origin = gunzok/quan-ly-du-an-cntt); worktree/nhánh code nằm local trong `~/orca/workspaces/app-quanlyduan/`. Nhánh chỉ đẩy lên GitHub khi mở PR để CI chạy và merge; main được kéo về Orca sau khi merge. Bản clone `~/Projects/quan-ly-du-an-cntt` dùng cho tài liệu và PROJECT_STATE | Sếp yêu cầu 2026-11-13 |
 | Quy ước đặt tên | Định danh kỹ thuật tiếng Anh không dấu; tài liệu, issue, PR tiếng Việt | Skill |
 | Màu, phong cách | Tối giản, gọn, nhiều thông tin; bảng màu A Xanh dương (#1D4ED8); sáng và tối theo hệ thống; phông Inter; tương phản tính bằng code (design-system.md) | Pha 3 (2026-11-13) |
+| Màu, phong cách v2 "Blueprint" (**chờ duyệt**) | Theo nghiên cứu Dribbble samoctav (dự án ordivalabs): xanh điện #2054F0 là màu chính, hồng #E56DAF chỉ làm điểm nhấn trang trí (chữ hồng dùng #B0256E); nhãn mono JetBrains Mono đánh số kỹ thuật; tiêu đề Inter Tight nét mảnh; đường kẻ mảnh thay bóng; lưới bản vẽ chỉ trang trí. Giữ: gọn, nhiều thông tin, sáng và tối, Inter, WCAG AA. Token đã vào app/globals.css; khi duyệt thì thay dòng v1 ở trên | [style-research-samoctav.md](docs/03-design/style-research-samoctav.md), [design-system.md](docs/03-design/design-system.md) v2 (2026-11-13) |
 | Quy ước đặt tên (Pha 3) | DB snake_case số nhiều; API REST /api/v1/<tài-nguyên>; file kebab-case, component PascalCase; nhánh type/QLDA-123-slug, Conventional Commits | Pha 3 (2026-11-13) |
 | Tham chiếu OpenProject | Team đang dùng OpenProject; giống thuật ngữ và chức năng, giữ giao diện hiện đại v1. Team dùng hằng ngày: Work packages (bảng, phân cấp, quan hệ, bộ lọc đã lưu), Gantt, Boards. Không cần theo dõi thời gian và chi phí. Vai trò theo từng dự án. Nhập dữ liệu từ OpenProject làm sau MVP. Không sao chép mã, logo, tên OpenProject | Sếp quyết định 2026-11-13 |
 | Thang ước lượng, độ dài sprint | Chưa chốt (Pha 4); Cycles Linear đề xuất 1 tuần | |
@@ -67,6 +68,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | S10 Kanban chế độ tối | v1 | Đã duyệt | 2026-11-13 |
 | S11 Gantt | v1 | Đã duyệt | 2026-11-13 |
 | S12 Chế độ xem đã lưu | v1 | Đã duyệt | 2026-11-13 |
+| Style guide, S06, S03 theo Blueprint | v3 | Chờ duyệt | 2026-11-13 |
 
 ## Hạn chế đã biết
 - Cycles Linear chưa bật (bật ở Team settings nếu muốn dùng).
@@ -77,6 +79,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), build (next build), security (gitleaks toàn lịch sử + pnpm audit mức high). Chưa có: Playwright (Pha 5), kiểm thử phân quyền RLS (Pha 5), deploy staging/production vẫn là STUB trong `cd.yml` (Pha 5).
 
 ## Câu hỏi mở
+- Duyệt design system v2 "Blueprint" và mockup v3 (style guide, S06, S03)? Nếu duyệt, các màn còn lại làm lại theo Blueprint trước khi code giao diện ở Pha 5.
 - Cần bật Cycles Linear không, và độ dài sprint (1 hay 2 tuần)?
 - Template báo cáo tiến độ hiện dùng (file mẫu)? Ngưỡng số cho thước đo thành công?
 - OpenProject: ảnh chụp các màn team dùng nhiều nhất, danh sách module đang bật, phiên bản, gói (Community hay Enterprise).

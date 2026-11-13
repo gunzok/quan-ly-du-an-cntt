@@ -20,3 +20,4 @@ Canvas mockup v1: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW (riêng tư,
 | S10 Kanban chế độ tối | v1 | 2026-11-13 | Đã duyệt | |
 | S11 Gantt | v1 | 2026-11-13 | Đã duyệt | Mới: team dùng Gantt hằng ngày |
 | S12 Chế độ xem đã lưu và mặc định | v1 | 2026-11-13 | Đã duyệt | Mới: theo OpenProject |
+| Style guide, S06 Dashboard, S03 Kanban | v3 (Blueprint) | 2026-11-13 | Chờ duyệt | "Nghiên cứu phong cách dribbble.com/samoctav và áp dụng vào thiết kế app, đưa vào system design". File: [mockups/v3/blueprint-preview.html](mockups/v3/blueprint-preview.html), có nút chuyển sáng, tối |
