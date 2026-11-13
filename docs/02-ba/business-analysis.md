@@ -127,16 +127,16 @@ Cột Story điền ở Pha 4, cột Test điền ở Pha 5.
 
 | Yêu cầu | Epic | Story | Test |
 |---|---|---|---|
-| FR-01, FR-02, BR-01, BR-02, BR-10, NFR-06 | E1 Nền tảng, đăng nhập, RBAC (QLDA-12) | | |
-| FR-05, FR-06, FR-07, BR-03, BR-04, BR-11 | E2 Dự án và task cốt lõi (QLDA-13) | | |
-| FR-03 | E2 Dự án và task cốt lõi (QLDA-13) | | |
-| FR-08, FR-09 | E3 Chế độ xem và tìm kiếm (QLDA-14) | | |
-| FR-11, FR-12 | E4 Thông báo (QLDA-15) | | |
-| FR-13, FR-14, FR-15, BR-07, BR-08, NFR-03 | E5 Dashboard và báo cáo (QLDA-16) | | |
-| FR-16, BR-09 | E6 Nhật ký hoạt động (QLDA-17) | | |
-| FR-04 | E7 Template dự án (QLDA-18) | | |
-| FR-10, BR-05, BR-06 | E8 Phụ thuộc giữa các task (QLDA-19) | | |
-| FR-17, FR-18, NFR-10, NFR-11 | E10 Đa ngôn ngữ và responsive (QLDA-20) | | |
+| FR-01, FR-02, BR-01, BR-02, BR-10, NFR-06 | E1 Nền tảng, đăng nhập, RBAC (QLDA-12) | E1-1, E1-3, E1-2, E1-4, E1-5, E1-6, E1-7 | |
+| FR-05, FR-06, FR-07, BR-03, BR-04, BR-11 | E2 Dự án và task cốt lõi (QLDA-13) | E2-1, E2-2, E2-3, E2-4, E2-6, E2-5, E2-7 | |
+| FR-03 | E2 Dự án và task cốt lõi (QLDA-13) | E2-1, E2-2, E2-3, E2-4, E2-6, E2-5, E2-7 | |
+| FR-08, FR-09 | E3 Chế độ xem và tìm kiếm (QLDA-14) | E3-1, E3-3, E3-2, E3-4 | |
+| FR-11, FR-12 | E4 Thông báo (QLDA-15) | E4-1, E4-2, E4-3 | |
+| FR-13, FR-14, FR-15, BR-07, BR-08, NFR-03 | E5 Dashboard và báo cáo (QLDA-16) | E5-1, E5-2, E5-3, E5-4, E5-5 | |
+| FR-16, BR-09 | E6 Nhật ký hoạt động (QLDA-17) | E6-1, E6-2 | |
+| FR-04 | E7 Template dự án (QLDA-18) | E7-1 | |
+| FR-10, BR-05, BR-06 | E8 Phụ thuộc giữa các task (QLDA-19) | E8-1, E8-2, E8-3 | |
+| FR-17, FR-18, NFR-10, NFR-11 | E10 Đa ngôn ngữ và responsive (QLDA-20) | E10-1, E10-2, E10-3 | |
 | NFR-01, NFR-02, NFR-04, NFR-05, NFR-07, NFR-08, NFR-09, NFR-12, NFR-13, NFR-14 | Xuyên suốt (kiểm ở Pha 3, 5, 6) | | |
 
 ## 8. Chỗ chưa rõ, cần sếp xác nhận
@@ -156,7 +156,7 @@ Nguồn: sếp yêu cầu giống OpenProject về thuật ngữ và chức năn
 |---|---|---|---|
 | UC-08 (đổi) | Quản lý quan hệ giữa task | PM, Thành viên | Đặt quan hệ: liên quan, chặn/bị chặn bởi, đứng trước/đứng sau, trùng lặp (kiểu vào MVP: **[CẦN XÁC NHẬN]**) |
 | UC-14 | Quản lý chế độ xem đã lưu | Mọi vai trò | Lưu bộ lọc, sắp xếp, nhóm, cột thành chế độ xem riêng, công khai hoặc yêu thích; dùng chế độ xem mặc định (Tất cả đang mở, Hoạt động gần nhất, Mới tạo, Quá hạn, Tóm tắt, Tạo bởi tôi, Giao cho tôi) |
-| UC-15 | Xem và lập lịch trên Gantt | PM, Thành viên (xem: Người xem) | Xem task theo thời gian, kéo chỉnh ngày bắt đầu và kết thúc, thấy quan hệ đứng trước/đứng sau |
+| UC-15 | Xem và lập lịch trên Gantt (đợt sau, ngoài MVP từ gate Pha 4) | PM, Thành viên (xem: Người xem) | Xem task theo thời gian, kéo chỉnh ngày bắt đầu và kết thúc, thấy quan hệ đứng trước/đứng sau |
 | UC-16 | Xem bảng phân cấp | Mọi vai trò | Bảng có thu gọn/mở rộng cha-con, nhóm theo thuộc tính, chọn cột |
 
 ### 10.2 Yêu cầu chức năng mới hoặc đổi

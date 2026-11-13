@@ -33,7 +33,7 @@ Liên quan: NFR-01, NFR-02, NFR-03, NFR-06, NFR-08, NFR-13. Các ngưỡng đán
 3. PM tạo dự án từ template, thêm thành viên.
 4. Tạo task, subtask 3 cấp (cấp 4 bị từ chối), giao việc, đặt hạn.
 5. Kéo thả Kanban; chuyển danh sách; tìm kiếm và lọc.
-6. Đặt quan hệ chặn và đứng trước, thử tạo vòng (bị từ chối), hoàn thành task bị chặn (có cảnh báo); mở Gantt, kéo chỉnh ngày, thấy quan hệ; lưu và dùng lại chế độ xem.
+6. Đặt quan hệ chặn và đứng trước, thử tạo vòng (bị từ chối), hoàn thành task bị chặn (có cảnh báo); lưu và dùng lại chế độ xem (luồng Gantt: đợt sau cùng E12).
 7. Nhận thông báo trong app; bật tắt email.
 8. Xem dashboard; xuất xlsx và docx theo template.
 9. Đổi ngôn ngữ Việt/English; kiểm tra màn 360 px.

@@ -15,7 +15,7 @@ Chỉ màn có trạng thái "Đã duyệt" trong [review-log.md](review-log.md)
 | S08 | Quản lý người dùng (v2) | Mời, gán phòng ban, cấp quyền Admin, khóa/mở; hiển thị Phòng ban, số dự án tham gia | UC-02, E1 | Admin | `mockups/v2/Admin.dc.html` |
 | S09 | Kanban trên điện thoại | Dùng được từ 360 px, vùng bấm 44 px, thay kéo thả bằng menu | FR-18, NFR-10, E10 | Mọi vai trò | `Mobile.dc.html` |
 | S10 | Kanban chế độ tối | Kiểm tra token chế độ tối | NFR-11 liên quan chế độ sáng/tối | Mọi vai trò | `KanbanDark.dc.html` |
-| S11 | Gantt | Xem task theo ngày bắt đầu, kết thúc, quan hệ đứng trước/đứng sau, kéo chỉnh ngày | UC-15, FR-20, E12 | PM, Thành viên (Người xem chỉ đọc) | `Gantt.dc.html` (v1) |
+| S11 | Gantt (đã duyệt, code đợt sau, E12 ngoài MVP) | Xem task theo ngày bắt đầu, kết thúc, quan hệ đứng trước/đứng sau, kéo chỉnh ngày | UC-15, FR-20, E12 | PM, Thành viên (Người xem chỉ đọc) | `Gantt.dc.html` (v1) |
 | S12 | Chế độ xem đã lưu và mặc định | Dùng, tạo, lưu chế độ xem; bảng phân cấp | UC-14, UC-16, FR-19, FR-22, E13, E3 | Mọi vai trò | `ListViews.dc.html` (v1) |
 
 ## Chưa có mockup (sẽ làm theo quy trình duyệt từng màn trước khi code)
