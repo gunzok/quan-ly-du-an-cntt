@@ -33,11 +33,13 @@ update t_updated_at_probe set note = 'b' where id = 1;
 select is((select updated_at from t_updated_at_probe where id = 1), now(),
   'Trigger gán updated_at = now() khi UPDATE');
 
--- Migration nền không được tạo bảng nghiệp vụ nào.
+-- Từ QLDA-32 schema public đã có bảng nghiệp vụ, nên thay kiểm tra "chưa có bảng" bằng
+-- bất biến áp cho mọi bảng về sau: không bảng nào trong public được thiếu RLS.
 select is(
-  (select count(*)::int from pg_tables where schemaname = 'public'),
-  0,
-  'Schema public chưa có bảng nghiệp vụ');
+  (select array_agg(tablename::text order by tablename) from pg_tables
+    where schemaname = 'public' and not rowsecurity),
+  null,
+  'Mọi bảng trong schema public đều bật RLS');
 
 select * from finish();
 rollback;
