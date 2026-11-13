@@ -2,6 +2,8 @@
 
 Quy trình: mỗi màn được sếp duyệt riêng (Duyệt, Chỉnh nhỏ, Không duyệt). Chỉnh nhỏ hoặc không duyệt thì làm phiên bản mới (v2, v3), không sửa đè bản cũ. Chỉ màn "Đã duyệt" mới được code.
 
+Ghi chú: sếp đã tạo trang "Blueprint (đã duyệt)" trong canvas (các khung bp-*), trang "Bản cũ trước Blueprint" là lưu trữ.
+
 Canvas mockup v1: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW (riêng tư, chỉ chủ tài khoản mở được).
 
 | Màn | Phiên bản | Ngày | Quyết định | Phản hồi |
@@ -20,3 +22,15 @@ Canvas mockup v1: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW (riêng tư,
 | S10 Kanban chế độ tối | v1 | 2026-11-13 | Đã duyệt | |
 | S11 Gantt | v1 | 2026-11-13 | Đã duyệt | Mới: team dùng Gantt hằng ngày |
 | S12 Chế độ xem đã lưu và mặc định | v1 | 2026-11-13 | Đã duyệt | Mới: theo OpenProject |
+| S13 Tạo dự án và chọn template | v1 | 2026-11-13 | Đã duyệt | Mới, Story E0-8 |
+| S14 Tạo task nhanh | v1 | 2026-11-13 | Đã duyệt | Mới, Story E0-8 |
+| S15 Nhật ký hoạt động | v1 | 2026-11-13 | Đã duyệt | Mới, Story E0-8 |
+| S16 Thông báo và cài đặt email | v1 | 2026-11-13 | Đã duyệt | Mới, Story E0-8 |
+| S17 Quản lý template dự án và báo cáo | v1 | 2026-11-13 | Đã duyệt | Mới, Story E0-8 |
+| S18 Hồ sơ cá nhân | v1 | 2026-11-13 | Thay bằng v2 | "Thêm phần số điện thoại của user" |
+| S18 Hồ sơ cá nhân | v2 | 2026-11-13 | Đã duyệt | Thêm Số điện thoại (PM và Admin xem được); mockup ở canvas trang Blueprint, khung S18 v2 |
+| S19 Cấu hình dự án: trạng thái, loại task, nhãn | v1 | 2026-11-13 | Đã duyệt | Chốt luôn loại task mặc định: Task, Bug, Milestone, Phase và 4 trạng thái Cần làm, Đang làm, Chờ review, Hoàn thành |
+| Style guide, S06 Dashboard, S03 Kanban | v3 (Blueprint) | 2026-11-13 | Chờ duyệt | "Nghiên cứu phong cách dribbble.com/samoctav và áp dụng vào thiết kế app, đưa vào system design". File: [mockups/v3/blueprint-preview.html](mockups/v3/blueprint-preview.html), có nút chuyển sáng, tối |
+| Cả 12 màn trên canvas (S01 đến S12) | Đổi màu Blueprint | 2026-11-13 | Chờ duyệt | "Sử dụng luôn artifact quản lý dự án CNTT này, chỉ thay đổi thiết kế màu sắc, không thay đổi chức năng hệ thống". Chỉ đổi mã màu theo design-system v2 (đã kiểm tra bằng code: ngoài mã màu, nội dung không đổi); hồng chỉ ở huy hiệu thông báo, vạch hôm nay (Gantt), chuỗi Chờ review (Dashboard). Bản mockup v1, v2 trong repo cập nhật theo |
+| S01 đến S12 | v3 Blueprint toàn diện (xem thử) | 2026-11-13 | Chờ duyệt | "Thay đổi toàn diện để xem thử review trước khi duyệt áp dụng". 12 artboard `bp-*.dc.html` trên trang "Blueprint toàn diện (xem thử)" của canvas; bản đã duyệt giữ nguyên ở trang "Đã duyệt". Thay đổi: phông 3 lớp, nhãn mono đánh số, khung app, ô KPI số lớn, thanh tiến độ mảnh, hàng thuộc tính, lưới bản vẽ, mã task trên thẻ. Không đổi màn hình, luồng, chức năng. S13 đến S19 (mới thêm vào canvas) chưa có bản Blueprint |
+| S01 đến S19 | Blueprint (v3) | 2026-11-13 | Đã duyệt | "Duyệt, làm hết các màn hình". Design system v2 Blueprint đã duyệt; làm thêm bản Blueprint cho S13 đến S19 (màn bổ sung sprint 1, E0-8); nối liên kết Thông báo, Nhật ký, Template, Hồ sơ giữa các màn. Trang Blueprint là trang chính của canvas, bản cũ chuyển sang trang lưu trữ |

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Gantt</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Inter+Tight:wght@300;400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background: #CDDBF2; padding: 12px; font-family: Inter, system-ui, sans-serif; color: #0A0F1F"><div style="display: flex; flex-wrap: wrap; min-height: 776px; background: #FFFFFF; border: 1px solid #E3E7EF; border-radius: 20px; overflow: hidden"><aside style="width: 240px; flex-shrink: 0; box-sizing: border-box; background: #F7F8FA; border-right: 1px solid #E3E7EF; padding: 18px 12px; display: flex; flex-direction: column; gap: 18px"><div style="display: flex; align-items: center; gap: 10px; padding: 0 8px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #2054F0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 11px">QL</div><span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span></div><div style="display: flex; align-items: center; gap: 8px; border: 1px solid #6B7385; border-radius: 6px; background: #FFFFFF; padding: 7px 10px; font-size: 14px; color: #4A5163;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A5163" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Tìm task, dự án…</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163; margin-left: auto">⌘K</span></div><nav aria-label="Điều hướng chính" style="display: flex; flex-direction: column; gap: 2px; font-size: 14px"><a href="bp-Projects.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span><span aria-hidden="true" style="color: #4A5163">+ </span>Dự án</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">06</span></a><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span><span aria-hidden="true" style="color: #4A5163">+ </span>Việc của tôi</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">14</span></a><a href="bp-Notifications.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span><span aria-hidden="true" style="color: #4A5163">+ </span>Thông báo</span><span style="border: 1px solid #E56DAF; color: #B0256E; border-radius: 999px; padding: 0 7px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 18px">3 mới</span></a></nav><div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px"><div style="padding: 0 10px 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Gần đây</span></div><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; background: #EEF2FD; box-shadow: inset 2px 0 0 #2054F0; font-weight: 600;"><span>Cổng thông tin nội bộ</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">/001</span></a><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span>Nâng cấp hệ thống kho</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">/002</span></a><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span>Ứng dụng chấm công</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">/003</span></a></div><div style="flex-grow: 1"></div><a href="bp-Profile.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 12px 8px 0; border-top: 1px solid #E3E7EF; color: #0A0F1F; text-decoration: none"><div style="width: 28px; height: 28px; border-radius: 14px; background: #DCE4FD; color: #1A3BB0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">MA</div><div style="display: flex; flex-direction: column; font-size: 13px; line-height: 16px"><span style="font-weight: 500">Nguyễn Minh Anh</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">PM</span></div></a></aside><main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column">
+<div style="padding: 22px 28px 0; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid #E3E7EF"><div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Dự án / 001 · 48 task · 7 thành viên</span><h1 style="margin: 0; font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-size: 30px; line-height: 36px; font-weight: 400; letter-spacing: -0.02em">Cổng thông tin nội bộ<span aria-hidden="true" style="color: #E56DAF">.</span></h1></div><div style="display: flex; gap: 8px; flex-wrap: wrap"><button style="background: #FFFFFF; color: #2054F0; border: 1px solid #6B7385; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Xuất báo cáo</button><button style="background: #2054F0; color: #FFFFFF; border: 1px solid #2054F0; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Tạo task <span aria-hidden="true">→</span></button></div></div><nav aria-label="Chế độ xem dự án" style="display: flex; gap: 24px; font-size: 14px; flex-wrap: wrap"><a href="bp-Kanban.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">01</span>Bảng</a><a href="bp-List.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">02</span>Danh sách</a><a href="bp-Gantt.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; border-bottom: 2px solid #2054F0; color: #2054F0; font-weight: 600"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">03</span>Gantt</a><a href="bp-Dashboard.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">04</span>Tổng quan</a><a href="bp-Activity.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">05</span>Nhật ký</a></nav></div>
+<div style="padding: 14px 28px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+<span style="border: 1px solid #2054F0; background: #EEF2FD; color: #2054F0; border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 500; white-space: nowrap">Chế độ xem: Tất cả đang mở</span><span style="border: 1px solid #6B7385; color: #0A0F1F; border-radius: 999px; padding: 5px 12px; font-size: 13px; white-space: nowrap"><span aria-hidden="true" style="color: #4A5163">+ </span>Thu phóng: Tuần</span><span style="border: 1px solid #6B7385; color: #0A0F1F; border-radius: 999px; padding: 5px 12px; font-size: 13px; white-space: nowrap"><span aria-hidden="true" style="color: #4A5163">+ </span>Hôm nay</span>
+<div style="flex-grow: 1"></div>
+<span style="display: inline-flex; gap: 14px; align-items: center; font-size: 12px; color: #4A5163">
+<span style="display: inline-flex; gap: 6px; align-items: center"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #137035"></span>Hoàn thành</span><span style="display: inline-flex; gap: 6px; align-items: center"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #2054F0"></span>Đang làm</span><span style="display: inline-flex; gap: 6px; align-items: center"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #6B7385"></span>Cần làm</span><span style="display: inline-flex; gap: 6px; align-items: center"><span aria-hidden="true" style="width: 9px; height: 9px; background: #B0256E; transform: rotate(45deg); display: inline-block"></span>Mốc</span>
+</span>
+</div>
+<div style="padding: 0 28px 6px; font-size: 12px; color: #4A5163">Kéo thanh để đổi ngày; mũi tên là quan hệ Đứng trước.</div>
+<div style="padding: 0 28px 28px; overflow-x: auto">
+<div style="display: flex; min-width: 1200px; border: 1px solid #E3E7EF; border-radius: 10px; overflow: hidden">
+<div style="width: 300px; flex-shrink: 0; border-right: 1px solid #E3E7EF; background: #FFFFFF">
+<div style="height: 48px; box-sizing: border-box; padding: 0 12px; display: flex; align-items: center; border-bottom: 1px solid #E3E7EF; background: #F7F8FA"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">ID · Tiêu đề</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div style="height: 36px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 {{r.indent}}; font-size: 13px; border-bottom: 1px solid #EEF2FD; font-weight: {{r.weight}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #4A5163">{{r.id}}</span>{{r.title}}</div>
+</sc-for>
+</div>
+<div style="flex: 1; position: relative; min-width: 0; background: #FFFFFF">
+<div style="height: 48px; box-sizing: border-box; display: flex; border-bottom: 1px solid #E3E7EF; background: #F7F8FA">
+<sc-for list="{{weeks}}" as="w" hint-placeholder-count="7">
+<div style="width: 140px; flex-shrink: 0; box-sizing: border-box; padding: 6px 8px; border-right: 1px solid #E3E7EF; display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #0A0F1F; display: inline-flex; align-items: center; gap: 8px">{{w.label}}</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #4A5163">{{w.range}}</span></div>
+</sc-for>
+</div>
+<div style="position: relative; height: {{bodyH}}; background-image: linear-gradient(90deg, rgba(32,84,240,0.07) 1px, transparent 1px); background-size: 20px 36px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div style="height: 36px; box-sizing: border-box; border-bottom: 1px solid #EEF2FD"></div>
+</sc-for>
+<div style="position: absolute; left: {{todayX}}; top: 0; bottom: 0; width: 2px; background: #E56DAF"></div>
+<div style="position: absolute; left: {{todayLabelX}}; top: 2px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; color: #B0256E; font-weight: 500; background: #FFFFFF; border: 1px solid #E56DAF; border-radius: 999px; padding: 0 6px">HÔM NAY 13/11</div>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="8">
+<div style="position: absolute; left: {{b.left}}; top: {{b.top}}; width: {{b.width}}; height: 20px; background: {{b.color}}; border-radius: {{b.radius}}; transform: {{b.rot}}; color: #FFFFFF; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 500; display: flex; align-items: center; padding: 0 6px; box-sizing: border-box; white-space: nowrap; overflow: hidden">{{b.text}}</div>
+</sc-for>
+<svg style="position: absolute; left: 0; top: 0; pointer-events: none" width="980" height="{{bodyH}}" aria-hidden="true">
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0A0F1F"/></marker></defs>
+<sc-for list="{{links}}" as="l" hint-placeholder-count="3">
+<path d="{{l.d}}" fill="none" stroke="#0A0F1F" stroke-width="1.2" marker-end="url(#arr)"/>
+</sc-for>
+</svg>
+</div>
+</div>
+</div>
+</div>
+</main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const DW = 20;
+const base = new Date(2026, 10, 2).getTime();
+const day = (d, m) => Math.round((new Date(2026, m - 1, d).getTime() - base) / 86400000);
+const ST = { done: '#137035', doing: '#2054F0', todo: '#6B7385' };
+const T = [
+{ id: 'CTTT-12', t: 'Khảo sát và phân tích', lv: 1, s: [2, 11], e: [13, 11], st: 'done', pct: '100%' },
+{ id: 'CTTT-14', t: 'Thiết kế hệ thống', lv: 1, s: [9, 11], e: [20, 11], st: 'doing', pct: '60%' },
+{ id: 'CTTT-21', t: 'Thiết kế màn hình đăng nhập', lv: 2, s: [12, 11], e: [20, 11], st: 'doing', pct: '40%' },
+{ id: 'CTTT-24', t: 'Xây dựng trang danh sách dự án', lv: 1, s: [10, 11], e: [15, 11], st: 'doing', pct: '50% · TRỄ' },
+{ id: 'CTTT-27', t: 'Cấu hình môi trường staging', lv: 1, s: [16, 11], e: [25, 11], st: 'todo', pct: '0%' },
+{ id: 'CTTT-31', t: 'API tìm kiếm và bộ lọc', lv: 1, s: [16, 11], e: [22, 11], st: 'todo', pct: '0%' },
+{ id: 'CTTT-33', t: 'Kiểm thử phân quyền 4 vai trò', lv: 1, s: [23, 11], e: [30, 11], st: 'todo', pct: '0%' },
+{ id: 'CTTT-40', t: 'Mốc: Bản chạy thử nội bộ', lv: 1, s: [4, 12], e: [4, 12], st: 'ms', pct: '' }
+];
+const rows = T.map((r) => ({ id: r.id, title: r.t, indent: (12 + (r.lv - 1) * 18) + 'px', weight: r.lv === 1 ? '500' : '400' }));
+const bars = T.map((r, i) => {
+const x1 = day(r.s[0], r.s[1]) * DW, x2 = (day(r.e[0], r.e[1]) + 1) * DW;
+if (r.st === 'ms') return { left: (x1 + 3) + 'px', top: (i * 36 + 9) + 'px', width: '18px', color: '#B0256E', radius: '2px', rot: 'rotate(45deg) scale(0.8)', text: '' };
+return { left: x1 + 'px', top: (i * 36 + 8) + 'px', width: (x2 - x1) + 'px', color: ST[r.st], radius: '3px', rot: 'none', text: r.pct };
+});
+const rel = (a, b) => {
+const ax = (day(T[a].e[0], T[a].e[1]) + 1) * DW, ay = a * 36 + 18;
+const bx = day(T[b].s[0], T[b].s[1]) * DW, by = b * 36 + 18;
+const mx = ax + 8;
+return { d: 'M' + ax + ',' + ay + ' H' + mx + ' V' + (by - 14 * (by > ay ? 1 : -1)) + ' H' + (bx - 8) + ' V' + by + ' H' + bx };
+};
+const weeks = [];
+const wl = ['02/11 - 08/11', '09/11 - 15/11', '16/11 - 22/11', '23/11 - 29/11', '30/11 - 06/12', '07/12 - 13/12', '14/12 - 20/12'];
+for (let i = 0; i < 7; i++) weeks.push({ label: 'Tuần ' + (45 + i), range: wl[i] });
+const todayX = day(13, 11) * DW + DW / 2;
+return { rows, bars, weeks, links: [rel(3, 5), rel(1, 6), rel(5, 6)], bodyH: (T.length * 36) + 'px', todayX: todayX + 'px', todayLabelX: (todayX + 6) + 'px' };
+}
+}
+</script>
+</body>
+</html>

@@ -35,7 +35,7 @@ erDiagram
 | Bảng | Cột chính | Ghi chú |
 |---|---|---|
 | `departments` | `id`, `name`, `position` | Phòng ban, danh mục do Admin quản lý (yêu cầu 2026-11-13) |
-| `profiles` | `id` (= `auth.users.id`), `full_name`, `email`, `department_id`, `is_admin`, `locale` (`vi`/`en`), `is_active` | `is_admin` là quyền toàn hệ thống (BR-01 sửa 2026-11-13); vai trò nằm ở `project_members`. Chỉ họ tên, email (NFR-14) |
+| `profiles` | `id` (= `auth.users.id`), `full_name`, `email`, `phone`, `department_id`, `is_admin`, `locale` (`vi`/`en`), `is_active` | `is_admin` là quyền toàn hệ thống (BR-01 sửa 2026-11-13); vai trò nằm ở `project_members`. Chỉ họ tên, email, số điện thoại, phòng ban (NFR-14); `phone` do chính người dùng nhập, PM và Admin xem được |
 | `projects` | `id`, `name`, `description`, `start_date`, `end_date`, `status` (`active`/`archived`), `created_by`, `template_id` | FR-03 |
 | `project_members` | `project_id`, `user_id`, `role` (`pm`/`member`/`viewer`), `joined_at` | Khóa chính (`project_id`, `user_id`); vai trò theo từng dự án (BR-01), quyết định ai thấy dự án (BR-10) |
 | `task_types` | `id`, `project_id`, `name`, `is_milestone`, `color`, `position` | Loại task (FR-23); mặc định Task, Bug, Milestone, Phase **[CẦN XÁC NHẬN]** |

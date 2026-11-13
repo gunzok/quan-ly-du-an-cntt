@@ -108,6 +108,6 @@ Bí mật lưu ở GitHub Secrets và biến môi trường Vercel/Supabase; `.e
 ## 9. Quyết định kiến trúc còn cần chốt (sẽ thành ADR)
 | ADR | Vấn đề | Đề xuất | Trạng thái |
 |---|---|---|---|
-| ADR-002 | Dịch vụ gửi email (thông báo, mời người dùng) | Dùng SMTP mặc định của Supabase cho email xác thực; dịch vụ giao dịch riêng cho thông báo, chọn theo gói miễn phí | **[CẦN XÁC NHẬN]** |
-| ADR-003 | Bộ lập lịch nhắc hạn | Supabase `pg_cron` gọi Route Handler, hoặc Vercel Cron; chọn theo giới hạn gói | **[CẦN XÁC NHẬN]** |
-| ADR-004 | Thư viện tạo xlsx/docx theo template | Ứng viên: exceljs (xlsx), docxtemplater (docx); thử trên 2.000 task (NFR-03) trước khi chốt | **[CẦN XÁC NHẬN]** |
+| ADR-002 | Dịch vụ gửi email (thông báo, mời người dùng) | Resend sau giao diện EmailSender ([ADR-002](../adr/ADR-002-email.md)) | Đã chấp nhận 2026-11-13 |
+| ADR-003 | Bộ lập lịch nhắc hạn | Supabase `pg_cron` ([ADR-003](../adr/ADR-003-bo-lap-lich.md)) | Đã chấp nhận 2026-11-13 |
+| ADR-004 | Thư viện tạo xlsx/docx theo template | docx-templates + exceljs, spike ở E5-3 ([ADR-004](../adr/ADR-004-xuat-bao-cao.md)) | Đã chấp nhận 2026-11-13, chốt cuối sau spike |

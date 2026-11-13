@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Đăng nhập</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Inter+Tight:wght@300;400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background: #CDDBF2; padding: 12px; display: flex; font-family: Inter, system-ui, sans-serif; color: #0A0F1F">
+<div style="flex: 1; display: flex; flex-wrap: wrap; background: #FFFFFF; border: 1px solid #E3E7EF; border-radius: 20px; overflow: hidden">
+<div style="flex: 1 1 420px; min-height: 360px; box-sizing: border-box; background-color: #2054F0; background-image: linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px); background-size: 32px 32px; color: #FFFFFF; padding: 32px 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; position: relative; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 10px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #FFFFFF; color: #2054F0; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 11px">QL</div><span style="font-weight: 600; font-size: 15px">Quản lý Dự án CNTT</span></div>
+<svg aria-hidden="true" width="360" height="360" viewBox="0 0 360 360" style="position: absolute; right: -60px; top: 120px" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1"><circle cx="180" cy="180" r="150"/><circle cx="180" cy="180" r="90"/><path d="M0 180H360M180 0V360"/><circle cx="180" cy="180" r="4" fill="#E56DAF" stroke="none"/></svg>
+<div style="display: flex; flex-direction: column; gap: 14px; position: relative">
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Hệ thống nội bộ</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-weight: 300; font-size: 48px; line-height: 52px; letter-spacing: -0.03em; max-width: 460px">Quản lý dự án CNTT<span aria-hidden="true" style="color: #E56DAF">.</span></h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; position: relative"><div style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.35)"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase">01 / Lập kế hoạch</span><span style="font-size: 13px; line-height: 18px">Dự án, task, Gantt</span></div><div style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.35)"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase">02 / Theo dõi</span><span style="font-size: 13px; line-height: 18px">Kanban, danh sách, dashboard</span></div><div style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.35)"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase">03 / Báo cáo</span><span style="font-size: 13px; line-height: 18px">Xuất Excel, Word theo mẫu</span></div></div>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; padding: 24px 32px">
+<div style="display: flex; justify-content: flex-end; gap: 4px">
+<button style="border: 1px solid #2054F0; background: #EEF2FD; color: #2054F0; border-radius: 999px; padding: 6px 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; min-height: 32px">VI</button>
+<button style="border: 1px solid #6B7385; background: #FFFFFF; color: #4A5163; border-radius: 999px; padding: 6px 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.06em; min-height: 32px">EN</button>
+</div>
+<div style="flex-grow: 1; display: flex; align-items: center; justify-content: center">
+<div style="width: 380px; max-width: 100%; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>01 / Đăng nhập</span><h1 style="margin: 0; font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-size: 32px; line-height: 38px; font-weight: 400; letter-spacing: -0.02em">Chào mừng trở lại<span aria-hidden="true" style="color: #E56DAF">.</span></h1><p style="margin: 0; font-size: 14px; line-height: 20px; color: #4A5163">Dùng tài khoản được Admin mời vào hệ thống.</p></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="email" style="font-size: 14px; font-weight: 500">Email</label><input id="email" type="email" value="minh.anh@congty.example" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0A0F1F"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="display: flex; justify-content: space-between; align-items: center"><label for="pw" style="font-size: 14px; font-weight: 500">Mật khẩu</label><a href="#" style="font-size: 14px">Quên mật khẩu?</a></div>
+<input id="pw" type="password" value="••••••••••" style="border: 2px solid #2054F0; border-radius: 6px; padding: 8px 11px; font: 400 14px Inter, sans-serif; color: #0A0F1F; outline: 2px solid #DCE4FD; outline-offset: 0"></div>
+<button style="background: #2054F0; color: #FFFFFF; border: 0; border-radius: 6px; padding: 10px 16px; font: 500 14px Inter, sans-serif; min-height: 44px; display: flex; justify-content: center; gap: 8px">Đăng nhập <span aria-hidden="true">→</span></button>
+<div style="display: flex; align-items: center; gap: 12px"><div style="flex-grow: 1; height: 1px; background: #E3E7EF"></div><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">hoặc</span><div style="flex-grow: 1; height: 1px; background: #E3E7EF"></div></div>
+<button style="background: #FFFFFF; color: #0A0F1F; border: 1px solid #6B7385; border-radius: 6px; padding: 10px 16px; font: 500 14px Inter, sans-serif; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0F1F" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Tiếp tục với Google</button>
+<p style="margin: 0; font-size: 12px; line-height: 16px; color: #4A5163; text-align: center">Chưa có tài khoản? Liên hệ Admin để được mời.</p>
+</div></div></div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Thông báo và cài đặt email</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #E2E8F0">
+<div style="flex: 999 1 320px; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 14px; color: #475569; font-weight: 500">Cổng thông tin nội bộ · Bảng (nền mờ khi mở thông báo)</div>
+<div style="height: 56px; border-radius: 8px; background: #F1F5F9"></div>
+<div style="height: 56px; border-radius: 8px; background: #F1F5F9"></div>
+<div style="height: 56px; border-radius: 8px; background: #F1F5F9"></div>
+</div>
+<aside style="flex: 1 1 440px; max-width: 480px; box-sizing: border-box; background: #FFFFFF; border-left: 1px solid #E2E8F0; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600">Thông báo</h1>
+<a href="#" style="font-size: 13px">Đánh dấu tất cả đã đọc</a>
+</div>
+<div style="display: flex; gap: 8px">
+<button style="border: 1px solid #1D4ED8; background: #EFF6FF; color: #1D4ED8; border-radius: 6px; padding: 6px 12px; font: 600 13px Inter, sans-serif; min-height: 32px">Chưa đọc (3)</button>
+<button style="border: 1px solid #64748B; background: #FFFFFF; color: #475569; border-radius: 6px; padding: 6px 12px; font: 400 13px Inter, sans-serif; min-height: 32px">Tất cả</button>
+</div>
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{items}}" as="n" hint-placeholder-count="5">
+<div style="display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #E2E8F0">
+<span style="width: 8px; height: 8px; border-radius: 4px; background: {{n.dot}}; margin-top: 6px; flex-shrink: 0"></span>
+<div style="display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0"><span style="font-size: 14px; line-height: 20px; font-weight: {{n.weight}}">{{n.text}}</span><span style="font-size: 12px; color: #475569">{{n.when}}</span></div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #E2E8F0; padding-top: 14px">
+<span style="font-size: 14px; font-weight: 600">Nhận email khi</span>
+<sc-for list="{{prefs}}" as="p" hint-placeholder-count="3">
+<label style="display: flex; justify-content: space-between; align-items: center; font-size: 14px"><span>{{p.label}}</span><span style="width: 36px; height: 20px; border-radius: 10px; background: {{p.bg}}; position: relative; display: inline-block"><span style="position: absolute; top: 2px; left: {{p.left}}; width: 16px; height: 16px; border-radius: 8px; background: #FFFFFF"></span></span></label>
+</sc-for>
+<span style="font-size: 12px; color: #475569">Email nhắc hạn gộp thành một thư tóm tắt mỗi sáng.</span>
+</div>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const n = (text, when, unread) => ({ text, when, dot: unread ? '#1D4ED8' : '#E2E8F0', weight: unread ? '600' : '400' });
+const p = (label, on) => ({ label, bg: on ? '#1D4ED8' : '#64748B', left: on ? '18px' : '2px' });
+return {
+items: [
+n('Nguyễn Minh Anh giao cho bạn task CTTT-24 Xây dựng trang danh sách dự án', 'Hôm nay 09:12', true),
+n('CTTT-31 sắp đến hạn: còn 1 ngày (27/11)', 'Hôm nay 08:00', true),
+n('Trần Quốc Bảo đổi trạng thái CTTT-25 sang Chờ review', 'Hôm qua 17:45', true),
+n('Lê Thu Hà thêm bạn vào dự án Nâng cấp hệ thống kho với vai trò Thành viên', '12/11 11:00', false),
+n('CTTT-19 đã bị xóa bởi Nguyễn Minh Anh', '12/11 10:20', false)
+],
+prefs: [p('Được giao việc', true), p('Task sắp đến hạn (tóm tắt mỗi sáng)', true), p('Task đổi trạng thái', false)]
+};
+}
+}
+</script>
+</body>
+</html>
