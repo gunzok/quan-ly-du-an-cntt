@@ -40,6 +40,18 @@ Tài khoản thử dùng chung mật khẩu `SEED_PASSWORD` do bạn tự đặt
 
 Vai trò theo từng dự án chưa được gán (Story E1-3). `make db-reset` xóa cả tài khoản thử, chạy lại `make db-seed` sau đó. Script chỉ chạy với stack cục bộ và từ chối mọi URL không phải localhost.
 
+### Chạy ứng dụng cục bộ
+
+```bash
+make db-start                      # in ra API URL và khóa cục bộ
+supabase status -o env             # xem lại: API_URL, ANON_KEY (hoặc PUBLISHABLE_KEY)
+# Điền vào .env.local: NEXT_PUBLIC_SUPABASE_URL=<API_URL>, NEXT_PUBLIC_SUPABASE_ANON_KEY=<ANON_KEY>
+# (CLI mới gọi là publishable key; dự án giữ tên biến cũ). KHÔNG đặt khóa service_role vào biến NEXT_PUBLIC_*.
+make db-seed                       # tài khoản thử, xem bảng bên trên
+pnpm dev                           # http://localhost:3000, đăng nhập tại /login
+make test-integration              # test tích hợp đăng nhập/đăng xuất/hết phiên với stack cục bộ
+```
+
 ### Dừng
 
 ```bash

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { strings } from "@/lib/strings";
 import "./globals.css";
 
 // Phông theo design system v2 (Blueprint); cả 3 có bộ ký tự tiếng Việt.
@@ -23,8 +24,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quản lý dự án CNTT",
-  description: "Ứng dụng quản lý dự án CNTT nội bộ",
+  title: strings.app.name,
+  description: strings.app.description,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
