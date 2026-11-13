@@ -23,7 +23,7 @@ Chỉ màn có trạng thái "Đã duyệt" trong [review-log.md](review-log.md)
 | S15 | Nhật ký hoạt động | Xem và lọc nhật ký dự án | UC-12, FR-16, E6 | PM, Admin | `mockups/v3/Activity.dc.html` |
 | S16 | Thông báo và cài đặt email | Ngăn thông báo, bật tắt email theo loại | UC-09, FR-11, FR-12, E4 | Mọi vai trò | `mockups/v3/Notifications.dc.html` |
 | S17 | Quản lý template dự án và báo cáo | Admin tải lên và bật template báo cáo; danh sách template dự án | BR-08, FR-04, E5, E7 | Admin, PM | `mockups/v3/Templates.dc.html` |
-| S18 | Hồ sơ cá nhân | Tên, ngôn ngữ, giao diện, vai trò trong từng dự án | FR-17, E1 | Mọi vai trò | `mockups/v3/Profile.dc.html` |
+| S18 | Hồ sơ cá nhân (v2) | Tên, số điện thoại, ngôn ngữ, giao diện, vai trò trong từng dự án | FR-17, E1 | Mọi vai trò | `mockups/v3/Profile-v2.dc.html` (v1 giữ ở `Profile.dc.html`, đã có sửa nên xem v2) |
 | S19 | Cấu hình dự án | Trạng thái, loại task, nhãn | FR-06, E2 (Story E2-7) | PM, Admin | `mockups/v3/ProjectSettings.dc.html` |
 
 ## Màn đã có mockup ở S13 đến S19 (E0-8); còn thiếu
