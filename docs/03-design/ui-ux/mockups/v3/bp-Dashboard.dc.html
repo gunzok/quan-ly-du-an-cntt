@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Dashboard tiến độ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Inter+Tight:wght@300;400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background: #CDDBF2; padding: 12px; font-family: Inter, system-ui, sans-serif; color: #0A0F1F"><div style="display: flex; flex-wrap: wrap; min-height: 776px; background: #FFFFFF; border: 1px solid #E3E7EF; border-radius: 20px; overflow: hidden"><aside style="width: 240px; flex-shrink: 0; box-sizing: border-box; background: #F7F8FA; border-right: 1px solid #E3E7EF; padding: 18px 12px; display: flex; flex-direction: column; gap: 18px"><div style="display: flex; align-items: center; gap: 10px; padding: 0 8px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #2054F0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 11px">QL</div><span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span></div><div style="display: flex; align-items: center; gap: 8px; border: 1px solid #6B7385; border-radius: 6px; background: #FFFFFF; padding: 7px 10px; font-size: 14px; color: #4A5163;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A5163" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Tìm task, dự án…</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163; margin-left: auto">⌘K</span></div><nav aria-label="Điều hướng chính" style="display: flex; flex-direction: column; gap: 2px; font-size: 14px"><a href="bp-Projects.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span><span aria-hidden="true" style="color: #4A5163">+ </span>Dự án</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">06</span></a><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span><span aria-hidden="true" style="color: #4A5163">+ </span>Việc của tôi</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">14</span></a><a href="bp-Notifications.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span><span aria-hidden="true" style="color: #4A5163">+ </span>Thông báo</span><span style="border: 1px solid #E56DAF; color: #B0256E; border-radius: 999px; padding: 0 7px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 18px">3 mới</span></a></nav><div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px"><div style="padding: 0 10px 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Gần đây</span></div><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; background: #EEF2FD; box-shadow: inset 2px 0 0 #2054F0; font-weight: 600;"><span>Cổng thông tin nội bộ</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">/001</span></a><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span>Nâng cấp hệ thống kho</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">/002</span></a><a href="#" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 6px; color: #0A0F1F; text-decoration: none; "><span>Ứng dụng chấm công</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">/003</span></a></div><div style="flex-grow: 1"></div><a href="bp-Profile.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 12px 8px 0; border-top: 1px solid #E3E7EF; color: #0A0F1F; text-decoration: none"><div style="width: 28px; height: 28px; border-radius: 14px; background: #DCE4FD; color: #1A3BB0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">MA</div><div style="display: flex; flex-direction: column; font-size: 13px; line-height: 16px"><span style="font-weight: 500">Nguyễn Minh Anh</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">PM</span></div></a></aside><main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column">
+<div style="padding: 22px 28px 0; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid #E3E7EF"><div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Dự án / 001 · 48 task · 7 thành viên</span><h1 style="margin: 0; font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-size: 30px; line-height: 36px; font-weight: 400; letter-spacing: -0.02em">Cổng thông tin nội bộ<span aria-hidden="true" style="color: #E56DAF">.</span></h1></div><div style="display: flex; gap: 8px; flex-wrap: wrap"><button style="background: #FFFFFF; color: #2054F0; border: 1px solid #6B7385; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Xuất báo cáo</button></div></div><nav aria-label="Chế độ xem dự án" style="display: flex; gap: 24px; font-size: 14px; flex-wrap: wrap"><a href="bp-Kanban.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">01</span>Bảng</a><a href="bp-List.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">02</span>Danh sách</a><a href="bp-Dashboard.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; border-bottom: 2px solid #2054F0; color: #2054F0; font-weight: 600"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">03</span>Tổng quan</a><a href="bp-Activity.dc.html" style="padding: 10px 2px; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: #4A5163"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">04</span>Nhật ký</a></nav></div>
+<div style="padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #E3E7EF; border-radius: 10px; overflow: hidden">
+<div style="background: #2054F0; color: #FFFFFF; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>01 / Hoàn thành</span>
+<span style="font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-weight: 300; font-size: 48px; line-height: 52px; letter-spacing: -0.03em">62%</span>
+<div role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Hoàn thành 62%" style="height: 4px; border-radius: 2px; background: rgba(255,255,255,0.3)"><div style="height: 4px; width: 62%; border-radius: 2px; background: #FFFFFF"></div></div>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">30 / 48 task</span>
+</div>
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="3">
+<div style="padding: 16px 18px; border-left: 1px solid #E3E7EF; display: flex; flex-direction: column; gap: 8px">
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">{{k.num}} / {{k.label}}</span>
+<span style="font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-weight: 300; font-size: 48px; line-height: 52px; letter-spacing: -0.03em; color: {{k.color}}">{{k.value}}</span>
+<span style="font-size: 12px; color: #4A5163">{{k.note}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 16px; flex-wrap: wrap">
+<div style="flex: 1 1 340px; border: 1px solid #E3E7EF; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Phân bố theo trạng thái</h2><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">48 task</span></div>
+<div role="img" aria-label="Cần làm 7, Đang làm 9, Chờ review 2, Hoàn thành 30" style="display: flex; height: 8px; border-radius: 2px; overflow: hidden; gap: 2px">
+<div style="flex: 7; background: #8A93A6"></div><div style="flex: 9; background: #2054F0"></div><div style="flex: 2; background: #E56DAF"></div><div style="flex: 30; background: #137035"></div></div>
+<div style="display: flex; flex-direction: column"><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #E3E7EF"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #8A93A6"></span>Cần làm</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px">07 · 15%</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #E3E7EF"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #2054F0"></span>Đang làm</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px">09 · 19%</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #E3E7EF"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #E56DAF"></span>Chờ review</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px">02 · 4%</span></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #E3E7EF"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #137035"></span>Hoàn thành</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px">30 · 62%</span></div></div>
+</div>
+<div style="flex: 1 1 340px; border: 1px solid #E3E7EF; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Việc đang mở theo người phụ trách</h2><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">Task</span></div>
+<sc-for list="{{people}}" as="p" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 130px 1fr 28px; align-items: center; gap: 12px; font-size: 13px">
+<span>{{p.name}}</span>
+<div style="position: relative; height: 4px; border-radius: 2px; background: #EEF2FD"><div style="height: 4px; border-radius: 2px; background: #2054F0; width: {{p.bar}}"></div></div>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; text-align: right">{{p.n}}</span>
+</div>
+</sc-for>
+<div style="display: grid; grid-template-columns: 130px 1fr 28px; gap: 12px"><span></span><div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #4A5163"><span>0</span><span>5</span><span>10</span></div><span></span></div>
+</div>
+</div>
+<div style="border: 1px solid #E3E7EF; border-radius: 10px; display: flex; flex-direction: column; min-width: 0">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Task trễ hạn</h2><span style="border: 1px solid #C0262D; color: #C0262D; border-radius: 999px; padding: 1px 8px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px">03</span></div>
+<sc-for list="{{late}}" as="t" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: 36px 1fr auto 20px; gap: 12px; align-items: center; font-size: 14px; padding: 10px 16px; border-top: 1px solid #E3E7EF">
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A5163">{{t.num}}</span><span>{{t.title}}</span>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #C0262D; font-weight: 600; white-space: nowrap">{{t.days}}</span><span aria-hidden="true" style="color: #4A5163">↗</span>
+</div>
+</sc-for>
+</div>
+</div>
+</main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+kpis: [
+{ num: '02', label: 'Đang làm', value: '9', color: '#2054F0', note: 'task đang thực hiện' },
+{ num: '03', label: 'Trễ hạn', value: '3', color: '#C0262D', note: 'cần xử lý sớm' },
+{ num: '04', label: 'Bị chặn', value: '2', color: '#A34A06', note: 'đang chờ task khác' }
+],
+people: [
+{ name: 'Nguyễn Minh Anh', n: '06', bar: '60%' },
+{ name: 'Trần Quốc Bảo', n: '08', bar: '80%' },
+{ name: 'Lê Thu Hà', n: '05', bar: '50%' },
+{ name: 'Phạm Gia Huy', n: '04', bar: '40%' }
+],
+late: [
+{ num: '01', title: 'Xây dựng trang danh sách dự án', days: 'TRỄ 1 NGÀY' },
+{ num: '02', title: 'Kiểm thử phân quyền 4 vai trò', days: 'TRỄ 1 NGÀY' },
+{ num: '03', title: 'Chuẩn hóa mã lỗi thông báo', days: 'TRỄ 3 NGÀY' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

@@ -11,61 +11,61 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
 <style>
-body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
-a{color:#1D4ED8}a:hover{color:#1E40AF}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
 </style>
 </helmet>
 <div style="width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; display: flex; flex-direction: column; font-family: Inter, system-ui, sans-serif; overflow: hidden">
-<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 12px; border-bottom: 1px solid #E2E8F0; min-height: 52px">
-<button aria-label="Mở menu" style="width: 44px; height: 44px; border: 0; background: #FFFFFF; font-size: 20px; color: #0F172A">≡</button>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 8px 12px; border-bottom: 1px solid #E3E7EF; min-height: 52px">
+<button aria-label="Mở menu" style="width: 44px; height: 44px; border: 0; background: #FFFFFF; font-size: 20px; color: #0A0F1F">≡</button>
 <span style="font-size: 16px; font-weight: 600">Cổng thông tin nội bộ</span>
-<button aria-label="Thông báo, 3 chưa đọc" style="width: 44px; height: 44px; border: 0; background: #FFFFFF; font-size: 14px; font-weight: 600; color: #1D4ED8">3</button>
+<button aria-label="Thông báo, 3 chưa đọc" style="width: 44px; height: 44px; border: 0; background: #FFFFFF; font-size: 14px; font-weight: 600; color: #2054F0">3</button>
 </div>
-<div style="display: flex; gap: 4px; padding: 8px 12px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0">
-<button style="flex: 1; min-height: 44px; border: 1px solid #1D4ED8; background: #EFF6FF; color: #1D4ED8; border-radius: 6px; font: 600 14px Inter, sans-serif">Bảng</button>
-<button style="flex: 1; min-height: 44px; border: 1px solid #64748B; background: #FFFFFF; color: #475569; border-radius: 6px; font: 400 14px Inter, sans-serif">Danh sách</button>
-<button style="flex: 1; min-height: 44px; border: 1px solid #64748B; background: #FFFFFF; color: #475569; border-radius: 6px; font: 400 14px Inter, sans-serif">Tổng quan</button>
+<div style="display: flex; gap: 4px; padding: 8px 12px; background: #F7F8FA; border-bottom: 1px solid #E3E7EF">
+<button style="flex: 1; min-height: 44px; border: 1px solid #2054F0; background: #EEF2FD; color: #2054F0; border-radius: 6px; font: 600 14px Inter, sans-serif">Bảng</button>
+<button style="flex: 1; min-height: 44px; border: 1px solid #6B7385; background: #FFFFFF; color: #4A5163; border-radius: 6px; font: 400 14px Inter, sans-serif">Danh sách</button>
+<button style="flex: 1; min-height: 44px; border: 1px solid #6B7385; background: #FFFFFF; color: #4A5163; border-radius: 6px; font: 400 14px Inter, sans-serif">Tổng quan</button>
 </div>
 <div style="display: flex; gap: 8px; padding: 10px 12px; overflow: hidden; align-items: center">
-<span style="font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 16px; background: #1D4ED8; color: #FFFFFF; min-height: 20px">Đang làm 3</span>
-<span style="font-size: 13px; padding: 8px 12px; border-radius: 16px; background: #F1F5F9; color: #475569">Cần làm 3</span>
-<span style="font-size: 13px; padding: 8px 12px; border-radius: 16px; background: #F1F5F9; color: #475569">Chờ review 2</span>
-<span style="font-size: 13px; padding: 8px 12px; border-radius: 16px; background: #F1F5F9; color: #475569">Xong 2</span>
+<span style="font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 16px; background: #2054F0; color: #FFFFFF; min-height: 20px">Đang làm 3</span>
+<span style="font-size: 13px; padding: 8px 12px; border-radius: 16px; background: #EEF2FD; color: #4A5163">Cần làm 3</span>
+<span style="font-size: 13px; padding: 8px 12px; border-radius: 16px; background: #EEF2FD; color: #4A5163">Chờ review 2</span>
+<span style="font-size: 13px; padding: 8px 12px; border-radius: 16px; background: #EEF2FD; color: #4A5163">Xong 2</span>
 </div>
-<div style="flex-grow: 1; overflow: hidden; padding: 4px 12px; display: flex; flex-direction: column; gap: 10px; background: #F8FAFC">
+<div style="flex-grow: 1; overflow: hidden; padding: 4px 12px; display: flex; flex-direction: column; gap: 10px; background: #F7F8FA">
 <sc-for list="{{cards}}" as="c" hint-placeholder-count="3">
-<article style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<article style="background: #FFFFFF; border: 1px solid #E3E7EF; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px">
 <div style="display: flex; justify-content: space-between; gap: 8px; align-items: flex-start">
 <span style="font-size: 15px; line-height: 22px; font-weight: 500">{{c.title}}</span>
-<button aria-label="Chuyển đến cột khác" style="min-width: 44px; min-height: 44px; margin: -10px -10px 0 0; border: 0; background: #FFFFFF; font-size: 18px; color: #475569">⋯</button>
+<button aria-label="Chuyển đến cột khác" style="min-width: 44px; min-height: 44px; margin: -10px -10px 0 0; border: 0; background: #FFFFFF; font-size: 18px; color: #4A5163">⋯</button>
 </div>
 <div style="display: flex; gap: 6px; flex-wrap: wrap">
 <span style="font-size: 12px; padding: 2px 6px; border-radius: 4px; background: {{c.pbg}}; color: {{c.pfg}}; font-weight: 500">{{c.prio}}</span>
-<span style="font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; color: #475569">{{c.label}}</span>
+<span style="font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #EEF2FD; color: #4A5163">{{c.label}}</span>
 </div>
 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px">
 <span style="color: {{c.dueColor}}; font-weight: {{c.dueWeight}}">{{c.due}}</span>
-<span style="width: 26px; height: 26px; border-radius: 13px; background: {{c.abg}}; color: #0F172A; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">{{c.who}}</span>
+<span style="width: 26px; height: 26px; border-radius: 13px; background: {{c.abg}}; color: #0A0F1F; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">{{c.who}}</span>
 </div>
 </article>
 </sc-for>
 </div>
-<nav style="display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #E2E8F0; background: #FFFFFF">
-<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #1D4ED8; text-decoration: none">Dự án</a>
-<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #475569; text-decoration: none">Việc của tôi</a>
-<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #475569; text-decoration: none">Thông báo</a>
-<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #475569; text-decoration: none">Hồ sơ</a>
+<nav style="display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #E3E7EF; background: #FFFFFF">
+<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #2054F0; text-decoration: none">Dự án</a>
+<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5163; text-decoration: none">Việc của tôi</a>
+<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5163; text-decoration: none">Thông báo</a>
+<a href="#" style="min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5163; text-decoration: none">Hồ sơ</a>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
 renderVals() {
-const P = { urgent: ['▲▲ Khẩn cấp', '#FEE2E2', '#B91C1C'], high: ['▲ Cao', '#FEF3C7', '#B45309'], mid: ['■ Trung bình', '#F1F5F9', '#475569'] };
-const A = { MA: '#DBEAFE', QB: '#DCFCE7', TH: '#FEF3C7' };
+const P = { urgent: ['▲▲ Khẩn cấp', '#FEE2E2', '#C0262D'], high: ['▲ Cao', '#FEF3C7', '#A34A06'], mid: ['■ Trung bình', '#EEF2FD', '#4A5163'] };
+const A = { MA: '#DCE4FD', QB: '#DCFCE7', TH: '#FEF3C7' };
 const c = (title, p, label, due, late, who) => ({
 title, prio: P[p][0], pbg: P[p][1], pfg: P[p][2], label, due: (late ? 'Trễ hạn ' : 'Hạn ') + due,
-dueColor: late ? '#B91C1C' : '#475569', dueWeight: late ? '600' : '400', who, abg: A[who]
+dueColor: late ? '#C0262D' : '#4A5163', dueWeight: late ? '600' : '400', who, abg: A[who]
 });
 return { cards: [
 c('Xây dựng trang danh sách dự án', 'urgent', 'Tính năng', '15/11', true, 'MA'),

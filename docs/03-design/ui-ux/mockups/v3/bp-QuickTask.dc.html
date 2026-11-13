@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tạo task nhanh</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Inter+Tight:wght@300;400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background-color: #0A0F1F; background-image: linear-gradient(rgba(123,151,255,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(123,151,255,0.10) 1px, transparent 1px); background-size: 24px 24px; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: Inter, system-ui, sans-serif; color: #0A0F1F"><div role="dialog" aria-label="Tạo task" style="width: 660px; max-width: 100%; background: #FFFFFF; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 16px 40px rgba(0,0,0,0.45)"><div style="display: flex; justify-content: space-between; align-items: flex-start"><div style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 6px; height: 6px; border-radius: 3px; background: #E56DAF; display: inline-block; flex-shrink: 0"></span>Task / Mới · Cổng thông tin nội bộ</span><h1 style="margin: 0; font-family: 'Inter Tight', Inter, system-ui, sans-serif; font-size: 26px; line-height: 32px; font-weight: 400; letter-spacing: -0.02em">Tạo task<span aria-hidden="true" style="color: #E56DAF">.</span></h1></div><button aria-label="Đóng" style="border: 1px solid #6B7385; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0A0F1F">×</button></div><div style="display: flex; flex-direction: column; gap: 6px"><label for="t" style="font-size: 14px; font-weight: 500">Tiêu đề</label><input id="t" type="text" value="Thiết kế trang quản lý phòng ban" style="border: 2px solid #2054F0; border-radius: 6px; padding: 8px 11px; font: 400 14px Inter, sans-serif; color: #0A0F1F"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px">
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #4A5163; display: inline-flex; align-items: center; gap: 8px">{{f.num}} / {{f.label}}</span><span style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font-size: 14px; display: flex; justify-content: space-between"><span>{{f.value}}</span><span aria-hidden="true" style="color: #4A5163">▾</span></span></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px"><div style="display: flex; flex-direction: column; gap: 6px"><label for="s" style="font-size: 14px; font-weight: 500">Ngày bắt đầu</label><input id="s" type="text" value="23/11/2026" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #0A0F1F"></div><div style="display: flex; flex-direction: column; gap: 6px"><label for="e" style="font-size: 14px; font-weight: 500">Ngày kết thúc (hạn)</label><input id="e" type="text" value="27/11/2026" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #0A0F1F"></div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d" style="font-size: 14px; font-weight: 500">Mô tả</label><textarea id="d" rows="3" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0A0F1F; resize: none">Màn Admin quản lý danh mục phòng ban, thêm, sửa, sắp xếp.</textarea></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid #E3E7EF">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input type="checkbox" style="margin: 0">Tạo tiếp task khác</label>
+<div style="display: flex; gap: 8px"><button style="background: #FFFFFF; color: #2054F0; border: 1px solid #6B7385; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Hủy</button><button style="background: #2054F0; color: #FFFFFF; border: 1px solid #2054F0; border-radius: 6px; padding: 7px 14px; font: 500 14px Inter, sans-serif; min-height: 36px; display: inline-flex; align-items: center; gap: 8px">Tạo task <span aria-hidden="true">→</span></button></div></div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return { fields: [
+{ num: '01', label: 'Loại', value: 'Task' },
+{ num: '02', label: 'Trạng thái', value: 'Cần làm' },
+{ num: '03', label: 'Người thực hiện', value: 'Trần Quốc Bảo' },
+{ num: '04', label: 'Ưu tiên', value: '■ Trung bình' },
+{ num: '05', label: 'Nhãn', value: 'Tính năng' },
+{ num: '06', label: 'Task cha (tùy chọn)', value: 'Không có' }
+] };
+}
+}
+</script>
+</body>
+</html>
