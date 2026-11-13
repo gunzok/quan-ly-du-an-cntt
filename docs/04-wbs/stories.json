@@ -57,7 +57,7 @@
   "deps": [
    "E0-1"
   ],
-  "sprint": 2
+  "sprint": 1
  },
  {
   "id": "E0-2",
@@ -68,7 +68,7 @@
   "deps": [
    "E0-1"
   ],
-  "sprint": 3
+  "sprint": 2
  },
  {
   "id": "E0-3",
@@ -79,7 +79,7 @@
   "deps": [
    "E0-1"
   ],
-  "sprint": 3
+  "sprint": 2
  },
  {
   "id": "E1-2",
@@ -90,7 +90,7 @@
   "deps": [
    "E1-1"
   ],
-  "sprint": 2
+  "sprint": 1
  },
  {
   "id": "E1-4",
@@ -102,7 +102,7 @@
    "E1-1",
    "E1-3"
   ],
-  "sprint": 3
+  "sprint": 2
  },
  {
   "id": "E2-1",
@@ -113,7 +113,7 @@
   "deps": [
    "E1-3"
   ],
-  "sprint": 4
+  "sprint": 3
  },
  {
   "id": "E2-2",
@@ -124,7 +124,7 @@
   "deps": [
    "E1-3"
   ],
-  "sprint": 4
+  "sprint": 3
  },
  {
   "id": "E1-5",
@@ -135,7 +135,7 @@
   "deps": [
    "E1-4"
   ],
-  "sprint": 5
+  "sprint": 3
  },
  {
   "id": "E1-6",
@@ -147,7 +147,7 @@
    "E1-3",
    "E2-1"
   ],
-  "sprint": 5
+  "sprint": 3
  },
  {
   "id": "E2-3",
@@ -158,7 +158,7 @@
   "deps": [
    "E2-1"
   ],
-  "sprint": 5
+  "sprint": 3
  },
  {
   "id": "E2-4",
@@ -169,7 +169,7 @@
   "deps": [
    "E2-2"
   ],
-  "sprint": 6
+  "sprint": 4
  },
  {
   "id": "E2-6",
@@ -181,7 +181,7 @@
    "E2-2",
    "E1-3"
   ],
-  "sprint": 5
+  "sprint": 4
  },
  {
   "id": "E0-5",
@@ -192,18 +192,18 @@
   "deps": [
    "E0-1"
   ],
-  "sprint": 4
+  "sprint": 3
  },
  {
   "id": "E12-1",
   "epic": "E12",
   "title": "Spike Gantt: chọn thư viện, prototype 500 task",
   "points": 5,
-  "moscow": "Must",
+  "moscow": "Đợt sau",
   "deps": [
    "E2-2"
   ],
-  "sprint": 5
+  "sprint": 11
  },
  {
   "id": "E2-5",
@@ -215,7 +215,7 @@
    "E2-2",
    "E2-3"
   ],
-  "sprint": 6
+  "sprint": 4
  },
  {
   "id": "E3-1",
@@ -227,7 +227,7 @@
    "E2-3",
    "E2-2"
   ],
-  "sprint": 7
+  "sprint": 4
  },
  {
   "id": "E3-3",
@@ -238,7 +238,7 @@
   "deps": [
    "E2-2"
   ],
-  "sprint": 7
+  "sprint": 5
  },
  {
   "id": "E6-1",
@@ -249,7 +249,7 @@
   "deps": [
    "E2-2"
   ],
-  "sprint": 7
+  "sprint": 5
  },
  {
   "id": "E0-7",
@@ -261,7 +261,7 @@
    "E0-1",
    "E2-2"
   ],
-  "sprint": 6
+  "sprint": 4
  },
  {
   "id": "E3-2",
@@ -272,7 +272,7 @@
   "deps": [
    "E2-4"
   ],
-  "sprint": 8
+  "sprint": 5
  },
  {
   "id": "E3-4",
@@ -284,7 +284,7 @@
    "E3-3",
    "E0-7"
   ],
-  "sprint": 8
+  "sprint": 5
  },
  {
   "id": "E13-1",
@@ -295,7 +295,7 @@
   "deps": [
    "E3-3"
   ],
-  "sprint": 8
+  "sprint": 5
  },
  {
   "id": "E13-2",
@@ -307,7 +307,7 @@
    "E13-1",
    "E3-2"
   ],
-  "sprint": 9
+  "sprint": 6
  },
  {
   "id": "E8-1",
@@ -318,7 +318,7 @@
   "deps": [
    "E2-2"
   ],
-  "sprint": 9
+  "sprint": 6
  },
  {
   "id": "E0-9",
@@ -329,10 +329,9 @@
   "deps": [
    "E3-1",
    "E8-2",
-   "E5-3",
-   "E12-2"
+   "E5-3"
   ],
-  "sprint": 13
+  "sprint": 8
  },
  {
   "id": "E8-2",
@@ -344,7 +343,7 @@
    "E8-1",
    "E2-5"
   ],
-  "sprint": 11
+  "sprint": 7
  },
  {
   "id": "E8-3",
@@ -356,7 +355,7 @@
    "E8-1",
    "E3-1"
   ],
-  "sprint": 11
+  "sprint": 7
  },
  {
   "id": "E4-1",
@@ -368,7 +367,7 @@
    "E2-2",
    "E0-8"
   ],
-  "sprint": 10
+  "sprint": 6
  },
  {
   "id": "E5-1",
@@ -379,7 +378,7 @@
   "deps": [
    "E2-3"
   ],
-  "sprint": 10
+  "sprint": 6
  },
  {
   "id": "E5-2",
@@ -390,19 +389,19 @@
   "deps": [
    "E1-3"
   ],
-  "sprint": 10
+  "sprint": 6
  },
  {
   "id": "E12-2",
   "epic": "E12",
   "title": "Gantt: thanh theo ngày, cột tiêu đề, thu phóng, vạch hôm nay (S11)",
   "points": 8,
-  "moscow": "Must",
+  "moscow": "Đợt sau",
   "deps": [
    "E12-1",
    "E2-2"
   ],
-  "sprint": 9
+  "sprint": 11
  },
  {
   "id": "E13-3",
@@ -413,7 +412,7 @@
   "deps": [
    "E13-2"
   ],
-  "sprint": 10
+  "sprint": 6
  },
  {
   "id": "E2-7",
@@ -424,7 +423,7 @@
   "deps": [
    "E2-3"
   ],
-  "sprint": 6
+  "sprint": 4
  },
  {
   "id": "E10-2",
@@ -435,7 +434,7 @@
   "deps": [
    "E10-1"
   ],
-  "sprint": 3
+  "sprint": 2
  },
  {
   "id": "E4-2",
@@ -447,7 +446,7 @@
    "E4-1",
    "E0-6"
   ],
-  "sprint": 11
+  "sprint": 7
  },
  {
   "id": "E5-3",
@@ -460,18 +459,18 @@
    "E5-1",
    "E0-6"
   ],
-  "sprint": 12
+  "sprint": 7
  },
  {
   "id": "E12-3",
   "epic": "E12",
   "title": "Gantt: kéo chỉnh ngày và kiểm tra BR-13",
   "points": 8,
-  "moscow": "Must",
+  "moscow": "Đợt sau",
   "deps": [
    "E12-2"
   ],
-  "sprint": 12
+  "sprint": 11
  },
  {
   "id": "E10-3",
@@ -483,7 +482,7 @@
    "E3-1",
    "E10-1"
   ],
-  "sprint": 11
+  "sprint": 7
  },
  {
   "id": "E0-4",
@@ -494,7 +493,7 @@
   "deps": [
    "E0-2"
   ],
-  "sprint": 14
+  "sprint": 9
  },
  {
   "id": "E0-10",
@@ -505,7 +504,7 @@
   "deps": [
    "E0-2"
   ],
-  "sprint": 14
+  "sprint": 9
  },
  {
   "id": "E6-2",
@@ -517,19 +516,19 @@
    "E6-1",
    "E0-8"
   ],
-  "sprint": 14
+  "sprint": 9
  },
  {
   "id": "E12-4",
   "epic": "E12",
   "title": "Gantt: hiển thị quan hệ và lập lịch",
   "points": 8,
-  "moscow": "Should",
+  "moscow": "Đợt sau",
   "deps": [
    "E12-2",
    "E8-1"
   ],
-  "sprint": 14
+  "sprint": 11
  },
  {
   "id": "E4-3",
@@ -540,7 +539,7 @@
   "deps": [
    "E4-2"
   ],
-  "sprint": 15
+  "sprint": 9
  },
  {
   "id": "E5-4",
@@ -551,7 +550,7 @@
   "deps": [
    "E5-3"
   ],
-  "sprint": 13
+  "sprint": 8
  },
  {
   "id": "E5-5",
@@ -563,7 +562,7 @@
    "E5-4",
    "E0-7"
   ],
-  "sprint": 15
+  "sprint": 9
  },
  {
   "id": "E1-7",
@@ -575,7 +574,7 @@
    "E1-1",
    "E0-8"
   ],
-  "sprint": 15
+  "sprint": 9
  },
  {
   "id": "E7-1",
@@ -588,6 +587,6 @@
    "E2-4",
    "E0-8"
   ],
-  "sprint": 16
+  "sprint": 10
  }
 ]

@@ -11,7 +11,8 @@ import os
 import sys
 from collections import OrderedDict, defaultdict
 
-VELOCITY = int(sys.argv[1]) if len(sys.argv) > 1 else 20
+VELOCITY = int(sys.argv[1]) if len(sys.argv) > 1 else 30
+BASELINE = 20
 START = "2026-11-16"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,12 +27,12 @@ EPICS = OrderedDict([
     ("E7", ("Template dự án", "QLDA-18")),
     ("E8", ("Quan hệ giữa các task", "QLDA-19")),
     ("E10", ("Đa ngôn ngữ và responsive", "QLDA-20")),
-    ("E12", ("Timeline/Gantt", "QLDA-23")),
+    ("E12", ("Timeline/Gantt (đợt sau)", "QLDA-23")),
     ("E13", ("Chế độ xem đã lưu", "QLDA-24")),
 ])
 OUT_OF_MVP = [("E9", "Theo dõi thời gian", "QLDA-21"), ("E11", "Cộng tác mở rộng (bình luận, tệp, thùng rác)", "QLDA-22"),
               ("E14", "Nhập dữ liệu từ OpenProject", "QLDA-25")]
-MO = {"M": "Must", "S": "Should", "C": "Could"}
+MO = {"M": "Must", "S": "Should", "C": "Could", "W": "Đợt sau"}
 
 # (id, epic, tiêu đề, điểm, MoSCoW, wave, phụ thuộc, tham chiếu, màn, actor, việc, giá trị, [tiêu chí], [task])
 ST = [
@@ -125,7 +126,7 @@ ST = [
  ["**Given** trang bất kỳ, **When** kiểm tra header, **Then** có CSP chặt, `X-Content-Type-Options`, HSTS.",
   "**Given** gọi API quá nhiều, **When** vượt ngưỡng, **Then** nhận 429 với `rate_limited`."],
  ["CSP và header an toàn", "Giới hạn tần suất", "Kiểm tra origin và CSRF cho thao tác ghi", "Bật GitHub secret scanning, kiểm tra"]),
-("E12-1", "E12", "Spike Gantt: chọn thư viện, prototype 500 task", 5, "M", 3, ["E2-2"], "NFR-15; FR-20", "S11",
+("E12-1", "E12", "Spike Gantt: chọn thư viện, prototype 500 task", 5, "W", 3, ["E2-2"], "NFR-15; FR-20", "S11",
  "chủ dự án", "chọn thư viện Gantt và kiểm chứng hiệu năng", "tránh làm Gantt từ đầu hoặc chọn nhầm",
  ["**Given** 500 task, **When** render prototype, **Then** dưới 2 giây ở P95 (NFR-15).",
   "**Given** kết quả, **When** xong, **Then** có ADR thư viện Gantt và điều kiện xem xét lại."],
@@ -180,7 +181,7 @@ ST = [
  ["**Given** hai task, **When** đặt quan hệ chặn, **Then** quan hệ đảo (bị chặn bởi) hiển thị ở task kia.",
   "**Given** quan hệ gây vòng, **When** lưu, **Then** bị từ chối 409."],
  ["Migration `task_relations`, trigger", "API quan hệ", "Test vòng và quyền"]),
-("E0-9", "E0", "Bộ test e2e luồng chính (9 luồng)", 8, "M", 8, ["E3-1", "E8-2", "E5-3", "E12-2"], "test-strategy.md mục 4", "-",
+("E0-9", "E0", "Bộ test e2e luồng chính (9 luồng)", 8, "M", 8, ["E3-1", "E8-2", "E5-3"], "test-strategy.md mục 4", "-",
  "chủ dự án", "có test e2e bảo vệ các luồng chính", "phát hành tự tin",
  ["**Given** 9 luồng trong `test-strategy.md`, **When** CI chạy, **Then** tất cả đạt.",
   "**Given** lỗi trợ năng mức nghiêm trọng, **When** axe quét, **Then** CI đỏ."],
@@ -210,7 +211,7 @@ ST = [
  ["**Given** Admin, **When** tải template hợp lệ, **Then** lưu ở Storage và dùng được.",
   "**Given** tệp sai loại hoặc quá lớn, **When** tải lên, **Then** bị từ chối."],
  ["Bảng `report_templates`, Storage", "API và giao diện (cần mockup E0-8)", "Kiểm tra loại và kích thước tệp"]),
-("E12-2", "E12", "Gantt: thanh theo ngày, cột tiêu đề, thu phóng, vạch hôm nay (S11)", 8, "M", 6, ["E12-1", "E2-2"], "FR-20; S11", "S11",
+("E12-2", "E12", "Gantt: thanh theo ngày, cột tiêu đề, thu phóng, vạch hôm nay (S11)", 8, "W", 6, ["E12-1", "E2-2"], "FR-20; S11", "S11",
  "PM, Thành viên", "xem task theo thời gian trên Gantt", "thấy lịch tổng thể",
  ["**Given** dự án có task, **When** mở Gantt, **Then** thanh nằm đúng ngày bắt đầu và kết thúc.",
   "**Given** 500 task, **When** mở, **Then** dưới 2 giây ở P95 (NFR-15)."],
@@ -240,7 +241,7 @@ ST = [
  ["**Given** dự án, kỳ và template, **When** xuất xlsx, **Then** tệp đúng mẫu và dữ liệu khớp.",
   "**Given** thiếu template, **When** xuất, **Then** báo `report_template_missing`."],
  ["API `POST /projects/{id}/reports`", "Điền dữ liệu vào template theo ADR-004", "Hộp thoại S07", "Test golden file"]),
-("E12-3", "E12", "Gantt: kéo chỉnh ngày và kiểm tra BR-13", 8, "M", 7, ["E12-2"], "FR-20, FR-21; BR-13", "S11",
+("E12-3", "E12", "Gantt: kéo chỉnh ngày và kiểm tra BR-13", 8, "W", 7, ["E12-2"], "FR-20, FR-21; BR-13", "S11",
  "PM, Thành viên", "kéo thanh để đổi ngày bắt đầu và kết thúc", "lập lịch trực quan",
  ["**Given** quyền sửa, **When** kéo thanh, **Then** ngày đổi và ghi nhật ký.",
   "**Given** ngày kết thúc sớm hơn bắt đầu, **When** kéo, **Then** bị từ chối (BR-13)."],
@@ -265,7 +266,7 @@ ST = [
  ["**Given** PM, **When** mở nhật ký, **Then** thấy danh sách thay đổi mới nhất trước.",
   "**Given** bộ lọc người hoặc thời gian, **When** áp dụng, **Then** kết quả khớp."],
  ["API `/projects/{id}/activity`", "Giao diện nhật ký", "Test"]),
-("E12-4", "E12", "Gantt: hiển thị quan hệ và lập lịch", 8, "S", 8, ["E12-2", "E8-1"], "FR-20, FR-21; BR-13", "S11",
+("E12-4", "E12", "Gantt: hiển thị quan hệ và lập lịch", 8, "W", 8, ["E12-2", "E8-1"], "FR-20, FR-21; BR-13", "S11",
  "PM", "thấy mũi tên quan hệ đứng trước/đứng sau và dời ngày theo quy tắc lập lịch", "lịch tự cập nhật",
  ["**Given** quan hệ đứng trước, **When** hiển thị Gantt, **Then** có mũi tên nối đúng.",
   "**Given** task đứng trước dời ngày, **When** lập lịch tự động bật, **Then** task đứng sau dời theo (theo quyết định **[CẦN XÁC NHẬN]**)."],
@@ -304,7 +305,7 @@ def plan(velocity):
     pts = {s[0]: s[3] for s in ST}
     placed = {}
     sprints = []
-    for tier in ("M", "S", "C"):
+    for tier in ("M", "S", "C", "W"):
         remaining = [s[0] for s in sorted([s for s in ST if s[4] == tier], key=lambda s: (s[5], s[0]))]
         if not remaining:
             continue
@@ -350,7 +351,7 @@ def main():
     for s in ST:
         e = byep[s[1]]
         e[0] += s[3]
-        e[{"M": 1, "S": 2, "C": 3}[s[4]]] += s[3]
+        e[{"M": 1, "S": 2, "C": 3, "W": 3}[s[4]]] += s[3]
 
     L = []
     A = L.append
@@ -361,11 +362,11 @@ def main():
     A("| Mục | Giá trị |\n|---|---|")
     A("| Thang ước lượng | Story point Fibonacci 1, 2, 3, 5, 8; Story trên 8 điểm phải tách |")
     A("| Sprint | 1 tuần, bắt đầu thứ Hai %s |" % START)
-    A("| Velocity giả định | %d điểm mỗi sprint (sếp cùng agent Opus 5.5 chạy song song); **chỉ là giả định**, hiệu chỉnh từ sprint 2 bằng velocity thật |" % VELOCITY)
+    A("| Velocity giả định | Baseline đã duyệt: %d điểm mỗi sprint. Lịch dưới đây xếp theo **%d điểm mỗi sprint** (mức cần để giữ hạn 8 tuần sếp đã chọn); chỉ là giả định, hiệu chỉnh từ sprint 2 bằng velocity thật |" % (BASELINE, VELOCITY))
     A("| Điểm Story | Ước lượng của Claude, chưa có dữ liệu thật; độ lệch dự kiến lớn ở Gantt, xuất báo cáo, RLS |")
-    A("| Đường cắt MVP | Story Must; Should làm sau Must nếu còn thời gian; Could, E9, E11, E14 ngoài MVP |\n")
+    A("| Đường cắt MVP | Story Must; Should làm sau Must nếu còn thời gian; Could, Gantt (E12), E9, E11, E14 ngoài MVP (quyết định của sếp 2026-11-13: giữ hạn 8 tuần, bỏ Gantt khỏi MVP) |\n")
     A("## 2. Tổng điểm")
-    A("| Epic | Tổng | Must | Should | Could |\n|---|---|---|---|---|")
+    A("| Epic | Tổng | Must | Should | Could và đợt sau |\n|---|---|---|---|---|")
     for k in EPICS:
         t = byep[k]
         A("| %s %s | %d | %d | %d | %d |" % (k, EPICS[k][0], t[0], t[1], t[2], t[3]))
@@ -374,9 +375,9 @@ def main():
     A("## 3. Kết quả kế hoạch và đánh giá R-003, R-009")
     A("- Điểm Must (đường cắt MVP): **%d**; với velocity %d cần **%d sprint (%d tuần)**, kết thúc khoảng %s." % (must, VELOCITY, must_sprints, must_sprints, week(must_sprints)[1]))
     A("- Mục tiêu đã duyệt là MVP **6 đến 8 tuần** (6 đến 8 sprint). %s" % (
-        "**Kế hoạch hiện tại vượt mục tiêu.**" if must_sprints > 8 else "Kế hoạch nằm trong mục tiêu."))
+        "**Kế hoạch hiện tại vượt mục tiêu.**" if must_sprints > 8 else "Kế hoạch nằm trong mục tiêu, **với điều kiện velocity thật đạt khoảng %d điểm mỗi sprint** (baseline đã duyệt là %d, rủi ro R-003 còn cao)." % (VELOCITY, BASELINE)))
     A("\n### Kịch bản (tính bằng code)")
-    A("| Kịch bản | Điểm Must | Velocity 12 | Velocity 20 | Velocity 30 |\n|---|---|---|---|---|")
+    A("| Kịch bản | Điểm Must | Velocity %d | Velocity 25 | Velocity 30 |\n|---|---|---|---|---|" % BASELINE)
 
     def scen(skip_epics):
         keep = [s for s in ST if s[4] == "M" and s[1] not in skip_epics]
@@ -397,20 +398,28 @@ def main():
         finally:
             ST = saved
 
-    cases = [("Giữ nguyên phạm vi Must", []),
-             ("Bỏ Gantt (E12)", ["E12"]),
-             ("Bỏ Gantt và chế độ xem đã lưu (E12, E13)", ["E12", "E13"]),
-             ("Bỏ Gantt, chế độ xem đã lưu và quan hệ (E12, E13, E8)", ["E12", "E13", "E8"])]
+    cases = [("Phạm vi đã chốt (Must, không Gantt)", []),
+             ("Bỏ thêm chế độ xem đã lưu (E13)", ["E13"]),
+             ("Bỏ thêm E13 và quan hệ giữa task (E8)", ["E13", "E8"]),
+             ("Bỏ thêm E13, E8 và Dashboard, báo cáo (E5)", ["E13", "E8", "E5"])]
     for name, skip in cases:
         p, keep = scen(skip)
         ids = {s[0] for s in keep}
         row = [name, str(p)]
-        for vel in (12, 20, 30):
+        for vel in (BASELINE, 25, 30):
             row.append("%d sprint" % sprints_needed(ids, vel))
         A("| " + " | ".join(row) + " |")
     full_ids = {s[0] for s in ST if s[4] == "M"}
-    need = next((v for v in range(VELOCITY, 120) if sprints_needed(full_ids, v) <= 8), None)
-    A("\nĐể giữ nguyên phạm vi Must trong 8 sprint cần velocity thật từ khoảng %s điểm mỗi sprint (tính theo cách xếp Story và phụ thuộc ở trên); nếu velocity thật vẫn là %d thì cần cắt phạm vi hoặc kéo dài hạn. Quyết định thuộc về sếp ở gate.\n" % (need, VELOCITY))
+    need = next((v for v in range(BASELINE, 120) if sprints_needed(full_ids, v) <= 8), None)
+    A("\nĐể giữ nguyên phạm vi Must trong 8 sprint cần velocity thật từ khoảng %s điểm mỗi sprint (tính theo cách xếp Story và phụ thuộc ở trên); nếu velocity thật vẫn là %d thì cần cắt phạm vi hoặc kéo dài hạn. Quyết định thuộc về sếp ở gate.\n" % (need, BASELINE))
+    A("### Danh sách cắt dự phòng nếu velocity thật thấp hơn %s (theo thứ tự cắt, giá trị trên mỗi điểm thấp nhất trước)" % need)
+    A("| Thứ tự | Story | Điểm | Điểm Must còn lại | Velocity tối thiểu xấp xỉ cho 8 sprint |\n|---|---|---|---|---|")
+    cut = ["E13-3", "E8-3", "E10-3", "E5-4", "E13-2", "E13-1"]
+    left = must
+    for i, cid in enumerate(cut, 1):
+        left -= pts[cid]
+        A("| %d | %s | %d | %d | %d |" % (i, cid, pts[cid], left, math.ceil(left / 8)))
+    A("\nThứ tự này cần sếp xác nhận khi phải cắt; riêng E5-4 (docx) chỉ cắt nếu báo cáo xlsx đã đủ dùng.\n")
     A("## 4. Lịch sprint (velocity %d)" % VELOCITY)
     A("| Sprint | Tuần | Điểm | Story |\n|---|---|---|---|")
     for i, sp in enumerate(sprints, 1):

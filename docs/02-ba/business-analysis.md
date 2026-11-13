@@ -156,7 +156,7 @@ Nguồn: sếp yêu cầu giống OpenProject về thuật ngữ và chức năn
 |---|---|---|---|
 | UC-08 (đổi) | Quản lý quan hệ giữa task | PM, Thành viên | Đặt quan hệ: liên quan, chặn/bị chặn bởi, đứng trước/đứng sau, trùng lặp (kiểu vào MVP: **[CẦN XÁC NHẬN]**) |
 | UC-14 | Quản lý chế độ xem đã lưu | Mọi vai trò | Lưu bộ lọc, sắp xếp, nhóm, cột thành chế độ xem riêng, công khai hoặc yêu thích; dùng chế độ xem mặc định (Tất cả đang mở, Hoạt động gần nhất, Mới tạo, Quá hạn, Tóm tắt, Tạo bởi tôi, Giao cho tôi) |
-| UC-15 | Xem và lập lịch trên Gantt | PM, Thành viên (xem: Người xem) | Xem task theo thời gian, kéo chỉnh ngày bắt đầu và kết thúc, thấy quan hệ đứng trước/đứng sau |
+| UC-15 | Xem và lập lịch trên Gantt (đợt sau, ngoài MVP từ gate Pha 4) | PM, Thành viên (xem: Người xem) | Xem task theo thời gian, kéo chỉnh ngày bắt đầu và kết thúc, thấy quan hệ đứng trước/đứng sau |
 | UC-16 | Xem bảng phân cấp | Mọi vai trò | Bảng có thu gọn/mở rộng cha-con, nhóm theo thuộc tính, chọn cột |
 
 ### 10.2 Yêu cầu chức năng mới hoặc đổi
