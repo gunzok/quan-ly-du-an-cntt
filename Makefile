@@ -1,18 +1,44 @@
-# Hợp đồng giữa CI và dự án: CI chỉ gọi 4 target này.
-# Các target dưới đây đang là STUB (chỉ cảnh báo, trả về thành công) để PR đầu tiên chạy được.
-# BẮT BUỘC thay bằng lệnh thật sau khi chốt tech stack (Pha 2) và trước khi bắt đầu Pha 5.
-# Khi thay xong, cập nhật mục "CI còn STUB" trong PROJECT_STATE.md.
+# Hợp đồng giữa CI và dự án: CI chỉ gọi 4 target lint, test, build, security
+# (sau bước `make install`). Chạy cục bộ y hệt CI:
+#   make install && make lint && make test && make build && make security
+#
+# Yêu cầu: Node theo .nvmrc, pnpm theo trường packageManager trong package.json,
+# gitleaks (cho target security). Thiếu công cụ thì target báo lỗi kèm cách cài, không bỏ qua.
 
-.PHONY: lint test build security
+.PHONY: install lint test build security check-pnpm check-gitleaks
 
-lint:
-	@echo "::warning::lint chưa được cấu hình (STUB). Thay bằng lệnh thật ở Pha 2."
+# Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
+AUDIT_LEVEL ?= high
 
-test:
-	@echo "::warning::test chưa được cấu hình (STUB). Thay bằng lệnh thật ở Pha 2."
+# Phiên bản pnpm lấy từ trường packageManager (chỉ dùng cho thông báo cài đặt).
+PNPM_VERSION := $(shell sed -n 's/.*"packageManager": *"pnpm@\([^"]*\)".*/\1/p' package.json)
 
-build:
-	@echo "::warning::build chưa được cấu hình (STUB). Thay bằng lệnh thật ở Pha 2."
+check-pnpm:
+	@command -v pnpm >/dev/null 2>&1 || { \
+		echo "::error::Thiếu pnpm. Cài: npm install -g pnpm@$(PNPM_VERSION) (hoặc xem https://pnpm.io/installation)"; \
+		exit 1; }
 
-security:
-	@echo "::warning::security chưa được cấu hình (STUB). Thêm kiểm tra bí mật và phụ thuộc ở Pha 2."
+check-gitleaks:
+	@command -v gitleaks >/dev/null 2>&1 || { \
+		echo "::error::Thiếu gitleaks. Cài: brew install gitleaks (macOS) hoặc tải bản phát hành tại https://github.com/gitleaks/gitleaks/releases"; \
+		exit 1; }
+
+install: check-pnpm
+	pnpm install --frozen-lockfile
+
+# ESLint (cấu hình Next.js) + kiểm tra định dạng Prettier + kiểm tra kiểu TypeScript
+lint: check-pnpm
+	pnpm lint
+	pnpm format:check
+	pnpm typecheck
+
+test: check-pnpm
+	pnpm test
+
+build: check-pnpm
+	pnpm build
+
+# Quét bí mật trong toàn bộ lịch sử git + quét lỗ hổng phụ thuộc
+security: check-pnpm check-gitleaks
+	gitleaks git --redact --no-banner .
+	pnpm audit --audit-level $(AUDIT_LEVEL)

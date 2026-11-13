@@ -8,8 +8,8 @@ Mô tả ngắn gọn thay đổi và lý do.
 
 ## Cách kiểm tra
 
-1. 
-2. 
+1.
+2.
 
 ## Ảnh chụp (nếu có thay đổi giao diện)
 
