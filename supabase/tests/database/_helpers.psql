@@ -1,0 +1,145 @@
+-- Helper dùng chung cho test RLS (QLDA-32). Nạp bằng `\ir _helpers.psql` SAU `begin;`
+-- trong từng tệp *.test.sql: mọi thứ tạo ở đây nằm trong transaction của tệp test và bị
+-- rollback cùng nó. Đuôi .psql để `supabase test db` (pg_prove) không chạy tệp này như một test.
+-- Không phụ thuộc thư viện ngoài: tự giả lập đăng nhập bằng request.jwt.claims + role.
+
+create extension if not exists pgtap with schema extensions;
+
+create schema tests;
+grant usage on schema tests to anon, authenticated;
+
+-- Giả lập người dùng đã đăng nhập: auth.uid() đọc `sub` từ request.jwt.claims.
+create function tests.login_as(user_id uuid)
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('role', 'authenticated', true);
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', user_id, 'role', 'authenticated')::text,
+    true
+  );
+end;
+$$;
+
+-- Giả lập khách chưa đăng nhập.
+create function tests.login_anon()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('role', 'anon', true);
+  perform set_config('request.jwt.claims', '{"role":"anon"}', true);
+end;
+$$;
+
+-- Trở về vai trò postgres (bỏ qua RLS) để chuẩn bị hoặc kiểm tra dữ liệu.
+create function tests.logout()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('role', 'postgres', true);
+  perform set_config('request.jwt.claims', '', true);
+end;
+$$;
+
+-- Chạy một câu lệnh với vai trò hiện tại, trả về số dòng bị ảnh hưởng. Dùng để chứng minh
+-- RLS lọc mất dòng (UPDATE/DELETE không lỗi nhưng 0 dòng).
+create function tests.affected_rows(sql text)
+returns integer
+language plpgsql
+as $$
+declare
+  n integer;
+begin
+  execute sql;
+  get diagnostics n = row_count;
+  return n;
+end;
+$$;
+
+grant execute on all functions in schema tests to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Dữ liệu mẫu (chạy với vai trò postgres). UUID cố định, dễ đọc:
+--   ...a1 admin       Admin toàn hệ thống
+--   ...b1 pm_a        PM dự án A, Người xem dự án B  (vai trò khác nhau theo dự án)
+--   ...b2 pm_b        PM dự án B
+--   ...c1 member_a    Thành viên dự án A
+--   ...d1 viewer_a    Người xem dự án A
+--   ...e1 outsider    Không thuộc dự án nào
+--   ...f1 locked      Thành viên dự án A nhưng bị khóa
+--   ...f2 locked_admin Admin bị khóa
+-- Dự án A: ...0a, dự án B: ...0b
+-- ---------------------------------------------------------------------------
+create function tests.seed_fixture()
+returns void
+language plpgsql
+as $$
+begin
+  -- Cô lập khỏi dữ liệu sẵn có (seed, tài khoản thử): xóa trong transaction của test,
+  -- rollback cuối tệp sẽ trả lại nguyên trạng. Xóa auth.users xóa theo profiles (CASCADE).
+  delete from public.projects;
+  delete from public.departments;
+  delete from auth.users;
+
+  insert into auth.users (id, email, raw_user_meta_data) values
+    ('00000000-0000-0000-0000-0000000000a1', 'admin@test.example', '{"full_name":"Admin"}'),
+    ('00000000-0000-0000-0000-0000000000b1', 'pm_a@test.example', '{"full_name":"PM A"}'),
+    ('00000000-0000-0000-0000-0000000000b2', 'pm_b@test.example', '{"full_name":"PM B"}'),
+    ('00000000-0000-0000-0000-0000000000c1', 'member_a@test.example', '{"full_name":"Member A"}'),
+    ('00000000-0000-0000-0000-0000000000d1', 'viewer_a@test.example', '{"full_name":"Viewer A"}'),
+    ('00000000-0000-0000-0000-0000000000e1', 'outsider@test.example', '{"full_name":"Outsider"}'),
+    ('00000000-0000-0000-0000-0000000000f1', 'locked@test.example', '{"full_name":"Locked"}'),
+    ('00000000-0000-0000-0000-0000000000f2', 'locked_admin@test.example', '{"full_name":"Locked Admin"}');
+
+  update public.profiles set is_admin = true
+    where id in ('00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000f2');
+  update public.profiles set is_active = false
+    where id in ('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000f2');
+
+  insert into public.departments (id, name, position) values
+    ('00000000-0000-0000-0000-00000000de01', 'Phòng Thử 1', 1);
+
+  -- Trigger add_creator_as_pm biến người tạo thành PM.
+  insert into public.projects (id, name, created_by) values
+    ('00000000-0000-0000-0000-00000000000a', 'Dự án A', '00000000-0000-0000-0000-0000000000b1'),
+    ('00000000-0000-0000-0000-00000000000b', 'Dự án B', '00000000-0000-0000-0000-0000000000b2');
+
+  insert into public.project_members (project_id, user_id, role) values
+    ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000c1', 'member'),
+    ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000d1', 'viewer'),
+    ('00000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000f1', 'member'),
+    ('00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000b1', 'viewer');
+
+  insert into public.profile_contacts (user_id, phone) values
+    ('00000000-0000-0000-0000-0000000000b1', '0900000001'),
+    ('00000000-0000-0000-0000-0000000000c1', '0900000002'),
+    ('00000000-0000-0000-0000-0000000000d1', '0900000003'),
+    ('00000000-0000-0000-0000-0000000000e1', '0900000004');
+end;
+$$;
+
+-- Ký hiệu ngắn cho UUID trong test.
+create function tests.uid(name text)
+returns uuid
+language sql
+immutable
+as $$
+  select case name
+    when 'admin' then '00000000-0000-0000-0000-0000000000a1'
+    when 'pm_a' then '00000000-0000-0000-0000-0000000000b1'
+    when 'pm_b' then '00000000-0000-0000-0000-0000000000b2'
+    when 'member_a' then '00000000-0000-0000-0000-0000000000c1'
+    when 'viewer_a' then '00000000-0000-0000-0000-0000000000d1'
+    when 'outsider' then '00000000-0000-0000-0000-0000000000e1'
+    when 'locked' then '00000000-0000-0000-0000-0000000000f1'
+    when 'locked_admin' then '00000000-0000-0000-0000-0000000000f2'
+    when 'project_a' then '00000000-0000-0000-0000-00000000000a'
+    when 'project_b' then '00000000-0000-0000-0000-00000000000b'
+    when 'dept_1' then '00000000-0000-0000-0000-00000000de01'
+  end::uuid;
+$$;
+grant execute on function tests.uid(text) to anon, authenticated;

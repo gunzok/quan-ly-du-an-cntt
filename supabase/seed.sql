@@ -4,8 +4,9 @@
 --   * Idempotent: chạy lại bao nhiêu lần cũng cho cùng kết quả
 --     (dùng `on conflict do nothing` hoặc `where not exists`).
 --
--- Hiện chưa có bảng nghiệp vụ nên chưa có dữ liệu để seed.
---   * Tài khoản thử cho 4 persona (Admin, PM, Thành viên, Người xem) tạo bằng
---     `make db-seed` (scripts/seed-local-users.ts) qua API admin của Auth, vì mật khẩu
---     lấy từ biến môi trường SEED_PASSWORD, không được nằm trong tệp commit.
---   * Vai trò theo từng dự án (project_members) do Story E1-3 seed.
+-- Tệp này hiện để trống có chủ đích. Dữ liệu mẫu của E1-3 (QLDA-32) phụ thuộc tài khoản
+-- trong auth.users, nên seed cùng tài khoản bằng `make db-seed` (scripts/seed-local-users.ts):
+--   * 4 tài khoản thử (Admin, PM, Thành viên, Người xem) qua API admin của Auth, mật khẩu
+--     lấy từ biến môi trường SEED_PASSWORD, không nằm trong tệp commit.
+--   * is_admin cho admin, phòng ban, hai dự án mẫu với vai trò theo từng dự án
+--     (project_members), số điện thoại giả (profile_contacts).
