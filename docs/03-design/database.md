@@ -35,7 +35,8 @@ erDiagram
 | Bảng | Cột chính | Ghi chú |
 |---|---|---|
 | `departments` | `id`, `name`, `position` | Phòng ban, danh mục do Admin quản lý (yêu cầu 2026-11-13) |
-| `profiles` | `id` (= `auth.users.id`), `full_name`, `email`, `phone`, `department_id`, `is_admin`, `locale` (`vi`/`en`), `is_active` | `is_admin` là quyền toàn hệ thống (BR-01 sửa 2026-11-13); vai trò nằm ở `project_members`. Chỉ họ tên, email, số điện thoại, phòng ban (NFR-14); `phone` do chính người dùng nhập, PM và Admin xem được |
+| `profiles` | `id` (= `auth.users.id`), `full_name`, `email`, `department_id`, `is_admin`, `locale` (`vi`/`en`), `is_active` | `is_admin` là quyền toàn hệ thống (BR-01 sửa 2026-11-13); vai trò nằm ở `project_members`. Chỉ họ tên, email, số điện thoại, phòng ban (NFR-14); `phone` do chính người dùng nhập, PM và Admin xem được |
+| `profile_contacts` | `user_id` (PK, → `profiles`), `phone`, `updated_at` | Số điện thoại tách khỏi `profiles` vì RLS lọc theo hàng (E1-3, PR 14); chỉ chính chủ, PM của dự án chung và Admin đọc; chỉ chính chủ ghi; định dạng `^\+?[0-9][0-9 .()-]{5,19}$` |
 | `projects` | `id`, `name`, `description`, `start_date`, `end_date`, `status` (`active`/`archived`), `created_by`, `template_id` | FR-03 |
 | `project_members` | `project_id`, `user_id`, `role` (`pm`/`member`/`viewer`), `joined_at` | Khóa chính (`project_id`, `user_id`); vai trò theo từng dự án (BR-01), quyết định ai thấy dự án (BR-10) |
 | `task_types` | `id`, `project_id`, `name`, `is_milestone`, `color`, `position` | Loại task (FR-23); mặc định Task, Bug, Milestone, Phase **[CẦN XÁC NHẬN]** |
@@ -79,15 +80,18 @@ erDiagram
 Các cột Người xem, Thành viên, PM là vai trò **trong dự án** (`project_members.role`); Admin là `profiles.is_admin` (BR-01 sửa 2026-11-13). Người không thuộc dự án và không phải Admin không thấy dòng nào của dự án đó.
 | Bảng | Người xem | Thành viên | PM | Admin |
 |---|---|---|---|---|
-| `projects` | Đọc dự án mình thuộc | Đọc dự án mình thuộc | Đọc, sửa dự án mình thuộc, tạo mới | Toàn quyền |
+| `projects` | Đọc dự án mình thuộc | Đọc dự án mình thuộc | Đọc, sửa (kể cả lưu trữ) dự án mình là PM; tạo mới nếu là PM ở ít nhất một dự án; KHÔNG xóa (sếp chốt 2026-11-13) | Toàn quyền, chỉ Admin xóa |
+| `project_members` | Đọc cùng dự án | Đọc cùng dự án; không tự nâng vai trò | Thêm, đổi vai trò, gỡ thành viên dự án mình là PM | Toàn quyền |
+| `departments` | Đọc | Đọc | Đọc | Đọc, ghi |
+| `profile_contacts` | Chỉ của mình | Chỉ của mình | Của mình và thành viên dự án mình là PM | Đọc tất cả; ghi chỉ của mình |
 | `tasks` | Đọc | Đọc; sửa task mình phụ trách hoặc tạo (BR-03); tạo task | Đọc, sửa mọi task trong dự án | Toàn quyền |
 | `activity_logs` | Không | Không | Đọc nhật ký dự án mình thuộc | Đọc tất cả |
 | `saved_views` | Đọc chế độ xem công khai; tạo, sửa chế độ xem riêng của mình | Giống Người xem | Giống Thành viên; sửa chế độ xem công khai của dự án | Toàn quyền |
 | `task_relations` | Đọc | Tạo, xóa khi có quyền sửa cả hai task | Toàn quyền trong dự án | Toàn quyền |
-| `profiles` | Đọc tên người cùng dự án | Giống Người xem; sửa hồ sơ của mình | Giống Thành viên | Toàn quyền, đổi vai trò |
+| `profiles` | Đọc mình và người cùng dự án | Giống Người xem; sửa `full_name`, `locale` của mình | **Đọc mọi hồ sơ** (sếp chấp nhận 2026-11-13, để tìm người thêm vào dự án) | Đọc tất cả; đổi `is_admin`, `is_active`, phòng ban qua API máy chủ (khóa service) |
 | `report_templates` | Không | Không | Đọc | Toàn quyền |
 | `notifications` | Chỉ của mình | Chỉ của mình | Chỉ của mình | Chỉ của mình |
-`activity_logs` không có chính sách UPDATE/DELETE cho bất kỳ vai trò nào. Mọi chính sách có kiểm thử riêng (xem [test-strategy.md](test-strategy.md)).
+Người dùng bị khóa (`is_active = false`) không có quyền gì, kể cả đọc hồ sơ của mình. Hàm hỗ trợ RLS là SECURITY DEFINER trong schema `private` (không phơi qua API). `INSERT ... RETURNING` trên `projects` bị từ chối với PM không phải Admin (policy SELECT chạy trước trigger thêm PM): dùng `public.create_project()` hoặc client tự sinh `id` và đọc lại. Chưa chặn gỡ PM cuối cùng của dự án (trigger để Story sau). Mỗi migration thêm bảng mới phải tự `revoke` quyền mặc định của Supabase rồi `grant` theo cột. `activity_logs` không có chính sách UPDATE/DELETE cho bất kỳ vai trò nào. Mọi chính sách có kiểm thử riêng (xem [test-strategy.md](test-strategy.md)).
 
 ## 6. Migration
 - Mỗi thay đổi là một tệp SQL trong `supabase/migrations/` (đặt tên theo thời gian), chạy được từ đầu trên CSDL trống.

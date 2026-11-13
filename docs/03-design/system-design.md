@@ -82,6 +82,7 @@ sequenceDiagram
 ## 5. Xác thực và phân quyền
 - Đăng nhập email/mật khẩu và Google qua Supabase Auth; phiên lưu bằng cookie httpOnly (thư viện `@supabase/ssr`).
 - Vai trò toàn hệ thống nằm ở `profiles.role` (BR-01): `admin`, `pm`, `member`, `viewer`. Quyền trong dự án qua `project_members` (BR-10).
+- Phiên: proxy gọi `getUser()` (hỏi máy chủ Auth) thay vì chỉ xác minh JWT tại chỗ, để người dùng bị xóa hoặc phiên bị thu hồi bị chuyển về /login không lặp; cookie phiên httpOnly, SameSite=Lax, Secure ở production (quyết định ở E1-1, PR 15).
 - Hai lớp kiểm quyền: (1) Route Handler kiểm vai trò theo [api-contract.md](api-contract.md); (2) RLS ở Postgres (phòng thủ chiều sâu, NFR-06). Không bao giờ chỉ tin kiểm tra ở giao diện.
 - Khóa `service_role` chỉ dùng phía máy chủ cho tác vụ quản trị (mời người dùng), không đưa ra trình duyệt, không commit (repo công khai).
 
