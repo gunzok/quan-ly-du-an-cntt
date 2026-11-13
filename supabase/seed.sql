@@ -1,0 +1,11 @@
+-- Seed cho môi trường CỤC BỘ. Chạy tự động sau migration khi `supabase db reset`.
+-- Quy tắc (database.md mục 6, test-strategy.md mục 3):
+--   * Chỉ dữ liệu giả, KHÔNG dữ liệu thật (repo công khai).
+--   * Idempotent: chạy lại bao nhiêu lần cũng cho cùng kết quả
+--     (dùng `on conflict do nothing` hoặc `where not exists`).
+--
+-- Hiện chưa có bảng nghiệp vụ nên chưa có dữ liệu để seed.
+--   * Tài khoản thử cho 4 persona (Admin, PM, Thành viên, Người xem) tạo bằng
+--     `make db-seed` (scripts/seed-local-users.ts) qua API admin của Auth, vì mật khẩu
+--     lấy từ biến môi trường SEED_PASSWORD, không được nằm trong tệp commit.
+--   * Vai trò theo từng dự án (project_members) do Story E1-3 seed.
