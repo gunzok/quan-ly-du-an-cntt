@@ -162,7 +162,12 @@ site_url = "http://127.0.0.1:3000"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# Story E1-2: chỉ cho phép quay về Route Handler /auth/callback của app (đăng nhập Google).
+# Môi trường staging/production khai báo URL tương ứng ở Dashboard (xem README).
+additional_redirect_urls = [
+  "http://127.0.0.1:3000/auth/callback",
+  "http://localhost:3000/auth/callback",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -175,7 +180,10 @@ enable_refresh_token_rotation = true
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project. Existing users can still sign in.
-enable_signup = true
+# Story E1-2 (STRIDE F5, FR-01): chỉ người được Admin mời mới vào được. Tắt đăng ký ở mọi kênh
+# (email/mật khẩu, OTP, Google...). Tài khoản tạo bằng API admin (mời, seed) không bị ảnh hưởng;
+# đăng nhập Google chỉ gắn vào tài khoản đã có cùng email, không tạo tài khoản mới.
+enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
@@ -342,10 +350,12 @@ skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
 email_optional = false
 
-# Đăng nhập Google: để sẵn, CHƯA bật (Story E1-2 sẽ bật). Không ghi bí mật vào đây;
-# client_id và secret lấy từ biến môi trường (tên biến xem .env.example).
+# Đăng nhập Google (Story E1-2). Không ghi bí mật vào đây: client_id và secret lấy từ biến môi
+# trường (shell hoặc supabase/.env, đã bị .gitignore chặn), cách tạo OAuth client xem README.
+# Thiếu biến thì stack vẫn chạy nhưng Google báo lỗi client khi bấm nút; đăng nhập email không ảnh hưởng.
+# Chỉ người đã được mời mới vào được nhờ enable_signup = false ở mục [auth].
 [auth.external.google]
-enabled = false
+enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 redirect_uri = ""

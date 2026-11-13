@@ -8,84 +8,23 @@
  * Khóa service_role chỉ dùng ở đây để tạo/xóa một tài khoản tạm; chỉ chấp nhận URL localhost.
  */
 import { randomUUID } from "node:crypto";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { signInWithPassword } from "@/lib/auth/sign-in";
 import { strings } from "@/lib/strings";
-import { sessionCookieOptions } from "@/lib/supabase/cookie-options";
-import { proxy } from "@/proxy";
 import { missingIntegrationEnv } from "./env";
+import {
+  ANON_KEY,
+  assertLocalSupabase,
+  callProxy,
+  CookieJar,
+  SERVICE_ROLE_KEY,
+  serverClient,
+  SUPABASE_URL,
+} from "./helpers";
 
 // Thiếu biến thì bỏ qua; thông báo in ở tests/integration/global-setup.ts.
 const enabled = missingIntegrationEnv().length === 0;
-
-const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
-const ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-const APP_ORIGIN = "http://localhost:3000";
-
-interface StoredCookie {
-  name: string;
-  value: string;
-  options?: CookieOptions;
-}
-
-/** Hũ cookie trong bộ nhớ, đóng vai trình duyệt + next/headers. */
-class CookieJar {
-  readonly cookies = new Map<string, StoredCookie>();
-
-  getAll() {
-    return [...this.cookies.values()].map(({ name, value }) => ({
-      name,
-      value,
-    }));
-  }
-
-  set(cookie: StoredCookie) {
-    if (cookie.value === "" || cookie.options?.maxAge === 0) {
-      this.cookies.delete(cookie.name);
-    } else {
-      this.cookies.set(cookie.name, cookie);
-    }
-  }
-
-  authCookies() {
-    return [...this.cookies.values()].filter((c) =>
-      /^sb-.+-auth-token(\.\d+)?$/.test(c.name),
-    );
-  }
-
-  header() {
-    return this.getAll()
-      .map((c) => `${c.name}=${c.value}`)
-      .join("; ");
-  }
-
-  clone() {
-    const copy = new CookieJar();
-    for (const c of this.cookies.values()) copy.cookies.set(c.name, { ...c });
-    return copy;
-  }
-}
-
-/** Client máy chủ giống lib/supabase/server.ts nhưng đọc/ghi vào CookieJar. */
-function serverClient(jar: CookieJar) {
-  return createServerClient(SUPABASE_URL, ANON_KEY, {
-    cookieOptions: sessionCookieOptions(),
-    cookies: {
-      getAll: () => jar.getAll(),
-      setAll: (list) => list.forEach((c) => jar.set(c)),
-    },
-  });
-}
-
-function callProxy(path: string, jar?: CookieJar) {
-  const headers = new Headers();
-  if (jar && jar.cookies.size > 0) headers.set("cookie", jar.header());
-  return proxy(new NextRequest(new URL(path, APP_ORIGIN), { headers }));
-}
 
 /** Giải mã phiên trong cookie (gộp các mảnh .0, .1 nếu có). */
 function readSession(jar: CookieJar): {
@@ -128,14 +67,7 @@ describe.skipIf(!enabled)("Đăng nhập email/mật khẩu (Supabase cục bộ
   const password = `It-${randomUUID()}`;
 
   beforeAll(async () => {
-    const host = new URL(SUPABASE_URL).hostname;
-    if (!["127.0.0.1", "localhost", "::1"].includes(host)) {
-      throw new Error(
-        `Test tích hợp chỉ chạy với Supabase cục bộ, từ chối ${host}`,
-      );
-    }
-    process.env.NEXT_PUBLIC_SUPABASE_URL = SUPABASE_URL;
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = ANON_KEY;
+    assertLocalSupabase();
 
     admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },

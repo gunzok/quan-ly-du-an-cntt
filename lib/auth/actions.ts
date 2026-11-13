@@ -1,8 +1,10 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ApiError } from "@/lib/api/errors";
 import { createClient } from "@/lib/supabase/server";
+import { loginErrorPath, startGoogleSignIn } from "./oauth";
 import { HOME_PATH, LOGIN_PATH } from "./routes";
 import { signInWithPassword } from "./sign-in";
 import { readLoginForm } from "./validate";
@@ -27,6 +29,18 @@ export async function signIn(
     return { error: result.error, email: result.email };
   }
   redirect(HOME_PATH);
+}
+
+/**
+ * Server Action bắt đầu đăng nhập Google (Story E1-2). Chạy ở máy chủ để code verifier PKCE nằm
+ * trong cookie httpOnly như cookie phiên (client trình duyệt không đọc/ghi được cookie này).
+ * Next.js đã đối chiếu header Origin với Host cho Server Action nên dùng Origin làm gốc URL callback.
+ */
+export async function signInWithGoogle(): Promise<void> {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+  const result = await startGoogleSignIn(supabase, origin);
+  redirect(result.ok ? result.url : loginErrorPath(result.error));
 }
 
 /** Đăng xuất phiên hiện tại: thu hồi refresh token ở Supabase Auth và xóa cookie. */
