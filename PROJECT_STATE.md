@@ -7,14 +7,14 @@
 | Linear Team, Project | Team `QLDA` · Project [Quản lý Dự án CNTT](https://linear.app/justintran/project/quan-ly-du-an-cntt-c429c5997d32) (P-QLDA-5) · issue QLDA-1 đến QLDA-11 |
 | Repo | [gunzok/quan-ly-du-an-cntt](https://github.com/gunzok/quan-ly-du-an-cntt) (public) |
 | Ngày khởi tạo | 2026-11-12 |
-| Pha hiện tại | 1 Khảo sát (đã duyệt), chuẩn bị Pha 2 |
+| Pha hiện tại | 2 BA + stack (đang làm) |
 
 ## Gate
 | Pha | Trạng thái | Ngày duyệt | Ghi chú |
 |---|---|---|---|
 | 0 Khởi tạo | Đã duyệt | 2026-11-12 | Repo chuyển public để bật gate (R-001 đã đóng) |
 | 1 Khảo sát | Đã duyệt | 2026-11-13 | [requirements.md](docs/01-discovery/requirements.md): 16 câu, 12 tính năng đề xuất; Gantt và theo dõi thời gian chuyển sang đợt sau |
-| 2 BA + stack | Chưa bắt đầu | | |
+| 2 BA + stack | Chờ duyệt | | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
 | 3 Thiết kế | Chưa bắt đầu | | |
 | 4 WBS | Chưa bắt đầu | | |
 | 5 Phát triển | Chưa bắt đầu | | |
@@ -24,7 +24,9 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 ## Quyết định
 | Hạng mục | Quyết định | Nguồn |
 |---|---|---|
-| Tech stack | Chưa chốt (Pha 2) | ADR-001 |
+| Tech stack | Next.js (TypeScript) + Supabase (Postgres, Auth, Storage) + Vercel; sếp chọn phương án A (84 điểm, B 80 điểm) | ADR-001 (2026-11-13) |
+| Quy tắc nghiệp vụ đã chốt | Subtask tối đa 3 cấp; Thành viên chỉ sửa task mình phụ trách hoặc tạo; task bị chặn chỉ cảnh báo, vẫn cho hoàn thành | business-analysis.md |
+| Nơi làm code | IDE Orca. Repo code: `~/orca/projects/app-quanlyduan` (origin = gunzok/quan-ly-du-an-cntt); worktree/nhánh code nằm local trong `~/orca/workspaces/app-quanlyduan/`. Nhánh chỉ đẩy lên GitHub khi mở PR để CI chạy và merge; main được kéo về Orca sau khi merge. Bản clone `~/Projects/quan-ly-du-an-cntt` dùng cho tài liệu và PROJECT_STATE | Sếp yêu cầu 2026-11-13 |
 | Quy ước đặt tên | Định danh kỹ thuật tiếng Anh không dấu; tài liệu, issue, PR tiếng Việt | Skill |
 | Màu, phong cách | Chưa chốt (Pha 3) | |
 | Thang ước lượng, độ dài sprint | Chưa chốt (Pha 4); Cycles Linear đề xuất 1 tuần | |
@@ -43,7 +45,9 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | R-003 | Phạm vi lớn so với hạn 6-8 tuần, một người làm | Trung bình | Cao | Đã chuyển Gantt và theo dõi thời gian sang đợt sau; đánh giá lại ở Pha 4 khi ước lượng | Giảm, còn theo dõi |
 | R-004 | Bình luận bị để đợt sau dù mục tiêu là cộng tác PM và team kỹ thuật | Trung bình | Trung bình | Xác nhận ở gate Pha 1 | Mở |
 | R-005 | Chưa có template báo cáo Word/Excel của công ty | Cao | Cao | Sếp cung cấp mẫu trước Pha 3 | Mở |
-| R-006 | Xuất Word/Excel trên PaaS serverless có giới hạn thời gian, bộ nhớ | Trung bình | Trung bình | Đánh giá khi chọn stack ở Pha 2 | Mở |
+| R-006 | Xuất Word/Excel trên Vercel (serverless) có giới hạn thời gian, bộ nhớ | Trung bình | Trung bình | Thử nghiệm sớm ở Pha 3-5 với dự án 2.000 task (NFR-03); nếu không đạt thì xem lại ADR-001 | Mở |
+| R-007 | MVP xóa task/dự án vĩnh viễn vì thùng rác để đợt sau (BR-11) | Trung bình | Trung bình | Có hộp xác nhận, nhật ký ghi lại; xem lại sau MVP | Mở |
+| R-008 | Giá, giới hạn gói Supabase/Vercel/Neon/Render chưa xác minh từ trang chính thức; Vercel Hobby cấm dùng thương mại, lên Pro/Supabase Pro dễ vượt 25 USD/tháng | Cao | Trung bình | Đối chiếu trang giá chính thức trước khi mua gói; sếp duyệt riêng khi chi phí vượt 25 USD (ADR-001) | Mở |
 
 ## UI/UX
 | Màn hình | Phiên bản | Trạng thái | Ngày |
@@ -51,16 +55,18 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 
 ## Hạn chế đã biết
 - Cycles Linear chưa bật (bật ở Team settings nếu muốn dùng).
-- `ci-gate` hiện chạy trên Makefile STUB nên chưa chặn được lỗi thật (xem mục dưới).
-- Dependabot PR 1 (nâng `actions/checkout` 4 lên 7) chưa xem xét.
+- CI thật nằm ở PR 5 (khung Next.js + Makefile thật); trước khi PR 5 merge thì `main` vẫn chạy STUB.
+- Dependabot PR 1 (nâng `actions/checkout` 4 lên 7) trùng với PR 5 (đã dùng v7), đóng sau khi PR 5 merge.
+- Build cục bộ cần `NODE_ENV` không bị đặt sai (nếu shell đặt `NODE_ENV=development` thì `next build` lỗi; CI không bị). Chạy `env -u NODE_ENV make build`.
 
 ## CI còn STUB
-lint · test · build · security
+Không còn sau khi PR 5 merge: lint (ESLint, Prettier, tsc), test (Vitest), build (next build), security (gitleaks toàn lịch sử + pnpm audit mức high). Chưa có: Playwright (Pha 5), kiểm thử phân quyền RLS (Pha 5), deploy staging/production vẫn là STUB trong `cd.yml` (Pha 5).
 
 ## Câu hỏi mở
 - Cần bật Cycles Linear không, và độ dài sprint (1 hay 2 tuần)?
 - Template báo cáo tiến độ hiện dùng (file mẫu)? Ngưỡng số cho thước đo thành công? Có cần theo dõi chi phí/ngân sách dự án không?
 
 ## Bước tiếp theo
-1. Merge PR 3, đóng QLDA-3. Sếp gửi template báo cáo Word/Excel (R-005).
-2. Pha 2 BA + stack: use case, BR, NFR, chấm điểm stack, ADR, thay Makefile STUB.
+1. Duyệt gate Pha 2, merge PR 4 và PR 5, đóng Dependabot PR 1, đóng QLDA-4 và QLDA-2 (đã Done) trên Linear.
+2. Sếp trả lời các câu BA còn mở (RPO/RTO, quy định dữ liệu cá nhân, nhắc hạn) và gửi template báo cáo Word/Excel (R-005).
+3. Gate Pha 2, rồi Pha 3 Thiết kế.
