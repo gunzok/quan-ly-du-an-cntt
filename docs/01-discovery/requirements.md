@@ -14,7 +14,7 @@ Ngày: 2026-11-13 · Pha 1 · Trạng thái: Đã duyệt lại (2026-11-13, sau
 | E7 Template dự án | Có |
 | E8 Phụ thuộc giữa các task | Có |
 | E10 Đa ngôn ngữ (Việt/Anh) và responsive | Có |
-| E12 Timeline/Gantt | **Có (đưa lại vào MVP ngày 2026-11-13)** |
+| E12 Timeline/Gantt | Đợt sau (chuyển lại ở gate Pha 4, 2026-11-13) |
 | E13 Chế độ xem đã lưu | **Có (mới, 2026-11-13)** |
 | E9 Theo dõi thời gian | Đợt sau |
 | E11 Cộng tác mở rộng (bình luận, tệp đính kèm, thùng rác) | Đợt sau |
@@ -25,7 +25,7 @@ Team đang dùng OpenProject và muốn chuyển sang app mới mà không phả
 
 | Thay đổi | Trước | Sau |
 |---|---|---|
-| Gantt (E12) | Đợt sau | **Vào MVP** (team dùng hằng ngày) |
+| Gantt (E12) | Đợt sau | Vào MVP lúc 2026-11-13 sáng, **chuyển lại sang đợt sau** ở gate Pha 4 (sếp chọn giữ hạn 8 tuần, bỏ Gantt khỏi MVP; mockup S11 vẫn giữ để làm đợt sau) |
 | Theo dõi thời gian (E9) | Đợt sau | Đợt sau (team không dùng hằng ngày) |
 | Quan hệ giữa task (E8) | Chỉ "bị chặn bởi" | Nhiều kiểu quan hệ như OpenProject (liên quan, chặn/bị chặn, đứng trước/đứng sau, trùng lặp); kiểu nào vào MVP: **[CẦN XÁC NHẬN]** |
 | Chế độ xem đã lưu (E13, mới) | Không có | **Vào MVP**: bộ lọc, sắp xếp, nhóm, cột có thể lưu; chế độ xem mặc định như OpenProject |
@@ -100,11 +100,11 @@ Câu hỏi nhóm A4 (mức thành thạo công nghệ), B7 (offline), C2 (tuân 
 - Thông báo trong app và email.
 - Nhãn, mức ưu tiên, trạng thái tùy chỉnh; tìm kiếm và bộ lọc; dashboard tiến độ.
 - Subtask; nhật ký hoạt động; template dự án; quan hệ giữa task.
-- Timeline/Gantt (đưa lại vào MVP ngày 2026-11-13); chế độ xem đã lưu và chế độ xem mặc định; bảng phân cấp; vai trò theo từng dự án.
+- Chế độ xem đã lưu và chế độ xem mặc định; bảng phân cấp; vai trò theo từng dự án.
 - Giao diện tiếng Việt và tiếng Anh; responsive trên điện thoại.
 
 **Ngoài phạm vi MVP (đợt sau)**
-- Theo dõi thời gian; nhập dữ liệu từ OpenProject (CSV/Excel).
+- Timeline/Gantt (E12); theo dõi thời gian; nhập dữ liệu từ OpenProject (CSV/Excel).
 - Bình luận và @mention; tệp đính kèm; thùng rác và khôi phục; sprint và backlog.
 - Tích hợp GitHub, Jira, Linear, Excel import; thông báo Zalo/Slack; AI; app mobile native; đa khách hàng (SaaS); SSO.
 
