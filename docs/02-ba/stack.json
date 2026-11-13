@@ -1,0 +1,15 @@
+{
+  "criteria": [
+    {"name": "Phù hợp yêu cầu và ràng buộc", "weight": 30},
+    {"name": "Tốc độ ra MVP", "weight": 20},
+    {"name": "Chi phí hạ tầng", "weight": 15},
+    {"name": "Năng lực đội và AI", "weight": 15},
+    {"name": "Mở rộng", "weight": 10},
+    {"name": "Bảo trì", "weight": 10}
+  ],
+  "options": [
+    {"name": "A: Next.js + Supabase + Vercel", "scores": {"Phù hợp yêu cầu và ràng buộc": 4, "Tốc độ ra MVP": 5, "Chi phí hạ tầng": 3, "Năng lực đội và AI": 5, "Mở rộng": 4, "Bảo trì": 4}},
+    {"name": "B: Next.js tự quản + Neon + Render", "scores": {"Phù hợp yêu cầu và ràng buộc": 4, "Tốc độ ra MVP": 3, "Chi phí hạ tầng": 5, "Năng lực đội và AI": 5, "Mở rộng": 3, "Bảo trì": 4}},
+    {"name": "C: React + Convex", "scores": {"Phù hợp yêu cầu và ràng buộc": 2, "Tốc độ ra MVP": 5, "Chi phí hạ tầng": 4, "Năng lực đội và AI": 4, "Mở rộng": 4, "Bảo trì": 3}}
+  ]
+}
