@@ -17,7 +17,7 @@
 | 2 BA + stack | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
 | 3 Thiết kế | Đã duyệt | 2026-11-13 | [docs/03-design](docs/03-design/): đủ 4 phần (kiến trúc và bảo mật; DB và API; UI/UX 12 màn; design system và chiến lược test). Các điểm [CẦN XÁC NHẬN] trong tài liệu chốt trước khi code phần liên quan ở Pha 5 |
 | 4 WBS | Đã duyệt | 2026-11-13 | [wbs.md](docs/04-wbs/wbs.md), [stories/](docs/04-wbs/stories/), [plan.py](docs/04-wbs/plan.py): 52 Story, 269 điểm (Must 211), sprint 1 tuần từ 16/11/2026; sếp chọn giữ hạn 8 tuần và bỏ Gantt khỏi MVP; cần velocity thật khoảng 28-30 điểm mỗi sprint (baseline 20), R-003 vẫn cao |
-| 5 Phát triển | Đang làm | | Sprint 1: E0-1 (QLDA-27) xong, PR 12 đã merge; E0-6 (ADR-002..005) đã duyệt; E0-8 mockup S13-S19 đã duyệt (S18 v2 có số điện thoại, duyệt 2026-11-13); E1-1 (QLDA-31) và E1-3 (QLDA-32) đang do agent Opus 5.5 làm trong Orca; E1-2 (QLDA-35) sau E1-1 |
+| 5 Phát triển | Đang làm | | Sprint 1: xong E0-1 (PR 12), E0-6, E0-8, E1-1 (PR 15), E1-3 (PR 14); E1-2 (QLDA-35, đăng nhập Google) đang do agent Opus 5.5 làm; chưa tính velocity (làm xong cuối sprint) |
 | 6 Nghiệm thu, bàn giao | Chưa bắt đầu | | |
 Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt · Cần rà soát.
 
@@ -36,6 +36,7 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 | Thang ước lượng, độ dài sprint | Story point Fibonacci 1-8; sprint 1 tuần bắt đầu thứ Hai 16/11/2026; velocity baseline 20 điểm, lịch xếp theo 30 để kịp 8 tuần (hiệu chỉnh từ sprint 2); danh sách cắt dự phòng ở wbs.md | Pha 4 (2026-11-13) |
 | Loại app, quy mô | Nội bộ một công ty, dưới 100 người, web responsive, Việt + Anh | Pha 1 (A1-A5) |
 | Phạm vi MVP | Dự án/task, Kanban + danh sách, vai trò theo từng dự án (PM, Thành viên, Người xem) cộng Admin toàn hệ thống, xuất báo cáo xlsx/docx theo template, thông báo app + email, nhãn/ưu tiên/trạng thái, tìm kiếm, dashboard, subtask, nhật ký, template dự án, quan hệ giữa task, chế độ xem đã lưu, bảng phân cấp. Đợt sau: Gantt (E12, chuyển lại ở gate Pha 4), theo dõi thời gian, bình luận, tệp đính kèm, thùng rác, nhập dữ liệu từ OpenProject | Pha 1 (điều chỉnh 2026-11-13, cần duyệt lại) |
+| Điều phối agent tự động | Phiên điều phối dùng Monitor theo dõi worktree Orca (`watch-agents.sh`, mỗi 20 giây): khi agent xong thì tự rà diff, chạy lại lệnh, merge khi 5 check xanh và đủ điều kiện, cập nhật Linear, rồi giao Story kế tiếp mà không chờ sếp hỏi. Chỉ dừng để hỏi khi cần quyết định nghiệp vụ, thay đổi nhạy cảm lệch thiết kế, chi phí, hoặc bí mật. Monitor hết hạn mỗi 30 phút nên phải bật lại | Sếp yêu cầu 2026-11-13 |
 | Cách làm việc liên quan đến code | Mọi việc code của dự án (dựng khung, Makefile thật, tính năng, test, sửa lỗi) giao cho agent riêng chạy song song, dùng mô hình Opus 5.5 (`claude-opus-5-5`). Chỉ song song khi các việc không đụng cùng file; việc phụ thuộc nhau chạy tuần tự. Phiên chính điều phối, rà kết quả và merge. Tài liệu, Linear, gate do phiên chính làm | Sếp yêu cầu 2026-11-13 |
 | Triển khai, ngân sách, nhân sự | Cloud PaaS, dưới 25 USD/tháng, một người cùng Claude, MVP 6-8 tuần | Pha 1 (C4, D1-D3) |
 | Repo | Public (gói Free không bật được gate với repo private), squash merge, approval PR = 0 (làm một mình). Không commit bí mật, dữ liệu khách hàng | Pha 0 |
@@ -95,6 +96,7 @@ Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), buil
 - Các câu BA còn mở: RPO/RTO, quy định dữ liệu cá nhân, thời điểm nhắc hạn; email, bộ lập lịch, thư viện xuất báo cáo, thư viện UI, thư viện Gantt cần ADR.
 
 ## Bước tiếp theo
+0. Sau E1-2: giao E0-2 (môi trường staging, CD) và E0-3 (khung kiểm thử trong CI) rồi sprint 2 theo `wbs.md`; sếp cần cung cấp OAuth client Google cho staging, tên miền email (ADR-002), và quyết định chi phí Vercel/Supabase (R-008).
 1. Pha 5 sprint 1: rà PR của E1-1 và E1-3 khi agent xong (E1-3 là thay đổi phân quyền, nhạy cảm, cần sếp nhìn kỹ), merge khi 5 check xanh, rồi giao E1-2 (đăng nhập Google). 
 2. Sếp gửi template báo cáo Word/Excel (trước sprint 6), ảnh chụp OpenProject, chốt loại task và trạng thái mặc định (trước sprint 3), kiểu quan hệ vào MVP.
 3. Sau sprint 1 và 2: tính velocity thật, đánh giá lại R-003, dùng danh sách cắt dự phòng nếu cần.
