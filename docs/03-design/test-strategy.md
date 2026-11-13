@@ -7,7 +7,7 @@ Liên quan: NFR-01, NFR-02, NFR-03, NFR-06, NFR-08, NFR-13. Các ngưỡng đán
 | Cấp | Phạm vi | Công cụ | Chạy khi |
 |---|---|---|---|
 | Unit | Hàm nghiệp vụ thuần trong `lib/` (tính tiến độ, kiểm vòng phụ thuộc, quy tắc BR) | Vitest (đã có) | Mọi PR, `make test` |
-| Phân quyền (RLS) | Mỗi chính sách RLS, mỗi vai trò, mỗi bảng | Supabase CLI + pgTAP hoặc Vitest với CSDL cục bộ | Mọi PR |
+| Phân quyền (RLS) | Mỗi chính sách RLS, mỗi vai trò trong dự án (PM, Thành viên, Người xem), Admin, người ngoài dự án, mỗi bảng | Supabase CLI + pgTAP hoặc Vitest với CSDL cục bộ | Mọi PR |
 | Integration | Route Handler `/api/v1` với CSDL Supabase cục bộ, kiểm lỗi, mã trạng thái | Vitest + Supabase CLI | Mọi PR |
 | E2E | Luồng chính trên trình duyệt (xem mục 4) | Playwright | Mọi PR (luồng chính), đêm (đầy đủ) |
 | Hiệu năng | 2.000 task: API P95 dưới 500 ms, xuất báo cáo dưới 30 giây | Script tải + dữ liệu seed | Trước mỗi lần phát hành |
@@ -29,11 +29,11 @@ Liên quan: NFR-01, NFR-02, NFR-03, NFR-06, NFR-08, NFR-13. Các ngưỡng đán
 
 ## 4. Luồng E2E bắt buộc
 1. Đăng nhập email và Google (mô phỏng), đăng xuất.
-2. Admin mời người dùng, gán vai trò; Người xem không thấy nút sửa.
+2. Admin mời người dùng; PM gán vai trò trong dự án; Người xem không thấy nút sửa. Cùng một người là PM ở dự án A, Người xem ở dự án B (vai trò theo dự án).
 3. PM tạo dự án từ template, thêm thành viên.
 4. Tạo task, subtask 3 cấp (cấp 4 bị từ chối), giao việc, đặt hạn.
 5. Kéo thả Kanban; chuyển danh sách; tìm kiếm và lọc.
-6. Đặt phụ thuộc, thử tạo vòng (bị từ chối), hoàn thành task bị chặn (có cảnh báo).
+6. Đặt quan hệ chặn và đứng trước, thử tạo vòng (bị từ chối), hoàn thành task bị chặn (có cảnh báo); mở Gantt, kéo chỉnh ngày, thấy quan hệ; lưu và dùng lại chế độ xem.
 7. Nhận thông báo trong app; bật tắt email.
 8. Xem dashboard; xuất xlsx và docx theo template.
 9. Đổi ngôn ngữ Việt/English; kiểm tra màn 360 px.

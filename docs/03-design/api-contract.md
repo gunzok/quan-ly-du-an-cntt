@@ -27,13 +27,13 @@ Quy ước: REST `/api/v1/<tài-nguyên>` (số nhiều, kebab-case), JSON, UTF-
 | 401 | `unauthenticated` | Chưa đăng nhập, phiên hết hạn |
 | 403 | `forbidden` | Đúng người nhưng không đủ quyền (vai trò, BR-02, BR-03, BR-07) |
 | 404 | `not_found` | Không tồn tại, hoặc người dùng không được thấy (không lộ sự tồn tại, BR-10) |
-| 409 | `conflict` | Vòng phụ thuộc (BR-05), vượt 3 cấp subtask, đóng task cha khi subtask chưa xong (BR-04) |
+| 409 | `conflict` | Vòng quan hệ (BR-05), vượt 3 cấp subtask, đóng task cha khi subtask chưa xong (BR-04) |
 | 422 | `business_rule_violated` | Vi phạm quy tắc nghiệp vụ khác |
 | 429 | `rate_limited` | Gọi quá nhiều |
 | 500 | `internal_error` | Lỗi hệ thống, chỉ trả `request_id` |
 
 ## 3. Danh sách endpoint
-Vai trò: **A** Admin, **P** PM, **M** Thành viên, **V** Người xem. "dự án" nghĩa là chỉ trong dự án mà người đó là thành viên (Admin thấy tất cả).
+Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** Người xem; P, M, V là vai trò **trong từng dự án** của người gọi (BR-01 sửa 2026-11-13). Quyền chỉ áp dụng trong dự án mà người đó là thành viên (Admin thấy tất cả).
 
 | Phương thức, đường dẫn | Mô tả | Quyền | FR |
 |---|---|---|---|
@@ -46,7 +46,7 @@ Vai trò: **A** Admin, **P** PM, **M** Thành viên, **V** Người xem. "dự �
 | `POST /api/v1/projects` | Tạo dự án (kèm `template_id` tùy chọn) | A P | FR-03, FR-04 |
 | `GET/PATCH /api/v1/projects/{id}` | Xem, sửa dự án | đọc: tất cả trong dự án; sửa: A P | FR-03 |
 | `DELETE /api/v1/projects/{id}` | Xóa vĩnh viễn (BR-11) | A P | FR-03 |
-| `PUT /api/v1/projects/{id}/members/{user_id}` | Thêm thành viên | A P | FR-03 |
+| `PUT /api/v1/projects/{id}/members/{user_id}` | Thêm thành viên hoặc đổi vai trò trong dự án (`role`: `pm`/`member`/`viewer`) | A P (PM của dự án đó) | FR-02, FR-03 |
 | `DELETE /api/v1/projects/{id}/members/{user_id}` | Bỏ thành viên | A P | FR-03 |
 | `GET/POST /api/v1/projects/{id}/statuses` | Trạng thái tùy chỉnh | đọc: tất cả; ghi: A P | FR-06 |
 | `GET/POST /api/v1/projects/{id}/labels` | Nhãn | đọc: tất cả; ghi: A P | FR-06 |
@@ -55,8 +55,12 @@ Vai trò: **A** Admin, **P** PM, **M** Thành viên, **V** Người xem. "dự �
 | `GET /api/v1/tasks/{id}` | Chi tiết task, subtask, phụ thuộc | A P M V | FR-05 |
 | `PATCH /api/v1/tasks/{id}` | Sửa, đổi trạng thái, kéo thả (`status_id`, `position`) | A P; M nếu phụ trách hoặc tạo (BR-03) | FR-05, FR-08 |
 | `DELETE /api/v1/tasks/{id}` | Xóa vĩnh viễn | A P; M nếu mình tạo | FR-05 |
-| `PUT /api/v1/tasks/{id}/dependencies/{blocked_by_id}` | Đặt phụ thuộc | A P M (có quyền sửa cả hai task) | FR-10 |
-| `DELETE /api/v1/tasks/{id}/dependencies/{blocked_by_id}` | Bỏ phụ thuộc | giống trên | FR-10 |
+| `POST /api/v1/tasks/{id}/relations` | Đặt quan hệ (`kind`: `relates`/`blocks`/`precedes`/`duplicates`, `to_task_id`, `lag_days`) | A P M (có quyền sửa cả hai task) | FR-10 |
+| `DELETE /api/v1/tasks/{id}/relations/{relation_id}` | Bỏ quan hệ | giống trên | FR-10 |
+| `GET /api/v1/projects/{id}/gantt` | Dữ liệu Gantt: task có `start_date`, `due_date`, quan hệ, theo khoảng thời gian (`from`, `to`) | A P M V | FR-20 |
+| `GET/POST /api/v1/projects/{id}/views` | Chế độ xem đã lưu (riêng, công khai, yêu thích) và chế độ xem mặc định | đọc: A P M V; ghi: mọi vai trò cho chế độ xem riêng; PM cho công khai | FR-19 |
+| `PATCH/DELETE /api/v1/views/{id}` | Sửa, xóa chế độ xem (không áp dụng cho chế độ xem mặc định) | chủ sở hữu; PM với chế độ xem công khai | FR-19 |
+| `GET /api/v1/task-types` | Loại task của dự án (`?project_id=`) | A P M V | FR-23 |
 | `GET /api/v1/notifications` | Thông báo của tôi | A P M V | FR-11 |
 | `POST /api/v1/notifications/{id}/read` | Đánh dấu đã đọc | A P M V | FR-11 |
 | `GET/PUT /api/v1/me/notification-preferences` | Bật tắt email theo loại | A P M V | FR-12 |
@@ -83,9 +87,9 @@ Phản hồi `201`:
   "created_at": "2026-11-13T03:10:00Z" } }
 ```
 
-**Đặt phụ thuộc gây vòng**: `PUT /api/v1/tasks/{A}/dependencies/{B}` khi B đã bị chặn bởi A → `409`:
+**Đặt quan hệ gây vòng**: `POST /api/v1/tasks/{A}/relations` với `{ "kind": "blocks", "to_task_id": "{B}" }` khi B đã chặn A → `409`:
 ```json
-{ "error": { "code": "conflict", "message": "Phụ thuộc này tạo vòng", "request_id": "1b8a..." } }
+{ "error": { "code": "conflict", "message": "Quan hệ này tạo vòng", "request_id": "1b8a..." } }
 ```
 
 **Kéo thả Kanban**: `PATCH /api/v1/tasks/{id}` với `{ "status_id": "c90a...", "position": 3 }`. Nếu task còn bị chặn bởi task chưa xong, phản hồi vẫn `200` kèm `"warnings": [{ "code": "blocked_by_open_task", "task_ids": ["..."] }]` (BR-06).

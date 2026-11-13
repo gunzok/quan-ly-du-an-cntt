@@ -1,0 +1,32 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-13T03:30:00Z" },
+  "title": "Quản lý Dự án CNTT - UI/UX",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1280, "h": 800, "title": "S01 Đăng nhập (v1)", "expand": "fill" },
+    "Projects.dc.html": { "x": 1360, "y": 0, "w": 1280, "h": 800, "title": "S02 Danh sách dự án (v1, đã duyệt)", "expand": "fill" },
+    "Kanban.dc.html": { "x": 2720, "y": 0, "w": 1280, "h": 800, "title": "S03 Bảng Kanban (v1, đã duyệt)", "expand": "fill" },
+    "List.dc.html": { "x": 0, "y": 920, "w": 1280, "h": 800, "title": "S04 Danh sách task và bộ lọc (v1, đã duyệt)", "expand": "fill" },
+    "TaskDetail.dc.html": { "x": 1360, "y": 920, "w": 1280, "h": 800, "title": "S05 Chi tiết task (v2: loại, ngày, quan hệ)", "expand": "fill" },
+    "Dashboard.dc.html": { "x": 2720, "y": 920, "w": 1280, "h": 800, "title": "S06 Dashboard tiến độ (v1)", "expand": "fill" },
+    "Report.dc.html": { "x": 0, "y": 1840, "w": 1280, "h": 800, "title": "S07 Xuất báo cáo (v1)", "expand": "fill" },
+    "Admin.dc.html": { "x": 1360, "y": 1840, "w": 1280, "h": 800, "title": "S08 Quản lý người dùng (v1)", "expand": "fill" },
+    "Mobile.dc.html": { "x": 2720, "y": 1840, "w": 390, "h": 844, "title": "S09 Kanban trên điện thoại 390px (v1)" },
+    "KanbanDark.dc.html": { "x": 3190, "y": 1840, "w": 1280, "h": 800, "title": "S10 Kanban chế độ tối (v1)", "expand": "fill" },
+    "Gantt.dc.html": { "x": 0, "y": 2760, "w": 1280, "h": 800, "title": "S11 Gantt (v1, mới)", "expand": "fill" },
+    "ListViews.dc.html": { "x": 1360, "y": 2760, "w": 1280, "h": 800, "title": "S12 Chế độ xem đã lưu và mặc định (v1, mới)", "expand": "fill" }
+  },
+  "order": [
+    "Main.dc.html", "Projects.dc.html", "Kanban.dc.html", "List.dc.html", "TaskDetail.dc.html",
+    "Dashboard.dc.html", "Report.dc.html", "Admin.dc.html", "Mobile.dc.html", "KanbanDark.dc.html", "Gantt.dc.html", "ListViews.dc.html"
+  ],
+  "notes": {
+    "r1": { "x": 0, "y": -260, "text": "Đăng nhập, dự án, Kanban", "kind": "title1", "maxW": 3920 },
+    "r2": { "x": 0, "y": 660, "text": "Danh sách, chi tiết, dashboard", "kind": "title1", "maxW": 3920 },
+    "r3": { "x": 0, "y": 1580, "text": "Báo cáo, quản trị, điện thoại, chế độ tối", "kind": "title1", "maxW": 4400 },
+    "r4": { "x": 0, "y": 2500, "text": "Gantt và chế độ xem đã lưu (mới, theo OpenProject)", "kind": "title1", "maxW": 2640 }
+  },
+  "designSystems": []
+}

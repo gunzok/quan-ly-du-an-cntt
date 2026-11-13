@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Chế độ xem đã lưu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<aside style="width: 232px; flex-shrink: 0; box-sizing: border-box; background: #F8FAFC; border-right: 1px solid #E2E8F0; padding: 16px 12px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+<div style="width: 28px; height: 28px; border-radius: 6px; background: #1D4ED8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">Q</div>
+<span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span>
+</div>
+<a href="List.dc.html" style="font-size: 13px; text-decoration: none; padding: 0 10px; color: #475569">← Cổng thông tin nội bộ</a>
+<div style="border: 1px solid #64748B; border-radius: 6px; background: #FFFFFF; padding: 7px 10px; font-size: 14px; color: #475569">Tìm chế độ xem…</div>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569; margin-bottom: 4px">Yêu thích</div>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">★ Việc nhóm của tôi</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569; margin-bottom: 4px">Mặc định</div>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; background: #E2E8F0; color: #0F172A; font-weight: 600; text-decoration: none">Tất cả đang mở</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Hoạt động gần nhất</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Mới tạo</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Quá hạn</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Tóm tắt</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Tạo bởi tôi</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Giao cho tôi</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569; margin-bottom: 4px">Công khai</div>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Rủi ro trễ tuần này</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569; margin-bottom: 4px">Riêng tư</div>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Việc nhóm của tôi</a>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Lỗi cần review</a>
+</div>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600">Tất cả đang mở</h1>
+<span style="font-size: 13px; color: #475569">Chế độ xem mặc định, không sửa được. Đổi bộ lọc rồi bấm Lưu thành chế độ xem mới.</span>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button style="border: 1px solid #64748B; background: #FFFFFF; color: #0F172A; border-radius: 6px; padding: 6px 12px; font: 500 14px Inter, sans-serif; min-height: 32px">Lưu thành chế độ xem mới</button>
+<button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 6px 12px; font: 500 14px Inter, sans-serif; min-height: 32px">+ Tạo task</button>
+</div>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px">
+<span style="border: 1px solid #1D4ED8; background: #EFF6FF; border-radius: 6px; padding: 5px 10px; color: #1D4ED8; font-weight: 500">Trạng thái: đang mở ×</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 5px 10px">Nhóm theo: Không</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 5px 10px">Hiển thị: Phân cấp</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 5px 10px">Cột: Tiêu đề, Loại, Trạng thái, Người thực hiện, Hạn</span>
+</div>
+<div style="border: 1px solid #E2E8F0; border-radius: 8px; overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px">
+<thead><tr style="text-align: left; color: #475569; font-size: 12px; font-weight: 500; background: #F8FAFC"><th style="padding: 9px 12px">ID</th><th style="padding: 9px 12px">Tiêu đề</th><th style="padding: 9px 12px">Loại</th><th style="padding: 9px 12px">Trạng thái</th><th style="padding: 9px 12px">Người thực hiện</th><th style="padding: 9px 12px">Hạn</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+<tr><td style="padding: 9px 12px; border-top: 1px solid #E2E8F0; color: #1D4ED8">{{r.id}}</td><td style="padding: 9px 12px; border-top: 1px solid #E2E8F0; padding-left: {{r.indent}}; font-weight: {{r.weight}}">{{r.arrow}}{{r.title}}</td><td style="padding: 9px 12px; border-top: 1px solid #E2E8F0; color: #475569">{{r.type}}</td><td style="padding: 9px 12px; border-top: 1px solid #E2E8F0; color: #475569">{{r.status}}</td><td style="padding: 9px 12px; border-top: 1px solid #E2E8F0">{{r.who}}</td><td style="padding: 9px 12px; border-top: 1px solid #E2E8F0; color: #475569">{{r.due}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const r = (id, title, lv, type, status, who, due, open) => ({ id, title, indent: (12 + (lv - 1) * 22) + 'px', weight: lv === 1 ? '500' : '400', arrow: open === undefined ? '' : (open ? '▾ ' : '▸ '), type, status, who, due });
+return { rows: [
+r('CTTT-12', 'Khảo sát và phân tích', 1, 'Phase', 'Hoàn thành', 'Nguyễn Minh Anh', '13/11', true),
+r('CTTT-13', 'Họp khởi động', 2, 'Task', 'Hoàn thành', 'Nguyễn Minh Anh', '03/11'),
+r('CTTT-24', 'Xây dựng trang danh sách dự án', 1, 'Task', 'Đang làm', 'Nguyễn Minh Anh', '15/11', true),
+r('CTTT-25', 'Thẻ dự án và thanh tiến độ', 2, 'Task', 'Đang làm', 'Trần Quốc Bảo', '15/11'),
+r('CTTT-31', 'API tìm kiếm và bộ lọc', 1, 'Task', 'Cần làm', 'Trần Quốc Bảo', '22/11'),
+r('CTTT-33', 'Kiểm thử phân quyền 4 vai trò', 1, 'Bug', 'Cần làm', 'Phạm Gia Huy', '30/11'),
+r('CTTT-40', 'Bản chạy thử nội bộ', 1, 'Milestone', 'Cần làm', 'Nguyễn Minh Anh', '04/12')
+] };
+}
+}
+</script>
+</body>
+</html>
