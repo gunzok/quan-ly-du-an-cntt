@@ -11,42 +11,42 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
 <style>
-body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
-a{color:#1D4ED8}a:hover{color:#1E40AF}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0A0F1F}
+a{color:#2054F0}a:hover{color:#1840C8}
 </style>
 </helmet>
-<div style="min-height: 800px; box-sizing: border-box; background: #475569; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: Inter, system-ui, sans-serif">
-<div role="dialog" aria-label="Xuất báo cáo tiến độ" style="width: 520px; max-width: 100%; background: #FFFFFF; border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 16px 40px rgba(15,23,42,0.35)">
+<div style="min-height: 800px; box-sizing: border-box; background: #4A5163; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: Inter, system-ui, sans-serif">
+<div role="dialog" aria-label="Xuất báo cáo tiến độ" style="width: 520px; max-width: 100%; background: #FFFFFF; border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 16px 40px rgba(10,15,31,0.35)">
 <div style="display: flex; justify-content: space-between; align-items: flex-start">
 <div style="display: flex; flex-direction: column; gap: 4px">
 <h1 style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600">Xuất báo cáo tiến độ</h1>
-<span style="font-size: 14px; color: #475569">Dự án: Cổng thông tin nội bộ</span>
+<span style="font-size: 14px; color: #4A5163">Dự án: Cổng thông tin nội bộ</span>
 </div>
-<button aria-label="Đóng" style="border: 1px solid #64748B; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0F172A">×</button>
+<button aria-label="Đóng" style="border: 1px solid #6B7385; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0A0F1F">×</button>
 </div>
 <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
 <legend style="font-size: 14px; font-weight: 500; padding: 0; margin-bottom: 8px">Định dạng</legend>
-<label style="display: flex; align-items: center; gap: 10px; border: 2px solid #1D4ED8; background: #EFF6FF; border-radius: 6px; padding: 10px 12px; font-size: 14px"><input type="radio" name="fmt" checked style="margin: 0"><span><b>Excel (.xlsx)</b><br><span style="color: #475569; font-size: 13px">Bảng số liệu, dễ chỉnh sửa</span></span></label>
-<label style="display: flex; align-items: center; gap: 10px; border: 1px solid #64748B; border-radius: 6px; padding: 10px 12px; font-size: 14px"><input type="radio" name="fmt" style="margin: 0"><span><b>Word (.docx)</b><br><span style="color: #475569; font-size: 13px">Báo cáo theo mẫu công ty</span></span></label>
+<label style="display: flex; align-items: center; gap: 10px; border: 2px solid #2054F0; background: #EEF2FD; border-radius: 6px; padding: 10px 12px; font-size: 14px"><input type="radio" name="fmt" checked style="margin: 0"><span><b>Excel (.xlsx)</b><br><span style="color: #4A5163; font-size: 13px">Bảng số liệu, dễ chỉnh sửa</span></span></label>
+<label style="display: flex; align-items: center; gap: 10px; border: 1px solid #6B7385; border-radius: 6px; padding: 10px 12px; font-size: 14px"><input type="radio" name="fmt" style="margin: 0"><span><b>Word (.docx)</b><br><span style="color: #4A5163; font-size: 13px">Báo cáo theo mẫu công ty</span></span></label>
 </fieldset>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
 <div style="display: flex; flex-direction: column; gap: 6px">
 <label for="from" style="font-size: 14px; font-weight: 500">Từ ngày</label>
-<input id="from" type="text" value="01/11/2026" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A">
+<input id="from" type="text" value="01/11/2026" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0A0F1F">
 </div>
 <div style="display: flex; flex-direction: column; gap: 6px">
 <label for="to" style="font-size: 14px; font-weight: 500">Đến ngày</label>
-<input id="to" type="text" value="30/11/2026" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A">
+<input id="to" type="text" value="30/11/2026" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0A0F1F">
 </div>
 </div>
 <div style="display: flex; flex-direction: column; gap: 6px">
 <label for="tpl" style="font-size: 14px; font-weight: 500">Template báo cáo</label>
-<select id="tpl" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A; background: #FFFFFF"><option>Báo cáo tiến độ tuần (mẫu công ty)</option></select>
+<select id="tpl" style="border: 1px solid #6B7385; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0A0F1F; background: #FFFFFF"><option>Báo cáo tiến độ tuần (mẫu công ty)</option></select>
 </div>
-<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 20px; color: #475569">Báo cáo gồm 48 task, 30 hoàn thành, 3 trễ hạn. Dự án lớn có thể mất đến 30 giây.</div>
+<div style="background: #F7F8FA; border: 1px solid #E3E7EF; border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 20px; color: #4A5163">Báo cáo gồm 48 task, 30 hoàn thành, 3 trễ hạn. Dự án lớn có thể mất đến 30 giây.</div>
 <div style="display: flex; justify-content: flex-end; gap: 8px">
-<button style="border: 1px solid #64748B; background: #FFFFFF; color: #0F172A; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Hủy</button>
-<button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Tạo và tải xuống</button>
+<button style="border: 1px solid #6B7385; background: #FFFFFF; color: #0A0F1F; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Hủy</button>
+<button style="background: #2054F0; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Tạo và tải xuống</button>
 </div>
 </div>
 </div>

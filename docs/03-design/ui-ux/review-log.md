@@ -21,3 +21,4 @@ Canvas mockup v1: https://claude.ai/artifact/6TYQPPKUomg2eNFQ139uGW (riêng tư,
 | S11 Gantt | v1 | 2026-11-13 | Đã duyệt | Mới: team dùng Gantt hằng ngày |
 | S12 Chế độ xem đã lưu và mặc định | v1 | 2026-11-13 | Đã duyệt | Mới: theo OpenProject |
 | Style guide, S06 Dashboard, S03 Kanban | v3 (Blueprint) | 2026-11-13 | Chờ duyệt | "Nghiên cứu phong cách dribbble.com/samoctav và áp dụng vào thiết kế app, đưa vào system design". File: [mockups/v3/blueprint-preview.html](mockups/v3/blueprint-preview.html), có nút chuyển sáng, tối |
+| Cả 12 màn trên canvas (S01 đến S12) | Đổi màu Blueprint | 2026-11-13 | Chờ duyệt | "Sử dụng luôn artifact quản lý dự án CNTT này, chỉ thay đổi thiết kế màu sắc, không thay đổi chức năng hệ thống". Chỉ đổi mã màu theo design-system v2 (đã kiểm tra bằng code: ngoài mã màu, nội dung không đổi); hồng chỉ ở huy hiệu thông báo, vạch hôm nay (Gantt), chuỗi Chờ review (Dashboard). Bản mockup v1, v2 trong repo cập nhật theo |
