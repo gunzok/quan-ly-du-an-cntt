@@ -55,6 +55,18 @@ Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt
 ## UI/UX
 | Màn hình | Phiên bản | Trạng thái | Ngày |
 |---|---|---|---|
+| S01 Đăng nhập | v1 | Đã duyệt | 2026-11-13 |
+| S02 Danh sách dự án | v1 | Đã duyệt | 2026-11-13 |
+| S03 Bảng Kanban | v1 | Đã duyệt | 2026-11-13 |
+| S04 Danh sách task và bộ lọc | v1 | Đã duyệt | 2026-11-13 |
+| S05 Chi tiết task | v2 | Đã duyệt | 2026-11-13 |
+| S06 Dashboard tiến độ | v1 | Đã duyệt | 2026-11-13 |
+| S07 Xuất báo cáo | v1 | Đã duyệt | 2026-11-13 |
+| S08 Quản lý người dùng | v2 (có Phòng ban) | Chờ duyệt | 2026-11-13 |
+| S09 Kanban điện thoại | v1 | Đã duyệt | 2026-11-13 |
+| S10 Kanban chế độ tối | v1 | Đã duyệt | 2026-11-13 |
+| S11 Gantt | v1 | Đã duyệt | 2026-11-13 |
+| S12 Chế độ xem đã lưu | v1 | Đã duyệt | 2026-11-13 |
 
 ## Hạn chế đã biết
 - Cycles Linear chưa bật (bật ở Team settings nếu muốn dùng).
