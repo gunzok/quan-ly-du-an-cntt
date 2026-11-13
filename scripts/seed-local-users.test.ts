@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEPARTMENTS,
   MIN_PASSWORD_LENGTH,
   PERSONAS,
+  PERSONA_DEPARTMENT,
+  PHONES,
+  PROJECTS,
+  buildMemberships,
   assertLocalUrl,
   buildUserPayload,
   parseStatus,
@@ -102,5 +107,54 @@ describe("buildUserPayload", () => {
       user_metadata: { full_name: "Quản lý Dự án Thử" },
       app_metadata: { seed_persona: "pm" },
     });
+  });
+});
+
+describe("dữ liệu mẫu E1-3", () => {
+  const ids = {
+    admin: "id-admin",
+    pm: "id-pm",
+    member: "id-member",
+    viewer: "id-viewer",
+  } as const;
+
+  it("pm có vai trò khác nhau ở hai dự án (PM ở A, Người xem ở B)", () => {
+    const rows = buildMemberships(ids);
+    const roleOf = (projectId: string, userId: string) =>
+      rows.find((r) => r.project_id === projectId && r.user_id === userId)
+        ?.role;
+    const [a, b] = PROJECTS;
+    expect(roleOf(a.id, ids.pm)).toBe("pm");
+    expect(roleOf(b.id, ids.pm)).toBe("viewer");
+    expect(roleOf(b.id, ids.member)).toBe("pm");
+    expect(roleOf(b.id, ids.viewer)).toBeUndefined();
+  });
+
+  it("Admin không cần là thành viên dự án; mỗi dự án có PM là người tạo", () => {
+    const rows = buildMemberships(ids);
+    expect(rows.some((r) => r.user_id === ids.admin)).toBe(false);
+    for (const project of PROJECTS) {
+      expect(project.members[project.createdBy]).toBe("pm");
+    }
+  });
+
+  it("khóa cố định, không trùng: chạy lại cho cùng kết quả", () => {
+    expect(buildMemberships(ids)).toEqual(buildMemberships(ids));
+    const projectIds = PROJECTS.map((p) => p.id);
+    expect(new Set(projectIds).size).toBe(projectIds.length);
+    for (const id of projectIds) expect(id).toMatch(/^[0-9a-f-]{36}$/);
+    const rows = buildMemberships(ids);
+    const keys = rows.map((r) => `${r.project_id}/${r.user_id}`);
+    expect(new Set(keys).size).toBe(keys.length);
+    const names = DEPARTMENTS.map((d) => d.name);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("mọi persona có phòng ban hợp lệ và số điện thoại giả", () => {
+    const names = new Set(DEPARTMENTS.map((d) => d.name));
+    for (const p of PERSONAS) {
+      expect(names.has(PERSONA_DEPARTMENT[p.key])).toBe(true);
+      expect(PHONES[p.key]).toMatch(/^0900000\d{3}$/);
+    }
   });
 });
