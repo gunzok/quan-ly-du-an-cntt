@@ -6,7 +6,7 @@ Liên quan: NFR-06, NFR-07, NFR-08, NFR-14, R-002.
 ## 1. Tài sản và dữ liệu
 | Dữ liệu | Mức độ | Ghi chú |
 |---|---|---|
-| Họ tên, email, vai trò người dùng | Dữ liệu cá nhân nhân sự | Chỉ lưu những trường này (NFR-14) |
+| Họ tên, email, số điện thoại, phòng ban, vai trò người dùng | Dữ liệu cá nhân nhân sự | Chỉ lưu những trường này (NFR-14); số điện thoại chỉ PM và Admin xem được, Người xem không thấy |
 | Nội dung dự án, task | Nội bộ thông thường (C1) | Chưa có tài chính, y tế |
 | Template báo cáo | Nội bộ | Lưu ở Supabase Storage, chỉ Admin tải lên |
 | Khóa dịch vụ (`service_role`, API email) | Rất nhạy | Không bao giờ vào repo công khai |
@@ -42,7 +42,7 @@ flowchart LR
 - Nếu lộ khóa: thu hồi và tạo lại ngay, rồi ghi sự cố vào `PROJECT_STATE.md`. GitHub secret scanning bật cho repo (**[CẦN XÁC NHẬN]**: kiểm tra đã bật chưa).
 
 ## 5. Bảo vệ dữ liệu cá nhân (C1, C2, NFR-14)
-- Nguyên tắc tối thiểu: chỉ lưu họ tên, email, vai trò, ngôn ngữ ưa thích.
+- Nguyên tắc tối thiểu: chỉ lưu họ tên, email, số điện thoại, phòng ban, vai trò, ngôn ngữ ưa thích.
 - Người dùng bị khóa vẫn giữ lịch sử (nhật ký không xóa), không còn đăng nhập được.
 - **[CẦN XÁC NHẬN]** Quy định bảo vệ dữ liệu cá nhân cần tuân thủ và thời gian lưu nhật ký; chưa hỏi ở Pha 1 (C2). Mình không tự điền điều khoản pháp lý.
 

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Nhật ký hoạt động</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<aside style="width: 232px; flex-shrink: 0; box-sizing: border-box; background: #F8FAFC; border-right: 1px solid #E2E8F0; padding: 16px 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #1D4ED8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">Q</div><span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span></div>
+<nav style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<a href="Projects.dc.html" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Dự án</a>
+<a href="#" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Việc của tôi</a>
+<a href="Notifications.dc.html" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Thông báo</a>
+</nav>
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569">Gần đây</div>
+<a href="#" style="padding: 7px 10px; border-radius: 6px; background: #E2E8F0; color: #0F172A; font-weight: 600; text-decoration: none; font-size: 14px">Cổng thông tin nội bộ</a>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column">
+<div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #E2E8F0">
+<h1 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600">Cổng thông tin nội bộ</h1>
+<div style="display: flex; gap: 20px; font-size: 14px">
+<a href="Kanban.dc.html" style="padding: 8px 2px; color: #475569; text-decoration: none">Bảng</a>
+<a href="List.dc.html" style="padding: 8px 2px; color: #475569; text-decoration: none">Danh sách</a>
+<a href="Dashboard.dc.html" style="padding: 8px 2px; color: #475569; text-decoration: none">Tổng quan</a>
+<a href="Activity.dc.html" style="padding: 8px 2px; border-bottom: 2px solid #1D4ED8; color: #1D4ED8; font-weight: 600; text-decoration: none">Nhật ký</a>
+</div>
+</div>
+<div style="padding: 12px 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px">
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 5px 10px">Người thực hiện: Tất cả</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 5px 10px">Loại thay đổi: Tất cả</span>
+<span style="border: 1px solid #64748B; border-radius: 6px; padding: 5px 10px">Thời gian: 7 ngày qua</span>
+<div style="flex-grow: 1"></div>
+<span style="color: #475569">Nhật ký chỉ đọc, không sửa hoặc xóa được</span>
+</div>
+<div style="padding: 0 24px 24px; display: flex; flex-direction: column">
+<sc-for list="{{items}}" as="a" hint-placeholder-count="8">
+<div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E2E8F0">
+<span style="width: 28px; height: 28px; border-radius: 14px; background: {{a.bg}}; color: #0F172A; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0">{{a.init}}</span>
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1">
+<span style="font-size: 14px; line-height: 20px"><b>{{a.who}}</b> {{a.what}}</span>
+<span style="font-size: 13px; color: #475569">{{a.detail}}</span>
+</div>
+<span style="font-size: 12px; color: #475569; white-space: nowrap">{{a.when}}</span>
+</div>
+</sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const a = (who, init, bg, what, detail, when) => ({ who, init, bg, what, detail, when });
+return { items: [
+a('Nguyễn Minh Anh', 'MA', '#DBEAFE', 'đổi trạng thái task CTTT-24', 'Cần làm → Đang làm', 'Hôm nay 09:12'),
+a('Trần Quốc Bảo', 'QB', '#DCFCE7', 'thêm quan hệ cho CTTT-24', 'Bị chặn bởi CTTT-31 (Cấu hình môi trường staging)', 'Hôm qua 16:40'),
+a('Lê Thu Hà', 'TH', '#FEF3C7', 'đổi ngày kết thúc task CTTT-31', '25/11/2026 → 27/11/2026', 'Hôm qua 14:05'),
+a('Nguyễn Minh Anh', 'MA', '#DBEAFE', 'giao task CTTT-33 cho Phạm Gia Huy', 'Người thực hiện: chưa gán → Phạm Gia Huy', '12/11 17:30'),
+a('Nguyễn Minh Anh', 'MA', '#DBEAFE', 'xóa task CTTT-19', 'Xóa vĩnh viễn, đã xác nhận (BR-11)', '12/11 10:20'),
+a('Trần Quốc Bảo', 'QB', '#DCFCE7', 'tạo subtask CTTT-26 trong CTTT-24', 'Cấp 2, người thực hiện Trần Quốc Bảo', '11/11 15:55')
+] };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Hồ sơ cá nhân</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<aside style="width: 232px; flex-shrink: 0; box-sizing: border-box; background: #F8FAFC; border-right: 1px solid #E2E8F0; padding: 16px 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #1D4ED8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">Q</div><span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span></div>
+<nav style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<a href="Projects.dc.html" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Dự án</a>
+<a href="#" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Việc của tôi</a>
+<a href="Notifications.dc.html" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Thông báo</a>
+</nav>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-top: 1px solid #E2E8F0; background: #E2E8F0; border-radius: 6px">
+<div style="width: 28px; height: 28px; border-radius: 14px; background: #DBEAFE; color: #1E3A8A; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">MA</div>
+<div style="display: flex; flex-direction: column; font-size: 13px; line-height: 16px"><span style="font-weight: 600">Nguyễn Minh Anh</span><span style="color: #475569; font-size: 12px">Hồ sơ</span></div>
+</div>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px; display: flex; flex-direction: column; gap: 20px; max-width: 760px">
+<h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600">Hồ sơ cá nhân</h1>
+<div style="display: flex; align-items: center; gap: 16px">
+<div style="width: 64px; height: 64px; border-radius: 32px; background: #DBEAFE; color: #1E3A8A; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600">MA</div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Nguyễn Minh Anh</span><span style="font-size: 13px; color: #475569">minh.anh@congty.example · Phòng ban: Quản lý dự án</span></div>
+</div>
+<div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="n" style="font-size: 14px; font-weight: 500">Tên hiển thị</label><input id="n" type="text" value="Nguyễn Minh Anh" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; font-weight: 500">Email (không đổi được ở đây)</span><span style="border: 1px solid #E2E8F0; background: #F8FAFC; border-radius: 6px; padding: 9px 12px; font-size: 14px; color: #475569">minh.anh@congty.example</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; font-weight: 500">Ngôn ngữ</span>
+<div style="display: flex; gap: 8px"><span style="border: 2px solid #1D4ED8; background: #EFF6FF; color: #1D4ED8; border-radius: 6px; padding: 7px 14px; font-size: 14px; font-weight: 600">Tiếng Việt</span><span style="border: 1px solid #64748B; border-radius: 6px; padding: 8px 14px; font-size: 14px">English</span></div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 14px; font-weight: 500">Giao diện</span>
+<div style="display: flex; gap: 8px"><span style="border: 2px solid #1D4ED8; background: #EFF6FF; color: #1D4ED8; border-radius: 6px; padding: 7px 14px; font-size: 14px; font-weight: 600">Theo hệ thống</span><span style="border: 1px solid #64748B; border-radius: 6px; padding: 8px 14px; font-size: 14px">Sáng</span><span style="border: 1px solid #64748B; border-radius: 6px; padding: 8px 14px; font-size: 14px">Tối</span></div></div>
+</div>
+<div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 14px; font-weight: 600">Vai trò của bạn trong từng dự án</span>
+<sc-for list="{{roles}}" as="r" hint-placeholder-count="3">
+<div style="display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-top: 1px solid #E2E8F0"><span>{{r.project}}</span><span style="color: #475569">{{r.role}}</span></div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 8px"><button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Lưu thay đổi</button><button style="border: 1px solid #64748B; background: #FFFFFF; color: #0F172A; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Đăng xuất</button></div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return { roles: [
+{ project: 'Cổng thông tin nội bộ', role: 'PM' },
+{ project: 'Nâng cấp hệ thống kho', role: 'Thành viên' },
+{ project: 'Chuyển đổi hạ tầng đám mây', role: 'PM' }
+] };
+}
+}
+</script>
+</body>
+</html>

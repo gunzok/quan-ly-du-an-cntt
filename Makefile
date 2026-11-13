@@ -6,7 +6,7 @@
 # gitleaks (cho target security). Thiếu công cụ thì target báo lỗi kèm cách cài, không bỏ qua.
 
 .PHONY: install lint test build security check-pnpm check-gitleaks \
-	check-supabase db-start db-stop db-reset db-seed db-test
+	check-supabase db-start db-stop db-reset db-seed db-test test-integration
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -75,3 +75,10 @@ db-seed: check-supabase
 # Chạy test pgTAP trong supabase/tests/ trên stack cục bộ.
 db-test: check-supabase
 	supabase test db
+
+# Test tích hợp đăng nhập (tests/integration/) trên stack cục bộ. Lấy URL và khóa từ
+# `supabase status` (không in ra màn hình). `make test` không có các biến này sẽ bỏ qua nhóm test đó.
+test-integration: check-pnpm check-supabase
+	@eval "$$(supabase status -o env 2>/dev/null)"; \
+	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" \
+	pnpm exec vitest run tests/integration
