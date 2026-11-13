@@ -38,7 +38,7 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | Phương thức, đường dẫn | Mô tả | Quyền | FR |
 |---|---|---|---|
 | `GET /api/v1/me` | Hồ sơ người đang đăng nhập | A P M V | FR-01 |
-| `PATCH /api/v1/me` | Đổi ngôn ngữ, tên | A P M V | FR-17 |
+| `PATCH /api/v1/me` | Đổi tên, số điện thoại, ngôn ngữ, giao diện sáng/tối | A P M V | FR-17 |
 | `GET /api/v1/users` | Danh sách người dùng (`?department_id=`, `?q=`), có `department` và số dự án tham gia | A (đầy đủ); P M V (trong dự án chung) | FR-02 |
 | `GET/POST/PATCH /api/v1/departments` | Danh mục phòng ban | đọc: tất cả; ghi: A | FR-02 |
 | `POST /api/v1/users/invitations` | Mời người dùng, gán vai trò | A | FR-02 |

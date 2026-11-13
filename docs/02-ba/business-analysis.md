@@ -120,7 +120,7 @@ Chỉ số có đánh dấu "đề xuất" do mình tính từ cỡ dự án (d�
 | NFR-11 | Đa ngôn ngữ | Việt và English | 100% chuỗi giao diện qua file ngôn ngữ; không có chuỗi gõ cứng | Đã chốt (A5) |
 | NFR-12 | Chi phí | Hạ tầng | Dưới 25 USD mỗi tháng | Đã chốt (D1) |
 | NFR-13 | Bảo trì | Chất lượng mã | TypeScript chế độ nghiêm ngặt, lint và test chạy trong CI, độ phủ test mục tiêu ở Pha 3 | Đề xuất |
-| NFR-14 | Tuân thủ | Dữ liệu cá nhân nhân sự | Chỉ lưu tên, email, phòng ban, vai trò; rà soát theo quy định về dữ liệu cá nhân khi vào vận hành **[CẦN XÁC NHẬN]** | C1, C2 chưa hỏi |
+| NFR-14 | Tuân thủ | Dữ liệu cá nhân nhân sự | Chỉ lưu tên, email, số điện thoại (người dùng tự nhập), phòng ban, vai trò; rà soát theo quy định về dữ liệu cá nhân khi vào vận hành **[CẦN XÁC NHẬN]** | C1, C2 chưa hỏi |
 
 ## 7. Ma trận truy vết
 Cột Story điền ở Pha 4, cột Test điền ở Pha 5.

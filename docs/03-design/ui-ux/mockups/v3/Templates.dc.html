@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Quản lý template</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 800px; font-family: Inter, system-ui, sans-serif; background: #FFFFFF">
+<aside style="width: 232px; flex-shrink: 0; box-sizing: border-box; background: #F8FAFC; border-right: 1px solid #E2E8F0; padding: 16px 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px"><div style="width: 28px; height: 28px; border-radius: 6px; background: #1D4ED8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">Q</div><span style="font-weight: 600; font-size: 14px">Quản lý Dự án CNTT</span></div>
+<nav style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+<a href="Projects.dc.html" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Dự án</a>
+<a href="#" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Việc của tôi</a>
+<a href="Notifications.dc.html" style="padding: 8px 10px; border-radius: 6px; color: #0F172A; text-decoration: none">Thông báo</a>
+</nav>
+<div style="padding: 0 10px; font-size: 12px; font-weight: 500; color: #475569">Quản trị</div>
+<a href="Admin.dc.html" style="padding: 7px 10px; border-radius: 6px; color: #0F172A; text-decoration: none; font-size: 14px">Người dùng</a>
+<a href="Templates.dc.html" style="padding: 7px 10px; border-radius: 6px; background: #E2E8F0; color: #0F172A; font-weight: 600; text-decoration: none; font-size: 14px">Template</a>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px"><h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600">Template</h1><span style="font-size: 14px; color: #475569">Template báo cáo do Admin tải lên; template dự án do PM và Admin lưu từ dự án có sẵn.</span></div>
+<button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 14px; font: 500 14px Inter, sans-serif; min-height: 36px">Tải lên template báo cáo</button>
+</div>
+<div style="display: flex; gap: 20px; font-size: 14px; border-bottom: 1px solid #E2E8F0">
+<a href="#" style="padding: 8px 2px; border-bottom: 2px solid #1D4ED8; color: #1D4ED8; font-weight: 600; text-decoration: none">Template báo cáo</a>
+<a href="#" style="padding: 8px 2px; color: #475569; text-decoration: none">Template dự án</a>
+</div>
+<div style="border: 1px solid #E2E8F0; border-radius: 8px; overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px">
+<thead><tr style="text-align: left; color: #475569; font-size: 12px; font-weight: 500; background: #F8FAFC"><th style="padding: 10px 14px">Tên</th><th style="padding: 10px 14px">Định dạng</th><th style="padding: 10px 14px">Tải lên bởi</th><th style="padding: 10px 14px">Ngày</th><th style="padding: 10px 14px">Trạng thái</th><th style="padding: 10px 14px"></th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+<tr><td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; font-weight: 500">{{r.name}}</td><td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; color: #475569">{{r.fmt}}</td><td style="padding: 12px 14px; border-top: 1px solid #E2E8F0">{{r.by}}</td><td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; color: #475569">{{r.date}}</td><td style="padding: 12px 14px; border-top: 1px solid #E2E8F0"><span style="font-size: 12px; padding: 2px 8px; border-radius: 4px; background: {{r.bg}}; color: {{r.fg}}; font-weight: 500">{{r.status}}</span></td><td style="padding: 12px 14px; border-top: 1px solid #E2E8F0; text-align: right"><a href="#" style="font-size: 13px">Tải xuống</a> · <a href="#" style="font-size: 13px">{{r.action}}</a></td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 20px; color: #475569">Chỉ tải lên tệp .xlsx hoặc .docx dưới 5 MB. Người dùng không sửa được cấu trúc template trong app (BR-08). Template đang dùng chỉ có một bản bật cho mỗi định dạng.</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const r = (name, fmt, by, date, on) => ({ name, fmt, by, date, status: on ? 'Đang dùng' : 'Không dùng', bg: on ? '#DCFCE7' : '#F1F5F9', fg: on ? '#14532D' : '#475569', action: on ? 'Ngừng dùng' : 'Bật dùng' });
+return { rows: [
+r('Báo cáo tiến độ tuần (mẫu công ty)', 'Excel (.xlsx)', 'Quản trị viên', '12/11/2026', true),
+r('Báo cáo tiến độ tuần (mẫu công ty)', 'Word (.docx)', 'Quản trị viên', '12/11/2026', true),
+r('Báo cáo tháng (bản cũ)', 'Word (.docx)', 'Quản trị viên', '02/10/2026', false)
+] };
+}
+}
+</script>
+</body>
+</html>

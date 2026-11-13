@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tạo dự án và chọn template</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="min-height: 800px; box-sizing: border-box; background: #475569; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: Inter, system-ui, sans-serif">
+<div role="dialog" aria-label="Tạo dự án" style="width: 600px; max-width: 100%; background: #FFFFFF; border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 16px 40px rgba(15,23,42,0.35)">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<h1 style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600">Tạo dự án</h1>
+<button aria-label="Đóng" style="border: 1px solid #64748B; background: #FFFFFF; border-radius: 6px; width: 32px; height: 32px; font-size: 16px; color: #0F172A">×</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="pn" style="font-size: 14px; font-weight: 500">Tên dự án</label>
+<input id="pn" type="text" value="Hệ thống quản lý tài sản CNTT" style="border: 2px solid #1D4ED8; border-radius: 6px; padding: 8px 11px; font: 400 14px Inter, sans-serif; color: #0F172A">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="pd" style="font-size: 14px; font-weight: 500">Mô tả</label>
+<textarea id="pd" rows="2" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A; resize: none">Theo dõi tài sản phần cứng, phần mềm và vòng đời bảo trì.</textarea>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d1" style="font-size: 14px; font-weight: 500">Ngày bắt đầu</label><input id="d1" type="text" value="16/11/2026" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A"></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="d2" style="font-size: 14px; font-weight: 500">Ngày kết thúc</label><input id="d2" type="text" value="30/04/2027" style="border: 1px solid #64748B; border-radius: 6px; padding: 9px 12px; font: 400 14px Inter, sans-serif; color: #0F172A"></div>
+</div>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="font-size: 14px; font-weight: 500; padding: 0; margin-bottom: 8px">Bắt đầu từ</legend>
+<sc-for list="{{options}}" as="o" hint-placeholder-count="3">
+<label style="display: flex; align-items: center; gap: 10px; border: {{o.border}}; background: {{o.bg}}; border-radius: 6px; padding: 10px 12px; font-size: 14px"><input type="radio" name="tpl" checked="{{o.checked}}" style="margin: 0"><span><b>{{o.name}}</b><br><span style="color: #475569; font-size: 13px">{{o.note}}</span></span></label>
+</sc-for>
+</fieldset>
+<div style="display: flex; justify-content: flex-end; gap: 8px">
+<button style="border: 1px solid #64748B; background: #FFFFFF; color: #0F172A; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Hủy</button>
+<button style="background: #1D4ED8; color: #FFFFFF; border: 0; border-radius: 6px; padding: 8px 16px; font: 500 14px Inter, sans-serif; min-height: 40px">Tạo dự án</button>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+const o = (name, note, sel) => ({ name, note, checked: sel, border: sel ? '2px solid #1D4ED8' : '1px solid #64748B', bg: sel ? '#EFF6FF' : '#FFFFFF' });
+return { options: [
+o('Dự án trống', 'Trạng thái mặc định: Cần làm, Đang làm, Chờ review, Hoàn thành', false),
+o('Template: Phát triển phần mềm', 'Trạng thái, loại task, nhãn và 24 task mẫu (đợt sau, cần Story E7-1)', true),
+o('Template: Triển khai hạ tầng', 'Trạng thái, nhãn và 18 task mẫu (đợt sau, cần Story E7-1)', false)
+] };
+}
+}
+</script>
+</body>
+</html>
