@@ -36,7 +36,8 @@ export const strings = {
     submitting: "Đang đăng nhập…",
     divider: "hoặc",
     google: "Tiếp tục với Google",
-    googleComingSoon: "Đăng nhập Google sắp có.",
+    googleRedirecting: "Đang chuyển tới Google…",
+    googleHint: "Dùng tài khoản Google có email đã được Admin mời.",
     inviteOnly: "Chưa có tài khoản? Liên hệ Admin để được mời.",
   },
   home: {
@@ -52,6 +53,13 @@ export const strings = {
     rateLimited: "Bạn thử quá nhiều lần. Vui lòng đợi vài phút rồi thử lại.",
     internal: "Không thể đăng nhập lúc này. Vui lòng thử lại sau.",
     unauthenticated: "Bạn chưa đăng nhập hoặc phiên đã hết hạn.",
+    oauth: {
+      not_invited:
+        "Tài khoản Google này chưa được mời vào hệ thống. Liên hệ Admin để được mời.",
+      rate_limited: "Bạn thử quá nhiều lần. Vui lòng đợi vài phút rồi thử lại.",
+      oauth_failed:
+        "Không thể đăng nhập bằng Google (lỗi hoặc đã hủy). Vui lòng thử lại.",
+    },
     field: {
       required: "Trường này là bắt buộc.",
       invalid_format: "Email không đúng định dạng.",

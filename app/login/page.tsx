@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { strings } from "@/lib/strings";
+import { GoogleSignIn } from "./google-sign-in";
 import { LanguageSwitcher } from "./language-switcher";
 import { LoginForm } from "./login-form";
 import styles from "./login.module.css";
+import { OAuthError } from "./oauth-error";
 
 export const metadata: Metadata = {
   title: `${strings.login.pageTitle} · ${strings.app.name}`,
 };
 
 /** S01 Đăng nhập, bản Blueprint v3 (docs/03-design/ui-ux/mockups/v3/bp-Main.dc.html). */
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <div className={styles.canvas}>
       <div className={styles.frame}>
@@ -85,32 +88,11 @@ export default function LoginPage() {
                 <span className="label">{strings.login.divider}</span>
               </div>
 
-              {/* Story E1-2 bật đăng nhập Google. */}
-              <div className={styles.googleGroup}>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  disabled
-                  aria-describedby="google-coming-soon"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 8v8M8 12h8" />
-                  </svg>
-                  {strings.login.google}
-                </button>
-                <p id="google-coming-soon" className={styles.hint}>
-                  {strings.login.googleComingSoon}
-                </p>
-              </div>
+              <Suspense fallback={null}>
+                <OAuthError searchParams={searchParams} />
+              </Suspense>
+
+              <GoogleSignIn />
 
               <p className={styles.hint}>{strings.login.inviteOnly}</p>
             </section>
