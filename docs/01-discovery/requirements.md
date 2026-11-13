@@ -1,6 +1,22 @@
 # Khảo sát yêu cầu: Quản lý Dự án CNTT
 
-Ngày: 2026-11-13 · Pha 1 · Trạng thái: Chờ duyệt
+Ngày: 2026-11-13 · Pha 1 · Trạng thái: Đã duyệt (2026-11-13)
+
+## 0. Bảng Epic đã duyệt
+| Epic | MVP? |
+|---|---|
+| E1 Nền tảng, đăng nhập, RBAC | Có |
+| E2 Dự án và task cốt lõi (nhãn, ưu tiên, trạng thái, subtask) | Có |
+| E3 Chế độ xem và tìm kiếm (Kanban, danh sách, bộ lọc) | Có |
+| E4 Thông báo (trong app, email) | Có |
+| E5 Dashboard và báo cáo (xlsx, docx theo template) | Có |
+| E6 Nhật ký hoạt động | Có |
+| E7 Template dự án | Có |
+| E8 Phụ thuộc giữa các task | Có |
+| E10 Đa ngôn ngữ (Việt/Anh) và responsive | Có |
+| E9 Theo dõi thời gian | Đợt sau |
+| E11 Cộng tác mở rộng (bình luận, tệp đính kèm, thùng rác) | Đợt sau |
+| E12 Timeline/Gantt | Đợt sau |
 
 ## 1. Mục tiêu kinh doanh
 | Hạng mục | Nội dung (nguyên văn trả lời của sếp) |
@@ -55,8 +71,8 @@ Câu hỏi nhóm A4 (mức thành thạo công nghệ), B7 (offline), C2 (tuân 
 | 8 | Thùng rác và khôi phục | Should | Thấp | Đợt sau (không chọn) |
 | 9 | Template dự án | Could | Thấp | MVP |
 | 10 | Phụ thuộc giữa các task | Could | Trung bình | MVP |
-| 11 | Timeline/Gantt | Could | Cao | MVP |
-| 12 | Theo dõi thời gian | Could | Trung bình | MVP |
+| 11 | Timeline/Gantt | Could | Cao | MVP lúc chọn; chuyển sang đợt sau khi duyệt gate (giảm R-003) |
+| 12 | Theo dõi thời gian | Could | Trung bình | MVP lúc chọn; chuyển sang đợt sau khi duyệt gate (giảm R-003) |
 
 ## 5. Phạm vi MVP
 **Trong phạm vi (In scope)**
@@ -65,10 +81,11 @@ Câu hỏi nhóm A4 (mức thành thạo công nghệ), B7 (offline), C2 (tuân 
 - Xuất báo cáo tiến độ ra Excel và Word theo template công ty (cần template mẫu từ sếp).
 - Thông báo trong app và email.
 - Nhãn, mức ưu tiên, trạng thái tùy chỉnh; tìm kiếm và bộ lọc; dashboard tiến độ.
-- Subtask; nhật ký hoạt động; template dự án; phụ thuộc giữa task; timeline/Gantt; theo dõi thời gian.
+- Subtask; nhật ký hoạt động; template dự án; phụ thuộc giữa task.
 - Giao diện tiếng Việt và tiếng Anh; responsive trên điện thoại.
 
 **Ngoài phạm vi MVP (đợt sau)**
+- Timeline/Gantt; theo dõi thời gian (chuyển sang đợt sau khi duyệt gate, 2026-11-13).
 - Bình luận và @mention; tệp đính kèm; thùng rác và khôi phục; sprint và backlog.
 - Tích hợp GitHub, Jira, Linear, Excel import; thông báo Zalo/Slack; AI; app mobile native; đa khách hàng (SaaS); SSO.
 
@@ -80,7 +97,7 @@ Câu hỏi nhóm A4 (mức thành thạo công nghệ), B7 (offline), C2 (tuân 
 ## 7. Rủi ro phát hiện ở Pha 1
 | Mã | Mô tả | Xử lý đề xuất |
 |---|---|---|
-| R-003 | Phạm vi lớn so với hạn 6 đến 8 tuần và một người làm: Gantt (cao), theo dõi thời gian, phụ thuộc task và template dự án cùng nằm trong MVP | Xem lại ở gate: chuyển Gantt và theo dõi thời gian sang đợt sau, hoặc kéo dài hạn |
+| R-003 | Phạm vi lớn so với hạn 6 đến 8 tuần và một người làm | Đã xử lý ở gate: chuyển Gantt và theo dõi thời gian sang đợt sau. Còn lại phụ thuộc task, template dự án; đánh giá lại ở Pha 4 khi ước lượng |
 | R-004 | Bình luận (Must theo đề xuất) bị để đợt sau, trong khi mục tiêu là cộng tác PM và team kỹ thuật | Xác nhận ở gate có chấp nhận không |
 | R-005 | Template báo cáo Word/Excel của công ty chưa có; thiếu mẫu thì không thiết kế được tính năng xuất | Sếp cung cấp template mẫu trước Pha 3 |
 | R-006 | Xuất Word/Excel trên PaaS serverless có giới hạn thời gian và bộ nhớ | Đánh giá ở Pha 2 khi chọn stack |
