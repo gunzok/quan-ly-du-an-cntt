@@ -5,18 +5,30 @@
 export const strings = {
   app: {
     name: "Quản lý Dự án CNTT",
-    logoLetter: "Q",
+    logoLetters: "QL",
     description: "Ứng dụng quản lý dự án CNTT nội bộ",
   },
   language: {
     groupLabel: "Ngôn ngữ",
+    viShort: "VI",
     vi: "Tiếng Việt",
-    en: "English",
+    enShort: "EN",
+    en: "English (sắp có)",
     comingSoon: "Sắp có",
+  },
+  brand: {
+    eyebrow: "Hệ thống nội bộ",
+    title: "Quản lý dự án CNTT",
+    features: [
+      { label: "01 / Lập kế hoạch", text: "Dự án, task, Gantt" },
+      { label: "02 / Theo dõi", text: "Kanban, danh sách, dashboard" },
+      { label: "03 / Báo cáo", text: "Xuất Excel, Word theo mẫu" },
+    ],
   },
   login: {
     pageTitle: "Đăng nhập",
-    heading: "Đăng nhập",
+    eyebrow: "01 / Đăng nhập",
+    heading: "Chào mừng trở lại",
     subtitle: "Dùng tài khoản được Admin mời vào hệ thống.",
     emailLabel: "Email",
     passwordLabel: "Mật khẩu",

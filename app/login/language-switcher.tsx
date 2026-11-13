@@ -13,19 +13,21 @@ export function LanguageSwitcher() {
         type="button"
         className={styles.languageButton}
         aria-pressed="true"
+        aria-label={strings.language.vi}
         lang="vi"
       >
-        {strings.language.vi}
+        {strings.language.viShort}
       </button>
       <button
         type="button"
         className={styles.languageButton}
         aria-pressed="false"
-        disabled
+        aria-label={strings.language.en}
         title={strings.language.comingSoon}
+        disabled
         lang="en"
       >
-        {strings.language.en}
+        {strings.language.enShort}
       </button>
     </div>
   );
