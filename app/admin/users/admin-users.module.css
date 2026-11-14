@@ -593,6 +593,7 @@
 
 .filter {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
@@ -604,12 +605,18 @@
   font-size: 14px;
 }
 
+.filter > label {
+  white-space: nowrap;
+}
+
 .filter:focus-within {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .filterSelect {
+  flex: 1 1 auto;
+  min-width: 0;
   min-height: 42px;
   max-width: 260px;
   padding: 0 var(--space-2);
@@ -622,6 +629,18 @@
 
 .filterSelect:focus {
   outline: none;
+}
+
+/* Cột Phòng ban không bị bóp thành từng chữ một dòng khi có 3 thao tác mỗi dòng. */
+.deptCell {
+  min-width: 180px;
+}
+
+.deptCellInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
 }
 
 .dialogWide {
@@ -671,6 +690,10 @@
   gap: var(--space-2);
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.deptName[hidden] {
+  display: none;
 }
 
 .deptArchived {

@@ -278,6 +278,7 @@ function DepartmentItem({
   return (
     <li className={styles.deptItem}>
       <span
+        hidden={editing}
         className={`${styles.deptName} ${dept.archived ? styles.deptArchived : ""}`}
       >
         {dept.name}

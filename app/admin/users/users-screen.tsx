@@ -593,12 +593,22 @@ function UserRow({
           </span>
         </div>
       </td>
-      <td>
-        {user.department ? (
-          user.department.name
-        ) : (
-          <span className={styles.muted}>{t.noDepartment}</span>
-        )}
+      <td className={styles.deptCell}>
+        <div className={styles.deptCellInner}>
+          {user.department ? (
+            <span>{user.department.name}</span>
+          ) : (
+            <span className={styles.muted}>{t.noDepartment}</span>
+          )}
+          <button
+            type="button"
+            className={styles.linkButton}
+            aria-label={t.changeDepartmentAction(name)}
+            onClick={() => onChangeDepartment(user)}
+          >
+            {t.changeDepartment}
+          </button>
+        </div>
       </td>
       <td>
         <span className={user.is_admin ? styles.badgeAdmin : styles.badge}>
@@ -619,13 +629,6 @@ function UserRow({
           aria-label={t.rowActionsLabel(name)}
           className={styles.actions}
         >
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={() => onChangeDepartment(user)}
-          >
-            {t.changeDepartment}
-          </button>
           {user.is_admin ? (
             <button
               type="button"

@@ -107,7 +107,8 @@ export const strings = {
     departmentFilterNone: "Chưa gán phòng ban",
     archivedSuffix: " (đã lưu trữ)",
     emptyFilter: "Không có người dùng nào thuộc phòng ban đã chọn.",
-    changeDepartment: "Đổi phòng ban",
+    changeDepartment: "Đổi",
+    changeDepartmentAction: (name: string) => `Đổi phòng ban của ${name}`,
     manageDepartments: "Quản lý phòng ban",
     assign: {
       title: (name: string) => `Đổi phòng ban của ${name}`,

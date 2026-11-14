@@ -51,11 +51,17 @@ test("Admin lọc người dùng theo Phòng ban và mở danh mục phòng ban"
   await expect(table.getByText("viewer@example.com")).toBeVisible();
   await expect(table.getByText("pm@example.com")).toHaveCount(0);
   await expect(table.getByText(ADMIN_EMAIL)).toHaveCount(0);
-  for (const cell of await table
-    .locator("tbody tr td:nth-child(2)")
-    .allTextContents()) {
-    expect(cell).toBe(SUPPORT_DEPARTMENT);
-  }
+  // Cột Phòng ban: tên (phần tử đầu) và nút "Đổi" trong cùng ô.
+  const names = await table
+    .locator("tbody tr td:nth-child(2) span:first-child")
+    .allTextContents();
+  expect(names.length).toBeGreaterThan(0);
+  expect(new Set(names)).toEqual(new Set([SUPPORT_DEPARTMENT]));
+  await expect(
+    table.getByRole("button", {
+      name: t.changeDepartmentAction("Người xem Thử"),
+    }),
+  ).toBeVisible();
 
   // Người chưa có phòng ban: các persona seed đều đã có phòng ban.
   await filter.selectOption({ label: t.departmentFilterNone });
