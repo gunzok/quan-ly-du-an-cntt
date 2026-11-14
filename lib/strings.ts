@@ -64,6 +64,25 @@ export const strings = {
       required: "Trường này là bắt buộc.",
       invalid_format: "Email không đúng định dạng.",
       too_long: "Giá trị quá dài.",
+      invalid_value: "Giá trị không hợp lệ.",
+      unknown_field: "Trường không được hỗ trợ.",
+    },
+  },
+  api: {
+    validationFailed: "Dữ liệu không hợp lệ.",
+    unauthenticated: "Bạn chưa đăng nhập hoặc phiên đã hết hạn.",
+    forbidden: "Bạn không có quyền thực hiện thao tác này.",
+    notFound: "Không tìm thấy.",
+    internal: "Có lỗi hệ thống. Vui lòng thử lại sau.",
+  },
+  tasks: {
+    errors: {
+      dateOrder: "Ngày kết thúc không được sớm hơn ngày bắt đầu.",
+      assigneeNotMember:
+        "Người được giao phải là PM hoặc Thành viên đang hoạt động của dự án.",
+      forbiddenEdit: "Bạn chỉ sửa được task mình phụ trách hoặc do mình tạo.",
+      forbiddenDelete: "Bạn chỉ xóa được task do mình tạo.",
+      forbiddenCreate: "Người xem không tạo được task.",
     },
   },
 } as const;
