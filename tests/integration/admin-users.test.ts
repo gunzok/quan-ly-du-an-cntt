@@ -197,13 +197,11 @@ describe.skipIf(!enabled)("Admin quản trị người dùng (Supabase cục b�
     departmentId = dept.data.id as string;
 
     projectId = randomUUID();
-    const project = await service
-      .from("projects")
-      .insert({
-        id: projectId,
-        name: `IT Dự án ${tag}`,
-        created_by: member.id,
-      });
+    const project = await service.from("projects").insert({
+      id: projectId,
+      name: `IT Dự án ${tag}`,
+      created_by: member.id,
+    });
     if (project.error) throw project.error;
 
     adminJar = await signedIn(adminA);
