@@ -91,8 +91,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      # Bỏ các dịch vụ test không dùng; giữ db, gotrue (auth), kong, postgrest.
-      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      # Bỏ các dịch vụ test không dùng; giữ db, gotrue (auth), kong, postgrest và mailpit
+      # (tests/integration/google-auth.test.ts đọc magic link từ Mailpit).
+      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -120,6 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
+      # e2e chỉ đăng nhập bằng mật khẩu nên bỏ cả mailpit.
       SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
     steps:
       - uses: actions/checkout@v7
