@@ -107,7 +107,7 @@ test-integration: check-pnpm check-supabase
 	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
 		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
 		exit 1; fi; \
-	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" \
+	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" MAILPIT_URL="$$MAILPIT_URL" \
 	pnpm exec vitest run tests/integration
 
 # Tải Chromium cho Playwright (chỉ chromium, đúng phiên bản @playwright/test trong lockfile).
