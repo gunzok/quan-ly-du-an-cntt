@@ -119,9 +119,10 @@ e2e-install: check-pnpm
 # SEED_PASSWORD (shell hoặc .env.local). Ghi đè thư mục .next của `make build`.
 test-e2e: check-pnpm check-supabase
 	@eval "$$(supabase status -o env 2>/dev/null)"; \
-	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ]; then \
+	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
 		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
 		exit 1; fi; \
 	unset NODE_ENV; \
 	export NEXT_PUBLIC_SUPABASE_URL="$$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$$ANON_KEY" E2E_PORT="$(E2E_PORT)"; \
+	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY"; \
 	pnpm build && pnpm exec playwright test

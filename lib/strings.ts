@@ -66,4 +66,10 @@ export const strings = {
       too_long: "Giá trị quá dài.",
     },
   },
+  /** Thông điệp lỗi của lớp bảo mật chung (Story E0-5): CSRF, giới hạn tần suất. */
+  security: {
+    crossOrigin: "Yêu cầu không đến từ ứng dụng này nên bị từ chối.",
+    rateLimited: "Bạn gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.",
+    unavailable: "Hệ thống đang bận. Vui lòng thử lại sau ít phút.",
+  },
 } as const;
