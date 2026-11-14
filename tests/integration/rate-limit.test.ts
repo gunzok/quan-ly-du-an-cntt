@@ -50,6 +50,9 @@ function callProxyWith(
   );
 }
 
+/** Ca test có thể chờ qua mép cửa sổ (tối đa ~15 giây) nên cần timeout dài hơn mặc định 5 giây. */
+const WINDOW_TEST_TIMEOUT_MS = 30_000;
+
 /** Chờ nếu cửa sổ cố định sắp hết, để các lượt của một ca test nằm trọn trong một cửa sổ. */
 async function awayFromWindowEdge(windowSeconds: number, marginSeconds = 15) {
   const left = windowSeconds - ((Date.now() / 1000) % windowSeconds);
@@ -103,101 +106,114 @@ describe.skipIf(!enabled)("Giới hạn tần suất (Supabase cục bộ)", () 
     expect(error).not.toBeNull();
   });
 
-  it("bộ đếm Postgres: cho qua tới ngưỡng rồi chặn, khóa khác không bị ảnh hưởng", async () => {
-    await awayFromWindowEdge(RATE_LIMITS.loginEmail.windowSeconds);
-    const config = {
-      store: supabaseRateLimitStore(service),
-      secret: randomUUID(),
-    };
-    const check = (identifier: string) =>
-      consumeRateLimits([{ name: "loginEmail", identifier }], config);
+  it(
+    "bộ đếm Postgres: cho qua tới ngưỡng rồi chặn, khóa khác không bị ảnh hưởng",
+    async () => {
+      await awayFromWindowEdge(RATE_LIMITS.loginEmail.windowSeconds);
+      const config = {
+        store: supabaseRateLimitStore(service),
+        secret: randomUUID(),
+      };
+      const check = (identifier: string) =>
+        consumeRateLimits([{ name: "loginEmail", identifier }], config);
 
-    for (let i = 0; i < RATE_LIMITS.loginEmail.limit; i++) {
-      expect(await check("email:a@x.vn")).toEqual({ ok: true });
-    }
-    const blocked = await check("email:a@x.vn");
-    expect(blocked).toMatchObject({ ok: false, reason: "limited" });
-    if (!blocked.ok && blocked.reason === "limited") {
-      expect(blocked.retryAfterSeconds).toBeGreaterThanOrEqual(1);
-      expect(blocked.retryAfterSeconds).toBeLessThanOrEqual(
-        RATE_LIMITS.loginEmail.windowSeconds,
-      );
-    }
-    expect(await check("email:b@x.vn")).toEqual({ ok: true });
-  });
+      for (let i = 0; i < RATE_LIMITS.loginEmail.limit; i++) {
+        expect(await check("email:a@x.vn")).toEqual({ ok: true });
+      }
+      const blocked = await check("email:a@x.vn");
+      expect(blocked).toMatchObject({ ok: false, reason: "limited" });
+      if (!blocked.ok && blocked.reason === "limited") {
+        expect(blocked.retryAfterSeconds).toBeGreaterThanOrEqual(1);
+        expect(blocked.retryAfterSeconds).toBeLessThanOrEqual(
+          RATE_LIMITS.loginEmail.windowSeconds,
+        );
+      }
+      expect(await check("email:b@x.vn")).toEqual({ ok: true });
+    },
+    WINDOW_TEST_TIMEOUT_MS,
+  );
 
-  it("đăng nhập: lần thử thứ (ngưỡng + 1) cho một email bị rate_limited", async () => {
-    await awayFromWindowEdge(RATE_LIMITS.loginEmail.windowSeconds);
-    const config = {
-      store: supabaseRateLimitStore(service),
-      secret: randomUUID(),
-    };
-    const consume: typeof consumeRateLimits = (checks) =>
-      consumeRateLimits(checks, config);
-    const attempt = { ip: "203.0.113.7", email: "Nguoi.Dung@Example.com" };
-    for (let i = 0; i < RATE_LIMITS.loginEmail.limit; i++) {
-      expect(await limitLoginAttempt(attempt, consume)).toEqual({ ok: true });
-    }
-    // Viết hoa/khoảng trắng khác vẫn cùng một email.
-    expect(
-      await limitLoginAttempt(
-        { ...attempt, email: " nguoi.dung@example.com " },
-        consume,
-      ),
-    ).toMatchObject({ ok: false, error: { code: "rate_limited" } });
-    // Email khác cùng IP vẫn đăng nhập được (ngưỡng IP cao hơn).
-    expect(
-      await limitLoginAttempt(
-        { ...attempt, email: "khac@example.com" },
-        consume,
-      ),
-    ).toEqual({ ok: true });
-  });
-
-  it("proxy: /api/v1/* quá ngưỡng trả 429 rate_limited kèm Retry-After, người khác vẫn qua", async () => {
-    const [a, b] = users;
-    const jarA = await signedInJar(a);
-    const jarB = await signedInJar(b);
-    await awayFromWindowEdge(RATE_LIMITS.api.windowSeconds);
-
-    // Đốt hết hạn mức của A bằng đúng khóa proxy dùng (nhanh hơn gọi proxy 300 lần).
-    const key = rateLimitKey("api", `user:${a.id}`, SERVICE_ROLE_KEY);
-    const store = supabaseRateLimitStore(service);
-    const batch = 50;
-    for (let i = 0; i < RATE_LIMITS.api.limit; i += batch) {
-      await Promise.all(
-        Array.from({ length: Math.min(batch, RATE_LIMITS.api.limit - i) }, () =>
-          store.hit(key, RATE_LIMITS.api),
+  it(
+    "đăng nhập: lần thử thứ (ngưỡng + 1) cho một email bị rate_limited",
+    async () => {
+      await awayFromWindowEdge(RATE_LIMITS.loginEmail.windowSeconds);
+      const config = {
+        store: supabaseRateLimitStore(service),
+        secret: randomUUID(),
+      };
+      const consume: typeof consumeRateLimits = (checks) =>
+        consumeRateLimits(checks, config);
+      const attempt = { ip: "203.0.113.7", email: "Nguoi.Dung@Example.com" };
+      for (let i = 0; i < RATE_LIMITS.loginEmail.limit; i++) {
+        expect(await limitLoginAttempt(attempt, consume)).toEqual({ ok: true });
+      }
+      // Viết hoa/khoảng trắng khác vẫn cùng một email.
+      expect(
+        await limitLoginAttempt(
+          { ...attempt, email: " nguoi.dung@example.com " },
+          consume,
         ),
+      ).toMatchObject({ ok: false, error: { code: "rate_limited" } });
+      // Email khác cùng IP vẫn đăng nhập được (ngưỡng IP cao hơn).
+      expect(
+        await limitLoginAttempt(
+          { ...attempt, email: "khac@example.com" },
+          consume,
+        ),
+      ).toEqual({ ok: true });
+    },
+    WINDOW_TEST_TIMEOUT_MS,
+  );
+
+  it(
+    "proxy: /api/v1/* quá ngưỡng trả 429 rate_limited kèm Retry-After, người khác vẫn qua",
+    async () => {
+      const [a, b] = users;
+      const jarA = await signedInJar(a);
+      const jarB = await signedInJar(b);
+      await awayFromWindowEdge(RATE_LIMITS.api.windowSeconds);
+
+      // Đốt hết hạn mức của A bằng đúng khóa proxy dùng (nhanh hơn gọi proxy 300 lần).
+      const key = rateLimitKey("api", `user:${a.id}`, SERVICE_ROLE_KEY);
+      const store = supabaseRateLimitStore(service);
+      const batch = 50;
+      for (let i = 0; i < RATE_LIMITS.api.limit; i += batch) {
+        await Promise.all(
+          Array.from(
+            { length: Math.min(batch, RATE_LIMITS.api.limit - i) },
+            () => store.hit(key, RATE_LIMITS.api),
+          ),
+        );
+      }
+
+      const limited = await callProxyWith("/api/v1/projects", { jar: jarA });
+      expect(limited.status).toBe(429);
+      const retryAfter = Number(limited.headers.get("retry-after"));
+      expect(Number.isInteger(retryAfter)).toBe(true);
+      expect(retryAfter).toBeGreaterThanOrEqual(1);
+      expect(retryAfter).toBeLessThanOrEqual(RATE_LIMITS.api.windowSeconds);
+      expect(limited.headers.get("content-security-policy")).toContain(
+        "frame-ancestors 'none'",
       );
-    }
+      const body = await limited.json();
+      expect(body).toEqual({
+        error: {
+          code: "rate_limited",
+          message: expect.any(String),
+          request_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
+        },
+      });
 
-    const limited = await callProxyWith("/api/v1/projects", { jar: jarA });
-    expect(limited.status).toBe(429);
-    const retryAfter = Number(limited.headers.get("retry-after"));
-    expect(Number.isInteger(retryAfter)).toBe(true);
-    expect(retryAfter).toBeGreaterThanOrEqual(1);
-    expect(retryAfter).toBeLessThanOrEqual(RATE_LIMITS.api.windowSeconds);
-    expect(limited.headers.get("content-security-policy")).toContain(
-      "frame-ancestors 'none'",
-    );
-    const body = await limited.json();
-    expect(body).toEqual({
-      error: {
-        code: "rate_limited",
-        message: expect.any(String),
-        request_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
-      },
-    });
+      const other = await callProxyWith("/api/v1/projects", { jar: jarB });
+      expect(other.status).not.toBe(429);
+      expect(other.headers.get("x-middleware-next")).toBe("1");
 
-    const other = await callProxyWith("/api/v1/projects", { jar: jarB });
-    expect(other.status).not.toBe(429);
-    expect(other.headers.get("x-middleware-next")).toBe("1");
-
-    // Trang (không phải /api/v1) không bị giới hạn API.
-    const home = await callProxyWith("/", { jar: jarA });
-    expect(home.status).toBe(200);
-  });
+      // Trang (không phải /api/v1) không bị giới hạn API.
+      const home = await callProxyWith("/", { jar: jarA });
+      expect(home.status).toBe(200);
+    },
+    WINDOW_TEST_TIMEOUT_MS,
+  );
 
   it("CSRF: ghi dữ liệu /api/* khác origin hoặc thiếu Origin trả 403, trước cả kiểm phiên", async () => {
     const jar = await signedInJar(users[1]);
