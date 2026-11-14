@@ -101,7 +101,7 @@ async function gate(
 }
 
 /** Đọc thân JSON có giới hạn kích thước; sai kiểu nội dung hoặc JSON hỏng: 400. */
-async function readJsonBody(
+export async function readJsonBody(
   request: Request,
 ): Promise<{ ok: true; body: unknown } | { ok: false; error: ApiError }> {
   const invalid = apiError("validation_failed", undefined, [
@@ -156,7 +156,7 @@ export async function handleListUsers(
   if (!parsed.ok) {
     return fail(apiError("validation_failed", undefined, parsed.details), ctx);
   }
-  const { q, limit, cursor } = parsed.data;
+  const { q, limit, cursor, department } = parsed.data;
 
   try {
     const { data, error } = await deps.service().rpc("admin_list_users", {
@@ -164,6 +164,8 @@ export async function handleListUsers(
       p_after_key: cursor?.key ?? null,
       p_after_id: cursor?.id ?? null,
       p_limit: limit + 1,
+      p_department_id: department.kind === "id" ? department.id : null,
+      p_without_department: department.kind === "none",
     });
     if (error) throw error;
     const rows = (data ?? []) as AdminUserRow[];
@@ -210,15 +212,17 @@ export async function handleInviteUser(
     if (input.department_id) {
       const { data: dept, error } = await service
         .from("departments")
-        .select("id")
+        .select("id, archived_at")
         .eq("id", input.department_id)
         .maybeSingle();
       if (error) throw error;
-      if (!dept) {
+      if (!dept || dept.archived_at !== null) {
         return fail(
           apiError(
             "validation_failed",
-            strings.adminUsers.errors.departmentNotFound,
+            dept
+              ? strings.adminUsers.errors.departmentArchived
+              : strings.adminUsers.errors.departmentNotFound,
             [{ field: "department_id", issue: "invalid_value" }],
           ),
           ctx,

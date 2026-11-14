@@ -18,7 +18,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Ký tự điều khiển (kể cả xuống dòng) không hợp lệ trong họ tên và từ khóa.
-const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
+export const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
 export type Validation<T> =
   { ok: true; data: T } | { ok: false; details: ApiErrorDetail[] };
@@ -27,7 +27,9 @@ export function isUuid(value: unknown): value is string {
   return typeof value === "string" && UUID_PATTERN.test(value);
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
+export function isPlainObject(
+  value: unknown,
+): value is Record<string, unknown> {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -36,7 +38,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   );
 }
 
-function unknownFields(
+export function unknownFields(
   keys: Iterable<string>,
   allowed: readonly string[],
 ): ApiErrorDetail[] {
@@ -87,15 +89,23 @@ export function decodeCursor(raw: string): ListCursor | null {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/users?q=&limit=&cursor=
+// GET /api/v1/users?q=&limit=&cursor=&department_id=
 // ---------------------------------------------------------------------------
+/** Giá trị đặc biệt của department_id: lọc người chưa có phòng ban. */
+export const DEPARTMENT_FILTER_NONE = "none";
+
+/** Lọc theo phòng ban: tất cả, chưa gán, hoặc một phòng ban cụ thể. */
+export type DepartmentFilter =
+  { kind: "all" } | { kind: "none" } | { kind: "id"; id: string };
+
 export interface ListUsersQuery {
   q: string | null;
   limit: number;
   cursor: ListCursor | null;
+  department: DepartmentFilter;
 }
 
-const LIST_PARAMS = ["q", "limit", "cursor"] as const;
+const LIST_PARAMS = ["q", "limit", "cursor", "department_id"] as const;
 
 export function validateListQuery(
   params: URLSearchParams,
@@ -140,9 +150,21 @@ export function validateListQuery(
     }
   }
 
+  let department: DepartmentFilter = { kind: "all" };
+  const rawDepartment = params.get("department_id");
+  if (rawDepartment !== null) {
+    if (rawDepartment === DEPARTMENT_FILTER_NONE) {
+      department = { kind: "none" };
+    } else if (isUuid(rawDepartment)) {
+      department = { kind: "id", id: rawDepartment.toLowerCase() };
+    } else {
+      details.push({ field: "department_id", issue: "invalid_format" });
+    }
+  }
+
   return details.length > 0
     ? { ok: false, details }
-    : { ok: true, data: { q, limit, cursor } };
+    : { ok: true, data: { q, limit, cursor, department } };
 }
 
 // ---------------------------------------------------------------------------

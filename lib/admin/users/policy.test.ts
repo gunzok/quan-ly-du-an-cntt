@@ -71,6 +71,7 @@ describe("mapAdminUpdateError", () => {
       ["self_revoke_admin", "conflict", undefined],
       ["last_admin", "conflict", undefined],
       ["department_not_found", "validation_failed", undefined],
+      ["department_archived", "validation_failed", undefined],
     ];
     for (const [message, code] of cases) {
       expect(mapAdminUpdateError({ code: "P0001", message })).toMatchObject({
@@ -80,6 +81,12 @@ describe("mapAdminUpdateError", () => {
     expect(
       mapAdminUpdateError({ code: "P0001", message: "last_admin" })?.message,
     ).toBe(strings.adminUsers.errors.lastAdmin);
+    expect(
+      mapAdminUpdateError({ code: "P0001", message: "department_archived" }),
+    ).toMatchObject({
+      message: strings.adminUsers.errors.departmentArchived,
+      details: [{ field: "department_id", issue: "invalid_value" }],
+    });
   });
 
   it("lỗi khác (mã khác hoặc thông điệp lạ) trả null để coi là lỗi hệ thống", () => {
