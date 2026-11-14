@@ -4,6 +4,9 @@ pnpm-lock.yaml
 out/
 build/
 coverage/
+test-results/
+playwright-report/
+blob-report/
 next-env.d.ts
 
 # Tài liệu do phiên điều phối quản lý, không định dạng lại tự động
