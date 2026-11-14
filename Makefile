@@ -97,13 +97,6 @@ db-seed: check-supabase
 test-db: check-supabase
 	supabase test db
 
-<<<<<<< HEAD
-# Test tích hợp đăng nhập và quản trị người dùng (tests/integration/) trên stack cục bộ. Lấy URL và khóa từ
-# `supabase status` (không in ra màn hình). `make test` không có các biến này sẽ bỏ qua nhóm test đó.
-test-integration: check-pnpm check-supabase
-	@eval "$$(supabase status -o env 2>/dev/null)"; \
-	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" MAILPIT_URL="$$MAILPIT_URL" \
-=======
 db-test: test-db
 
 # Test tích hợp (tests/integration/) trên stack cục bộ. Lấy URL và khóa từ `supabase status`
@@ -114,8 +107,7 @@ test-integration: check-pnpm check-supabase
 	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
 		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
 		exit 1; fi; \
-	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" \
->>>>>>> origin/main
+	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" MAILPIT_URL="$$MAILPIT_URL" \
 	pnpm exec vitest run tests/integration
 
 # Tải Chromium cho Playwright (chỉ chromium, đúng phiên bản @playwright/test trong lockfile).
