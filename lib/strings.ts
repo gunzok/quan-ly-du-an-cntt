@@ -178,4 +178,14 @@ export const strings = {
       network: "Không kết nối được máy chủ. Vui lòng thử lại.",
     },
   },
+  tasks: {
+    errors: {
+      dateOrder: "Ngày kết thúc không được sớm hơn ngày bắt đầu.",
+      assigneeNotMember:
+        "Người được giao phải là PM hoặc Thành viên đang hoạt động của dự án.",
+      forbiddenEdit: "Bạn chỉ sửa được task mình phụ trách hoặc do mình tạo.",
+      forbiddenDelete: "Bạn chỉ xóa được task do mình tạo.",
+      forbiddenCreate: "Người xem không tạo được task.",
+    },
+  },
 } as const;
