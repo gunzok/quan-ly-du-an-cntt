@@ -76,9 +76,9 @@ db-seed: check-supabase
 db-test: check-supabase
 	supabase test db
 
-# Test tích hợp đăng nhập (tests/integration/) trên stack cục bộ. Lấy URL và khóa từ
+# Test tích hợp đăng nhập và quản trị người dùng (tests/integration/) trên stack cục bộ. Lấy URL và khóa từ
 # `supabase status` (không in ra màn hình). `make test` không có các biến này sẽ bỏ qua nhóm test đó.
 test-integration: check-pnpm check-supabase
 	@eval "$$(supabase status -o env 2>/dev/null)"; \
-	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" \
+	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" MAILPIT_URL="$$MAILPIT_URL" \
 	pnpm exec vitest run tests/integration

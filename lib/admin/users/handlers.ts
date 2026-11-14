@@ -3,7 +3,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ApiError } from "@/lib/api/errors";
 import { apiError, errorResponse, jsonResponse } from "@/lib/api/respond";
 import { strings } from "@/lib/strings";
-import { toAdminUser, type AdminUserRow, type UserListResponse } from "./model";
+import {
+  toAdminUser,
+  userStatus,
+  type AdminUserRow,
+  type UserListResponse,
+} from "./model";
 import {
   banDurationFor,
   checkSelfAction,
@@ -221,6 +226,28 @@ export async function handleInviteUser(
       }
     }
 
+    // Email đã có tài khoản: chỉ cho gửi lại khi người đó vẫn đang chờ nhận lời mời (chưa đăng
+    // nhập lần nào); tài khoản đã dùng thì 409. Supabase Auth tự gửi lại với tài khoản chờ.
+    const { data: existing, error: existingError } = await service
+      .from("profiles")
+      .select("id")
+      .eq("email", input.email)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    let resend = false;
+    if (existing) {
+      const row = await fetchUserRow(service, existing.id as string);
+      if (!row || userStatus(row) !== "invited") {
+        return fail(
+          apiError("conflict", strings.adminUsers.errors.emailExists, [
+            { field: "email", issue: "invalid_value" },
+          ]),
+          ctx,
+        );
+      }
+      resend = true;
+    }
+
     // Supabase Auth tạo tài khoản ở trạng thái được mời và gửi email (cục bộ: Mailpit).
     // Trigger on_auth_user_created tạo dòng profiles với full_name từ metadata.
     const { data: invited, error: inviteError } =
@@ -259,9 +286,12 @@ export async function handleInviteUser(
     if (!row) {
       return internal(ctx, "invite:readback", new Error("profile missing"));
     }
-    return jsonResponse({ data: toAdminUser(row) }, 201, {
-      location: `/api/v1/users/${userId}`,
-    });
+    // Gửi lại lời mời: 200 (không tạo tài khoản mới); mời mới: 201 kèm Location.
+    return resend
+      ? jsonResponse({ data: toAdminUser(row) }, 200)
+      : jsonResponse({ data: toAdminUser(row) }, 201, {
+          location: `/api/v1/users/${userId}`,
+        });
   } catch (error) {
     return internal(ctx, "invite", error);
   }
