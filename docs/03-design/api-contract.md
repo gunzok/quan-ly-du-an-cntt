@@ -39,10 +39,10 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 |---|---|---|---|
 | `GET /api/v1/me` | Hồ sơ người đang đăng nhập | A P M V | FR-01 |
 | `PATCH /api/v1/me` | Đổi tên, số điện thoại, ngôn ngữ, giao diện sáng/tối | A P M V | FR-17 |
-| `GET /api/v1/users` | Danh sách người dùng (`?department_id=`, `?q=`), có `department` và số dự án tham gia | A (đầy đủ); P M V (trong dự án chung) | FR-02 |
+| `GET /api/v1/users` | Danh sách người dùng (`?department_id=`, `?q=`, phân trang cursor), có `department`, số dự án tham gia và `status` (`active`/`locked`/`invited`) | A (đầy đủ); P M V (trong dự án chung) | FR-02 |
 | `GET/POST/PATCH /api/v1/departments` | Danh mục phòng ban | đọc: tất cả; ghi: A | FR-02 |
-| `POST /api/v1/users/invitations` | Mời người dùng, gán vai trò | A | FR-02 |
-| `PATCH /api/v1/users/{id}` | Đổi phòng ban, cấp hoặc thu quyền Admin, khóa/mở | A | FR-02 |
+| `POST /api/v1/users/invitations` | Mời người dùng (`email`, `full_name?`, `department_id?`). Mời mới: `201` + `Location`; email đang chờ nhận lời mời: gửi lại, `200`; email đã có tài khoản dùng: `409` | A | FR-02 |
+| `PATCH /api/v1/users/{id}` | Đổi phòng ban, cấp hoặc thu quyền Admin, khóa/mở (`is_active`, `is_admin`, `department_id`). Khóa xóa phiên và ban ở Auth. Tự khóa, tự thu quyền, khóa hoặc thu quyền Admin cuối cùng: `409` | A | FR-02 |
 | `GET /api/v1/projects` | Dự án của tôi | A P M V | FR-03 |
 | `POST /api/v1/projects` | Tạo dự án (kèm `template_id` tùy chọn) | A P | FR-03, FR-04 |
 | `GET/PATCH /api/v1/projects/{id}` | Xem, sửa dự án | đọc: tất cả trong dự án; sửa: A P | FR-03 |
