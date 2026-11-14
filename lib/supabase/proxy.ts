@@ -16,7 +16,18 @@ import { getSupabasePublicEnv } from "./env";
  * Theo mẫu của @supabase/ssr: cookie mới được ghi cả vào request (cho trang phía sau)
  * lẫn response (cho trình duyệt); khi chuyển hướng phải chép cookie sang response mới.
  */
-export async function updateSession(request: NextRequest) {
+export interface UpdateSessionOptions {
+  /**
+   * Chạy sau khi đã biết người dùng (getUser) và cổng đăng nhập cho qua. Trả về một phản hồi để
+   * chặn request (ví dụ 429), cookie phiên vừa làm mới vẫn được chép sang; trả null để cho qua.
+   */
+  guard?: (ctx: { userId: string }) => Promise<NextResponse | null>;
+}
+
+export async function updateSession(
+  request: NextRequest,
+  options: UpdateSessionOptions = {},
+) {
   const { url, anonKey } = getSupabasePublicEnv();
   let response = NextResponse.next({ request });
   const pendingHeaders: Record<string, string> = {};
@@ -53,7 +64,13 @@ export async function updateSession(request: NextRequest) {
   const decision = decideAuthGate(request.nextUrl.pathname, isAuthenticated);
 
   let result: NextResponse = response;
-  if (decision.action === "redirect") {
+  const blocked =
+    decision.action === "next" && data.user && options.guard
+      ? await options.guard({ userId: data.user.id })
+      : null;
+  if (blocked) {
+    result = withCookiesFrom(response, blocked);
+  } else if (decision.action === "redirect") {
     const target = request.nextUrl.clone();
     target.pathname = decision.to;
     target.search = "";
