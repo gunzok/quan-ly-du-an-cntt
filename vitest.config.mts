@@ -9,7 +9,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["**/*.test.{ts,tsx}"],
-    exclude: ["node_modules/**", ".next/**"],
+    // tests/e2e/ là test Playwright (*.spec.ts), chạy bằng `make test-e2e`, không qua Vitest.
+    exclude: ["node_modules/**", ".next/**", "tests/e2e/**"],
     globalSetup: ["./tests/integration/global-setup.ts"],
   },
 });
