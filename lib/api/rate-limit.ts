@@ -1,8 +1,9 @@
 import { createHmac, randomUUID } from "node:crypto";
 import { isIP } from "node:net";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { strings } from "@/lib/strings";
+import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { API_ERROR_STATUS, apiErrorBody } from "./errors";
 
 /**
@@ -122,14 +123,16 @@ export function defaultRateLimitConfig(
   if (cachedConfig) {
     return cachedConfig;
   }
-  const url = env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
+  if (!serviceKey) {
     throw new RateLimitUnavailableError("missing_config");
   }
-  const client = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  let client: SupabaseClient;
+  try {
+    client = createServiceRoleClient();
+  } catch {
+    throw new RateLimitUnavailableError("missing_config");
+  }
   cachedConfig = { store: supabaseRateLimitStore(client), secret: serviceKey };
   return cachedConfig;
 }
