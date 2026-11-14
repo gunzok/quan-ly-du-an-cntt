@@ -178,10 +178,19 @@ export const strings = {
       network: "Không kết nối được máy chủ. Vui lòng thử lại.",
     },
   },
+  tasks: {
+    errors: {
+      dateOrder: "Ngày kết thúc không được sớm hơn ngày bắt đầu.",
+      assigneeNotMember:
+        "Người được giao phải là PM hoặc Thành viên đang hoạt động của dự án.",
+      forbiddenEdit: "Bạn chỉ sửa được task mình phụ trách hoặc do mình tạo.",
+      forbiddenDelete: "Bạn chỉ xóa được task do mình tạo.",
+      forbiddenCreate: "Người xem không tạo được task.",
+    },
+  },
   /** Thông điệp lỗi của lớp bảo mật chung (Story E0-5): CSRF, giới hạn tần suất. */
   security: {
     crossOrigin: "Yêu cầu không đến từ ứng dụng này nên bị từ chối.",
     rateLimited: "Bạn gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.",
-    unavailable: "Hệ thống đang bận. Vui lòng thử lại sau ít phút.",
   },
 } as const;
