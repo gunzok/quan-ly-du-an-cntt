@@ -10,9 +10,11 @@ select plan(57);
 -- ===========================================================================
 -- Cấu trúc và cấu hình an toàn
 -- ===========================================================================
-select tables_are('public',
-  array['departments', 'profiles', 'profile_contacts', 'projects', 'project_members'],
-  'Schema public có đúng 5 bảng của E1-3');
+-- Chỉ kiểm 5 bảng của E1-3 có mặt; Story sau thêm bảng (tasks ở E2-2...) không làm đỏ test này.
+select ok(
+  (select count(*) from pg_tables where schemaname = 'public' and tablename in
+    ('departments', 'profiles', 'profile_contacts', 'projects', 'project_members')) = 5,
+  'Schema public có đủ 5 bảng của E1-3');
 
 select is(
   (select array_agg(p.proname::text order by p.proname) from pg_proc p

@@ -18,7 +18,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Ký tự điều khiển (kể cả xuống dòng) không hợp lệ trong họ tên và từ khóa.
-export const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
 export type Validation<T> =
   { ok: true; data: T } | { ok: false; details: ApiErrorDetail[] };
@@ -27,9 +27,7 @@ export function isUuid(value: unknown): value is string {
   return typeof value === "string" && UUID_PATTERN.test(value);
 }
 
-export function isPlainObject(
-  value: unknown,
-): value is Record<string, unknown> {
+function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -38,7 +36,7 @@ export function isPlainObject(
   );
 }
 
-export function unknownFields(
+function unknownFields(
   keys: Iterable<string>,
   allowed: readonly string[],
 ): ApiErrorDetail[] {

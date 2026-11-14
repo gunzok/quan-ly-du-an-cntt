@@ -1,10 +1,9 @@
 import type { ApiErrorDetail } from "@/lib/api/errors";
 import {
-  CONTROL_CHARS,
   isPlainObject,
   unknownFields,
   type Validation,
-} from "@/lib/admin/users/validate";
+} from "@/lib/api/request";
 
 /**
  * Schema phía máy chủ cho /api/v1/departments (viết tay như lib/admin/users/validate.ts).
@@ -15,6 +14,11 @@ import {
 export const DEPARTMENT_NAME_MAX_LENGTH = 100;
 /** Thứ tự hiển thị hợp lệ: số nguyên 0..POSITION_MAX. */
 export const POSITION_MAX = 100_000;
+/** Giới hạn thân request JSON (byte). */
+export const DEPARTMENT_BODY_MAX_BYTES = 2048;
+
+// Ký tự điều khiển (sau khi đã đổi tab/xuống dòng thành dấu cách) không hợp lệ trong tên.
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/departments?include_archived=true|false

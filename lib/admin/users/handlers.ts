@@ -101,7 +101,7 @@ async function gate(
 }
 
 /** Đọc thân JSON có giới hạn kích thước; sai kiểu nội dung hoặc JSON hỏng: 400. */
-export async function readJsonBody(
+async function readJsonBody(
   request: Request,
 ): Promise<{ ok: true; body: unknown } | { ok: false; error: ApiError }> {
   const invalid = apiError("validation_failed", undefined, [

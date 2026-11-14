@@ -2,9 +2,8 @@ import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ApiError } from "@/lib/api/errors";
 import { apiError, errorResponse, jsonResponse } from "@/lib/api/respond";
-import { readJsonBody, requireAdmin } from "@/lib/admin/users/handlers";
-import { isSameOrigin } from "@/lib/admin/users/policy";
-import { isUuid } from "@/lib/admin/users/validate";
+import { requireAdmin } from "@/lib/admin/users/handlers";
+import { isSameOrigin, isUuid, readJsonBody } from "@/lib/api/request";
 import { DEPARTMENT_COLUMNS, toDepartment, type DepartmentRow } from "./model";
 import {
   decideActiveUserGate,
@@ -12,6 +11,7 @@ import {
   type ActiveUserGate,
 } from "./policy";
 import {
+  DEPARTMENT_BODY_MAX_BYTES,
   POSITION_MAX,
   validateDepartmentCreate,
   validateDepartmentListQuery,
@@ -139,7 +139,7 @@ export async function handleCreateDepartment(
   const g = await gate(() => requireAdmin(deps.session), ctx);
   if (!g.ok) return g.response;
 
-  const read = await readJsonBody(request);
+  const read = await readJsonBody(request, DEPARTMENT_BODY_MAX_BYTES);
   if (!read.ok) return fail(read.error, ctx);
   const parsed = validateDepartmentCreate(read.body);
   if (!parsed.ok) {
@@ -199,7 +199,7 @@ export async function handlePatchDepartment(
   }
   const id = departmentId.toLowerCase();
 
-  const read = await readJsonBody(request);
+  const read = await readJsonBody(request, DEPARTMENT_BODY_MAX_BYTES);
   if (!read.ok) return fail(read.error, ctx);
   const parsed = validateDepartmentPatch(read.body);
   if (!parsed.ok) {

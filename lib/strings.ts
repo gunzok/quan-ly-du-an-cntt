@@ -231,4 +231,14 @@ export const strings = {
       nameExists: "Đã có phòng ban trùng tên (không phân biệt hoa thường).",
     },
   },
+  tasks: {
+    errors: {
+      dateOrder: "Ngày kết thúc không được sớm hơn ngày bắt đầu.",
+      assigneeNotMember:
+        "Người được giao phải là PM hoặc Thành viên đang hoạt động của dự án.",
+      forbiddenEdit: "Bạn chỉ sửa được task mình phụ trách hoặc do mình tạo.",
+      forbiddenDelete: "Bạn chỉ xóa được task do mình tạo.",
+      forbiddenCreate: "Người xem không tạo được task.",
+    },
+  },
 } as const;
