@@ -45,6 +45,7 @@ export const strings = {
     placeholder:
       "Trang giữ chỗ. Các tính năng sẽ được bổ sung theo từng Story.",
     signOut: "Đăng xuất",
+    adminUsers: "Quản trị người dùng",
     loading: "Đang tải…",
   },
   errors: {

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -27,6 +28,11 @@ async function CurrentUser() {
   if (!data.user) {
     redirect(LOGIN_PATH);
   }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_admin, is_active")
+    .eq("id", data.user.id)
+    .maybeSingle();
 
   return (
     <>
@@ -34,6 +40,11 @@ async function CurrentUser() {
         {strings.home.signedInAs} <strong>{data.user.email}</strong>
       </p>
       <p className={styles.muted}>{strings.home.placeholder}</p>
+      {profile?.is_admin && profile.is_active && (
+        <Link href="/admin/users" className={styles.button}>
+          {strings.home.adminUsers}
+        </Link>
+      )}
       <form action={signOut}>
         <button type="submit" className={styles.button}>
           {strings.home.signOut}
