@@ -85,17 +85,108 @@ jobs:
           echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
       - run: make security
 
+  # pgTAP (RLS, schema) và test tích hợp Vitest trên Supabase cục bộ dựng trong job.
+  test-db:
+    name: test-db
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Bỏ các dịch vụ test không dùng; giữ db, gotrue (auth), kong, postgrest và mailpit
+      # (tests/integration/google-auth.test.ts đọc magic link từ Mailpit).
+      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: make install
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.1.0
+      - name: Sinh SEED_PASSWORD ngẫu nhiên (chỉ sống trong job, không lưu)
+        run: |
+          pw="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$pw"
+          echo "SEED_PASSWORD=$pw" >> "$GITHUB_ENV"
+      - run: make db-start
+      - run: make db-seed
+      - run: make test-db
+      - run: make test-integration
+
+  # E2E Playwright (chỉ Chromium) + quét axe, chạy `next build` + `next start` trỏ vào Supabase cục bộ.
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # e2e chỉ đăng nhập bằng mật khẩu nên bỏ cả mailpit.
+      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: make install
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.1.0
+      - name: Sinh SEED_PASSWORD ngẫu nhiên (chỉ sống trong job, không lưu)
+        run: |
+          pw="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$pw"
+          echo "SEED_PASSWORD=$pw" >> "$GITHUB_ENV"
+      # Dựng stack chạy nền trong lúc tải trình duyệt; chờ ở bước "Chờ Supabase".
+      - name: Khởi động Supabase (chạy nền)
+        run: |
+          nohup make db-start > "$RUNNER_TEMP/db-start.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/db-start.pid"
+      - name: Cache trình duyệt Playwright
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: make e2e-install
+        env:
+          PLAYWRIGHT_INSTALL_ARGS: --with-deps
+      - name: Chờ Supabase
+        run: |
+          pid="$(cat "$RUNNER_TEMP/db-start.pid")"
+          while kill -0 "$pid" 2>/dev/null; do sleep 2; done
+          cat "$RUNNER_TEMP/db-start.log"
+          supabase status >/dev/null
+      - run: make db-seed
+      - run: make test-e2e
+      # Báo cáo chỉ đính kèm khi đỏ. Trace có thể chứa SEED_PASSWORD của job, nhưng mật khẩu
+      # sinh ngẫu nhiên và stack bị hủy cùng runner nên không dùng lại được.
+      - name: Lưu báo cáo Playwright khi lỗi
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
   # Job tổng hợp: đây là check DUY NHẤT mà branch protection yêu cầu (merge gate).
+  # Đỏ khi BẤT KỲ job trong needs không "success" (failure, cancelled, hoặc skipped bất thường).
+  # Thêm job mới thì PHẢI thêm vào needs.
   ci-gate:
     name: ci-gate
     if: always()
-    needs: [lint, test, build, security]
+    needs: [lint, test, build, security, test-db, e2e]
     runs-on: ubuntu-latest
     steps:
       - name: Kiểm tra kết quả các job
+        env:
+          NEEDS: ${{ toJSON(needs) }}
         run: |
-          if [ "${{ contains(needs.*.result, 'failure') }}" = "true" ] || [ "${{ contains(needs.*.result, 'cancelled') }}" = "true" ]; then
-            echo "::error::CI chưa đạt, không được merge."
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          bad="$(echo "$NEEDS" | jq -r '[to_entries[] | select(.value.result != "success") | .key] | join(", ")')"
+          if [ -n "$bad" ]; then
+            echo "::error::CI chưa đạt (job không thành công: $bad), không được merge."
             exit 1
           fi
           echo "Tất cả job đã đạt."

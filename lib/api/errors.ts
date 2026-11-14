@@ -11,7 +11,12 @@ export type ApiErrorCode =
   | "rate_limited"
   | "internal_error";
 
-export type FieldIssue = "required" | "invalid_format" | "too_long";
+export type FieldIssue =
+  | "required"
+  | "invalid_format"
+  | "too_long"
+  | "invalid_value"
+  | "unknown_field";
 
 export interface ApiErrorDetail {
   field: string;
