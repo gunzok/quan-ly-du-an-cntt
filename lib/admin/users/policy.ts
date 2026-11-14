@@ -83,17 +83,10 @@ export function mapAdminUpdateError(error: {
 }
 
 /**
- * Chống CSRF cho request thay đổi dữ liệu (STRIDE F1): header Origin phải trùng origin của
- * chính ứng dụng. Trình duyệt luôn gửi Origin với POST/PATCH; thiếu Origin thì từ chối.
- * (Cookie phiên đã là SameSite=Lax; đây là lớp phòng thủ thứ hai.)
+ * Chống CSRF: đã gom về lib/api/csrf.ts (Story E0-5) và proxy.ts áp cho mọi /api/* ghi dữ liệu.
+ * Giữ tên xuất ở đây để handler và test cũ không đổi hành vi.
  */
-export function isSameOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  if (!origin) {
-    return false;
-  }
-  return origin === new URL(request.url).origin;
-}
+export { isSameOrigin } from "@/lib/api/csrf";
 
 /** Độ dài lệnh cấm đăng nhập ở Supabase Auth khi khóa tài khoản (~100 năm; "none" để gỡ). */
 export const BAN_DURATION_LOCKED = "876000h";

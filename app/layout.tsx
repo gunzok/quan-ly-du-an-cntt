@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import { strings } from "@/lib/strings";
@@ -28,7 +29,21 @@ export const metadata: Metadata = {
   description: strings.app.description,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+/**
+ * CSP dùng nonce theo từng request (Story E0-5, proxy.ts). Static shell của Cache Components được
+ * prerender lúc build nên script trong đó không mang được nonce và bị CSP chặn. Vì vậy mọi trang
+ * render theo request: root layout chờ connection() và tắt kiểm tra static shell (`instant = false`).
+ * Đánh đổi: mất static shell (PPR); chấp nhận được vì mọi trang đều sau đăng nhập và proxy đã gọi
+ * Supabase Auth cho mỗi request.
+ */
+export const instant = false;
+
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  await connection();
   return (
     <html
       lang="vi"

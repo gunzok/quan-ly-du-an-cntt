@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isSameOrigin } from "@/lib/api/csrf";
 import type { ApiError } from "@/lib/api/errors";
 import { apiError, errorResponse, jsonResponse } from "@/lib/api/respond";
 import { strings } from "@/lib/strings";
@@ -13,7 +14,6 @@ import {
   banDurationFor,
   checkSelfAction,
   decideAdminGate,
-  isSameOrigin,
   mapAdminUpdateError,
   type AdminGate,
 } from "./policy";
@@ -31,7 +31,8 @@ import {
  * chỉ tạo client rồi gọi các hàm này; test tích hợp gọi thẳng với client tự tạo.
  *
  * Thứ tự kiểm cho mọi endpoint (security.md F1, F2):
- *   1. (POST/PATCH) Origin trùng ứng dụng, chống CSRF.
+ *   1. (POST/PATCH) Origin trùng ứng dụng, chống CSRF (lib/api/csrf.ts; proxy.ts đã chặn trước,
+ *      handler kiểm lại để phòng thủ chiều sâu và cho test gọi thẳng handler).
  *   2. Phiên người gọi: getUser() hỏi Supabase Auth, rồi đọc is_admin/is_active của chính họ
  *      qua RLS bằng client phiên (không phải service_role). Chưa đăng nhập 401, không phải Admin 403.
  *   3. Kiểm đầu vào bằng schema, từ chối trường lạ.

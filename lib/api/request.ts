@@ -42,16 +42,10 @@ export function unknownFields(
 }
 
 /**
- * Chống CSRF cho request thay đổi dữ liệu (security.md STRIDE F1): header Origin phải trùng
- * origin của chính ứng dụng. Trình duyệt luôn gửi Origin với POST/PATCH/DELETE; thiếu thì từ chối.
+ * Chống CSRF: một bản duy nhất ở lib/api/csrf.ts (Story E0-5); proxy.ts áp cho mọi /api/* ghi
+ * dữ liệu. Giữ tên xuất ở đây để handler và test hiện có không đổi.
  */
-export function isSameOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  if (!origin) {
-    return false;
-  }
-  return origin === new URL(request.url).origin;
-}
+export { isSameOrigin } from "./csrf";
 
 /** Đọc thân JSON có giới hạn kích thước; sai kiểu nội dung hoặc JSON hỏng: 400. */
 export async function readJsonBody(
