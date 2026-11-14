@@ -5,6 +5,11 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { requireAdmin } from "@/lib/admin/users/handlers";
 import { HOME_PATH, LOGIN_PATH } from "@/lib/auth/routes";
+import {
+  DEPARTMENT_COLUMNS,
+  toDepartment,
+  type DepartmentRow,
+} from "@/lib/departments/model";
 import { strings } from "@/lib/strings";
 import { createClient } from "@/lib/supabase/server";
 import styles from "./admin-users.module.css";
@@ -52,7 +57,7 @@ async function AdminUsersGate() {
   const [{ data: departments }, { data: me }] = await Promise.all([
     supabase
       .from("departments")
-      .select("id, name")
+      .select(DEPARTMENT_COLUMNS)
       .order("position")
       .order("name"),
     supabase
@@ -97,7 +102,9 @@ async function AdminUsersGate() {
       </aside>
       <UsersScreen
         currentUserId={gate.userId}
-        departments={departments ?? []}
+        initialDepartments={((departments ?? []) as DepartmentRow[]).map(
+          toDepartment,
+        )}
       />
     </>
   );

@@ -9,7 +9,7 @@ import { EMAIL_MAX_LENGTH } from "@/lib/auth/validate";
 import { strings } from "@/lib/strings";
 import styles from "./admin-users.module.css";
 import { useModal } from "./use-modal";
-import type { Department } from "./users-screen";
+import type { Department } from "@/lib/departments/model";
 
 const t = strings.adminUsers.invite;
 
