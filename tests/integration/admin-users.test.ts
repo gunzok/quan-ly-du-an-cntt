@@ -13,7 +13,6 @@
  * supabase/tests/database/admin-users.test.sql (trong giao dịch, rollback).
  */
 import { randomUUID } from "node:crypto";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -25,50 +24,18 @@ import {
 import type { AdminUser, UserListResponse } from "@/lib/admin/users/model";
 import { signInWithPassword } from "@/lib/auth/sign-in";
 import { strings } from "@/lib/strings";
-import { sessionCookieOptions } from "@/lib/supabase/cookie-options";
 import { missingIntegrationEnv } from "./env";
+import {
+  APP_ORIGIN,
+  CookieJar,
+  SERVICE_ROLE_KEY,
+  SUPABASE_URL,
+  assertLocalSupabase,
+  serverClient as sessionClient,
+} from "./helpers";
 
 const enabled = missingIntegrationEnv().length === 0;
-
-const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
-const ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const MAILPIT_URL = process.env.MAILPIT_URL ?? "";
-const APP_ORIGIN = "http://localhost:3000";
-
-interface StoredCookie {
-  name: string;
-  value: string;
-  options?: CookieOptions;
-}
-
-/** Hũ cookie trong bộ nhớ, đóng vai trình duyệt + next/headers. */
-class CookieJar {
-  readonly cookies = new Map<string, StoredCookie>();
-  getAll() {
-    return [...this.cookies.values()].map(({ name, value }) => ({
-      name,
-      value,
-    }));
-  }
-  set(cookie: StoredCookie) {
-    if (cookie.value === "" || cookie.options?.maxAge === 0) {
-      this.cookies.delete(cookie.name);
-    } else {
-      this.cookies.set(cookie.name, cookie);
-    }
-  }
-}
-
-function sessionClient(jar: CookieJar) {
-  return createServerClient(SUPABASE_URL, ANON_KEY, {
-    cookieOptions: sessionCookieOptions(),
-    cookies: {
-      getAll: () => jar.getAll(),
-      setAll: (list) => list.forEach((c) => jar.set(c)),
-    },
-  });
-}
 
 let service: SupabaseClient;
 
@@ -167,14 +134,7 @@ describe.skipIf(!enabled)("Admin quản trị người dùng (Supabase cục b�
   }
 
   beforeAll(async () => {
-    const host = new URL(SUPABASE_URL).hostname;
-    if (!["127.0.0.1", "localhost", "::1"].includes(host)) {
-      throw new Error(
-        `Test tích hợp chỉ chạy với Supabase cục bộ, từ chối ${host}`,
-      );
-    }
-    process.env.NEXT_PUBLIC_SUPABASE_URL = SUPABASE_URL;
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = ANON_KEY;
+    assertLocalSupabase();
     service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
