@@ -107,11 +107,22 @@ export function supabaseRateLimitStore(client: SupabaseClient): RateLimitStore {
 
 interface RateLimitConfig {
   store: RateLimitStore;
-  /** Khóa bí mật cho HMAC định danh (khóa service_role, chỉ có ở máy chủ). */
+  /** Khóa bí mật cho HMAC định danh (xem rateLimitSecret), chỉ có ở máy chủ. */
   secret: string;
 }
 
 let cachedConfig: RateLimitConfig | null = null;
+
+/**
+ * Khóa HMAC cho định danh: RATE_LIMIT_SECRET nếu có (nên đặt riêng ở production), không thì khóa
+ * service_role. Đổi khóa thì mọi bộ đếm bắt đầu lại từ 0 (vô hại). `make test-e2e` đặt giá trị ngẫu
+ * nhiên mỗi lần chạy để bộ đếm của các lần chạy (và các worktree dùng chung stack) không cộng dồn.
+ */
+export function rateLimitSecret(
+  env: Record<string, string | undefined> = process.env,
+): string | null {
+  return env.RATE_LIMIT_SECRET || env.SUPABASE_SERVICE_ROLE_KEY || null;
+}
 
 /**
  * Cấu hình mặc định từ biến môi trường máy chủ. Thiếu SUPABASE_SERVICE_ROLE_KEY thì ném
@@ -123,8 +134,8 @@ export function defaultRateLimitConfig(
   if (cachedConfig) {
     return cachedConfig;
   }
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey) {
+  const secret = rateLimitSecret(env);
+  if (!env.SUPABASE_SERVICE_ROLE_KEY || !secret) {
     throw new RateLimitUnavailableError("missing_config");
   }
   let client: SupabaseClient;
@@ -133,7 +144,7 @@ export function defaultRateLimitConfig(
   } catch {
     throw new RateLimitUnavailableError("missing_config");
   }
-  cachedConfig = { store: supabaseRateLimitStore(client), secret: serviceKey };
+  cachedConfig = { store: supabaseRateLimitStore(client), secret };
   return cachedConfig;
 }
 

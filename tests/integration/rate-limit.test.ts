@@ -15,6 +15,7 @@ import {
   consumeRateLimits,
   RATE_LIMITS,
   rateLimitKey,
+  rateLimitSecret,
   supabaseRateLimitStore,
 } from "@/lib/api/rate-limit";
 import { signInWithPassword } from "@/lib/auth/sign-in";
@@ -174,7 +175,7 @@ describe.skipIf(!enabled)("Giới hạn tần suất (Supabase cục bộ)", () 
       await awayFromWindowEdge(RATE_LIMITS.api.windowSeconds);
 
       // Đốt hết hạn mức của A bằng đúng khóa proxy dùng (nhanh hơn gọi proxy 300 lần).
-      const key = rateLimitKey("api", `user:${a.id}`, SERVICE_ROLE_KEY);
+      const key = rateLimitKey("api", `user:${a.id}`, rateLimitSecret() ?? "");
       const store = supabaseRateLimitStore(service);
       const batch = 50;
       for (let i = 0; i < RATE_LIMITS.api.limit; i += batch) {

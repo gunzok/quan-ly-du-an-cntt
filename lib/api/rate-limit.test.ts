@@ -10,6 +10,7 @@ import {
   RATE_LIMITS,
   rateLimitedResponse,
   rateLimitKey,
+  rateLimitSecret,
   resetRateLimitConfigForTests,
   supabaseRateLimitStore,
   type RateLimitRule,
@@ -64,6 +65,19 @@ describe("hashIdentifier, rateLimitKey", () => {
     expect(rateLimitKey("loginIp", "email:a@example.com", SECRET)).not.toBe(
       key,
     );
+  });
+});
+
+describe("rateLimitSecret", () => {
+  it("ưu tiên RATE_LIMIT_SECRET, không thì khóa service_role, thiếu cả hai thì null", () => {
+    expect(
+      rateLimitSecret({
+        RATE_LIMIT_SECRET: "a",
+        SUPABASE_SERVICE_ROLE_KEY: "b",
+      }),
+    ).toBe("a");
+    expect(rateLimitSecret({ SUPABASE_SERVICE_ROLE_KEY: "b" })).toBe("b");
+    expect(rateLimitSecret({ RATE_LIMIT_SECRET: "" })).toBeNull();
   });
 });
 
