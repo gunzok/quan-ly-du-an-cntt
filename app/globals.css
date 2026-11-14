@@ -2,7 +2,105 @@
  * Design tokens: Blueprint v2.
  * Nguồn và tỷ lệ tương phản: docs/03-design/design-system.md
  * Chế độ: theo hệ thống; ghi đè bằng <html data-theme="light|dark">.
+ *
+ * Tailwind CSS (ADR-005, Story E10-1): chỉ nạp theme và utilities, KHÔNG nạp preflight để không
+ * đổi kiểu mặc định của các trang đang dùng CSS Modules (/login...). Thứ tự lớp: theme < base <
+ * components < utilities < CSS không thuộc lớp (file này và CSS Modules).
  */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* Chỉ quét mã giao diện (không quét docs/ hay mockup HTML). */
+@source "../app";
+@source "../components";
+
+/*
+ * Theme Tailwind map 1:1 sang token bên dưới (bg-primary, text-text-muted, border-border...).
+ * Xóa toàn bộ màu, bo góc, bóng, cỡ chữ mặc định của Tailwind: chỉ dùng giá trị của design system.
+ * `inline reference`: utility trỏ thẳng var(--color-*) của file này, Tailwind không sinh lại biến.
+ */
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --text-*: initial;
+
+  /* Cỡ chữ theo design-system.md mục 2 */
+  --text-label: 11px;
+  --text-label--line-height: 16px;
+  --text-label--letter-spacing: 0.08em;
+  --text-label--font-weight: 500;
+  --text-code: 12px;
+  --text-code--line-height: 16px;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-xs--font-weight: 500;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 18px;
+  --text-lg--line-height: 28px;
+  --text-lg--font-weight: 600;
+  --text-display-sm: 28px;
+  --text-display-sm--line-height: 32px;
+  --text-display-sm--letter-spacing: -0.02em;
+  --text-display-sm--font-weight: 400;
+  --text-display-lg: 44px;
+  --text-display-lg--line-height: 48px;
+  --text-display-lg--letter-spacing: -0.03em;
+  --text-display-lg--font-weight: 300;
+
+  --animate-fade-in: fade-in 150ms ease-out;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@theme inline reference {
+  --color-bg: var(--color-bg);
+  --color-bg-subtle: var(--color-bg-subtle);
+  --color-bg-muted: var(--color-bg-muted);
+  --color-canvas: var(--color-canvas);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-on-primary: var(--color-on-primary);
+  --color-brand: var(--color-brand);
+  --color-on-brand: var(--color-on-brand);
+  --color-accent: var(--color-accent);
+  --color-accent-text: var(--color-accent-text);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-blueprint: var(--color-blueprint);
+  --color-chart-1: var(--color-chart-1);
+  --color-chart-2: var(--color-chart-2);
+  --color-chart-3: var(--color-chart-3);
+  --color-chart-4: var(--color-chart-4);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-pop: var(--shadow-pop);
+}
+
 :root {
   color-scheme: light;
 
@@ -98,12 +196,18 @@
   --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.5);
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/*
+ * Reset nằm trong lớp base để utility Tailwind (p-*, m-*) thắng được. Bộ chọn `*` có độ đặc
+ * hiệu 0 nên CSS Modules vẫn thắng như trước.
+ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 html {
