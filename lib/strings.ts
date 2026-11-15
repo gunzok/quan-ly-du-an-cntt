@@ -340,4 +340,46 @@ export const strings = {
     crossOrigin: "Yêu cầu không đến từ ứng dụng này nên bị từ chối.",
     rateLimited: "Bạn gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.",
   },
+  /** Trang nhận lời mời và đặt mật khẩu /auth/accept-invite (Story E1-7, QLDA-80). */
+  acceptInvite: {
+    pageTitle: "Nhận lời mời",
+    eyebrow: "Lời mời",
+    heading: "Đặt mật khẩu",
+    subtitle:
+      "Bạn được Admin mời vào hệ thống. Đặt mật khẩu để đăng nhập lần sau.",
+    passwordLabel: "Mật khẩu mới",
+    passwordHint: "Ít nhất 12 ký tự. Nên dùng cụm từ dài dễ nhớ.",
+    confirmLabel: "Nhập lại mật khẩu",
+    submit: "Đặt mật khẩu và vào ứng dụng",
+    submitting: "Đang lưu…",
+    divider: "hoặc",
+    google: "Tiếp tục với Google",
+    googleRedirecting: "Đang chuyển tới Google…",
+    googleHint: "Chỉ dùng được tài khoản Google có đúng email đã nhận lời mời.",
+    backToLogin: "Về trang đăng nhập",
+    invalidHeading: "Link mời không dùng được",
+    invalidBody:
+      "Link này không hợp lệ, đã hết hạn hoặc đã được dùng. Mỗi link mời chỉ dùng được một lần.",
+    invalidAction:
+      "Hãy liên hệ Admin để được gửi lại lời mời, rồi mở link trong email mới nhất.",
+    invalidHintSignedUp:
+      "Nếu bạn đã đặt mật khẩu trước đó, hãy đăng nhập như bình thường.",
+    fieldErrors: {
+      password: {
+        required: "Vui lòng nhập mật khẩu.",
+        too_short: "Mật khẩu cần ít nhất 12 ký tự.",
+        too_long: "Mật khẩu quá dài (tối đa 72 byte).",
+      },
+      confirm: {
+        required: "Vui lòng nhập lại mật khẩu.",
+        mismatch: "Hai mật khẩu không khớp.",
+      },
+    },
+    errors: {
+      rateLimited: "Bạn thử quá nhiều lần. Vui lòng đợi vài phút rồi thử lại.",
+      unavailable: "Không thể xử lý lời mời lúc này. Vui lòng thử lại sau.",
+      passwordNotSet:
+        "Lời mời đã được xác nhận nhưng chưa đặt được mật khẩu. Hãy thử đăng nhập bằng Google hoặc liên hệ Admin.",
+    },
+  },
 } as const;
