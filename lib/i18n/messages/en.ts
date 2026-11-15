@@ -735,4 +735,14 @@ export const en: Messages = {
         "The invitation was confirmed but the password could not be set. Try signing in with Google or contact an Admin.",
     },
   },
+  savedViews: {
+    errors: {
+      forbidden: "You can only edit or delete your own private views.",
+      publicForbidden:
+        "Only the project's PM and Admins can create, edit or delete public views.",
+      privatizeForbidden: "Only the view's creator can make it private.",
+      defaultReadOnly: "Default views cannot be edited or deleted.",
+      nameExists: "You already have a view with this name in this project.",
+    },
+  },
 };

@@ -734,6 +734,18 @@ const viMessages = {
         "Lời mời đã được xác nhận nhưng chưa đặt được mật khẩu. Hãy thử đăng nhập bằng Google hoặc liên hệ Admin.",
     },
   },
+  /** Chế độ xem đã lưu (Story E13-1, QLDA-53). Chỉ thông điệp lỗi API; giao diện ở E13-2/E13-3. */
+  savedViews: {
+    errors: {
+      forbidden: "Bạn chỉ sửa, xóa được chế độ xem riêng của mình.",
+      publicForbidden:
+        "Chỉ PM của dự án và Admin được tạo, sửa, xóa chế độ xem công khai.",
+      privatizeForbidden:
+        "Chỉ người tạo chế độ xem được chuyển nó về riêng tư.",
+      defaultReadOnly: "Chế độ xem mặc định không sửa, xóa được.",
+      nameExists: "Bạn đã có chế độ xem cùng tên trong dự án này.",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */
