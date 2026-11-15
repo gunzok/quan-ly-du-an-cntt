@@ -1,6 +1,7 @@
 import type { ApiError } from "@/lib/api/errors";
 import { apiError } from "@/lib/api/respond";
 import { strings } from "@/lib/strings";
+import { openSubtasks } from "@/lib/tasks/subtasks";
 import type { ConfigKind } from "./model";
 
 /**
@@ -28,12 +29,13 @@ const t = strings.projectConfig.errors;
  *   - 23505 trùng tên trong dự án: 409.
  *   - P0001 status_in_use / type_in_use, 23503 (khóa ngoại: còn task dùng): 409.
  *   - P0001 invalid_replacement, last_status_of_category, last_task_type: 422.
+ *   - P0001 parent_has_open_subtasks (BR-04, E2-4): 422 kèm task_ids.
  *   - P0002 not_found (hàm xóa không thấy dòng hoặc không có quyền xóa): 404.
  *   - 23514 (CHECK, schema API đã chặn trước): 400. 42501 (RLS, quyền cột): 403.
  */
 export function mapConfigWriteError(
   kind: ConfigKind,
-  error: { code?: string; message?: string },
+  error: { code?: string; message?: string; details?: string | null },
 ): ApiError | null {
   switch (error.code) {
     case "23505":
@@ -57,6 +59,14 @@ export function mapConfigWriteError(
           ]);
         case "last_task_type":
           return apiError("business_rule_violated", t.lastType);
+        // BR-04 (E2-4): đổi nhóm sang done, hoặc xóa trạng thái và chuyển task sang trạng thái
+        // done, làm một task cha thành done khi còn việc con chưa xong: 422 kèm task_ids.
+        case "parent_has_open_subtasks":
+          return openSubtasks(
+            error.details,
+            strings.subtasks.errors.statusChangeBlocked,
+            null,
+          );
         default:
           return null;
       }

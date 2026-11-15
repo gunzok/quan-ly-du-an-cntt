@@ -114,7 +114,7 @@ describe("validateTaskCreate", () => {
     const r = validateTaskCreate({
       title: "x",
       created_by: UUID,
-      parent_id: UUID,
+      depth: 2,
       completed_at: "2026-11-14T00:00:00Z",
     });
     expect(r.ok).toBe(false);
@@ -122,7 +122,7 @@ describe("validateTaskCreate", () => {
       expect(r.details.map((d) => d.field).sort()).toEqual([
         "completed_at",
         "created_by",
-        "parent_id",
+        "depth",
       ]);
       expect(r.details.every((d) => d.issue === "unknown_field")).toBe(true);
     }

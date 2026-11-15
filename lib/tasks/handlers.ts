@@ -21,6 +21,7 @@ import {
   type Actor,
   type ProjectRole,
 } from "./policy";
+import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
 import {
   TASK_BODY_MAX_BYTES,
   encodeTaskCursor,
@@ -44,6 +45,10 @@ import {
  *      để không lộ sự tồn tại (BR-10).
  *   4. Quyền theo vai trò trong dự án (BR-02, BR-03): 403.
  *   5. Schema đầu vào, từ chối trường lạ: 400; quy tắc nghiệp vụ (BR-13, người được giao): 422.
+ *      Task cha (E2-4) chỉ biết sau khi đọc thân request nên kiểm sau schema: không thấy hoặc khác
+ *      dự án 422 (một lỗi, không lộ task dự án khác), không sửa được cha 403, tự làm cha 409.
+ *      Trigger check_task_tree kiểm lại tất cả, cộng vòng (409), vượt 3 cấp kể cả cây con (422), và
+ *      BR-04 (đóng cha khi còn việc con chưa xong: 422 kèm task_ids).
  */
 export interface TaskDeps {
   /** Client theo phiên cookie của người gọi (khóa anon, RLS áp dụng). */
@@ -144,6 +149,27 @@ async function labelsBelongTo(
     .in("id", [...labelIds]);
   if (error) throw error;
   return (data ?? []).length === labelIds.length;
+}
+
+/**
+ * Task cha hợp lệ cho task (taskId = null khi tạo mới) trong dự án projectId: lớp kiểm thứ nhất,
+ * cho thông điệp rõ. Vòng qua nhiều cấp và giới hạn 3 cấp (kể cả chiều cao cây con) để trigger
+ * check_task_tree kiểm, trong khóa cấu trúc cây nên đúng cả khi đồng thời, và theo đúng thứ tự
+ * vòng (409) trước độ sâu (422).
+ */
+async function parentError(
+  session: SupabaseClient,
+  actor: Actor,
+  projectId: string,
+  parentId: string,
+  taskId: string | null,
+): Promise<ApiError | null> {
+  if (parentId === taskId) return parentCycle();
+  const parent = await loadTask(session, parentId);
+  // Không thấy (dự án khác, không tồn tại) và thấy nhưng khác dự án: cùng một lỗi.
+  if (!parent || parent.project_id !== projectId) return parentNotFound();
+  if (!canEditTask(actor, parent)) return parentNotEditable();
+  return null;
 }
 
 /** Bước 1-3 chung cho /tasks/{id}: Origin (nếu ghi), phiên, task thấy được, quyền trong dự án. */
@@ -285,6 +311,16 @@ export async function handleCreateTask(
     ) {
       return fail(labelNotInProject(), ctx);
     }
+    if (input.parent_id) {
+      const parent = await parentError(
+        deps.session,
+        actor,
+        projectId,
+        input.parent_id,
+        null,
+      );
+      if (parent) return fail(parent, ctx);
+    }
 
     // created_by không gửi: cột lấy mặc định auth.uid() và trình duyệt không có quyền cột này.
     // status_id, type_id không gửi: trigger apply_task_config lấy mặc định của dự án.
@@ -396,6 +432,16 @@ export async function handlePatchTask(
       !(await labelsBelongTo(deps.session, task.project_id, labelIds))
     ) {
       return fail(labelNotInProject(), ctx);
+    }
+    if (patch.parent_id && patch.parent_id !== task.parent_id) {
+      const parent = await parentError(
+        deps.session,
+        actor,
+        task.project_id,
+        patch.parent_id,
+        task.id,
+      );
+      if (parent) return fail(parent, ctx);
     }
 
     // Nhãn ghi bằng lệnh riêng (public.set_task_labels) sau khi sửa task; đã kiểm nhãn thuộc dự
