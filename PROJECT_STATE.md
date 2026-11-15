@@ -17,7 +17,7 @@
 | 2 BA + stack | Đã duyệt | 2026-11-13 (duyệt lại sau điều chỉnh OpenProject) | [business-analysis.md](docs/02-ba/business-analysis.md), [tech-stack-matrix.md](docs/02-ba/tech-stack-matrix.md), [ADR-001](docs/adr/ADR-001-tech-stack.md); CI thật: PR 5 do agent Opus 5.5 làm trong Orca, đã rà (5 check xanh, chạy lại cục bộ: lint, test, security qua, build qua khi bỏ NODE_ENV) |
 | 3 Thiết kế | Đã duyệt | 2026-11-13 | [docs/03-design](docs/03-design/): đủ 4 phần (kiến trúc và bảo mật; DB và API; UI/UX 12 màn; design system và chiến lược test). Các điểm [CẦN XÁC NHẬN] trong tài liệu chốt trước khi code phần liên quan ở Pha 5 |
 | 4 WBS | Đã duyệt | 2026-11-13 | [wbs.md](docs/04-wbs/wbs.md), [stories/](docs/04-wbs/stories/), [plan.py](docs/04-wbs/plan.py): 52 Story, 269 điểm (Must 211), sprint 1 tuần từ 16/11/2026; sếp chọn giữ hạn 8 tuần và bỏ Gantt khỏi MVP; cần velocity thật khoảng 28-30 điểm mỗi sprint (baseline 20), R-003 vẫn cao |
-| 5 Phát triển | Đang làm | | Sprint 1 xong (13/11/2026): 6 Story, 29 điểm (E0-1, E0-6, E0-8, E1-1, E1-2, E1-3), velocity thực tế 29 so với kế hoạch 29 (baseline 20; cần khoảng 26 cho 7 sprint còn lại). Sprint 2 (đang chạy, sớm): xong E0-3 (QLDA-34, PR 18) và E1-4 (QLDA-36, PR 20, 5 điểm, pgTAP 147, integration 26); đang làm E10-1 (QLDA-30), E2-2 (QLDA-38), E0-5 (QLDA-44) |
+| 5 Phát triển | Đang làm | | Sprint 1 xong (13/11/2026): 6 Story, 29 điểm (E0-1, E0-6, E0-8, E1-1, E1-2, E1-3), velocity thực tế 29 so với kế hoạch 29 (baseline 20; cần khoảng 26 cho 7 sprint còn lại). Làm sớm (14-15/11/2026), đã merge: E0-3 (PR 18), E1-4 (PR 20), E2-2 (PR 21, 8 điểm), E0-5 (PR 23, 5), E1-5 (PR 24, 3), E10-1 (PR 22, 8), tổng 32 điểm sau sprint 1. pgTAP 265, integration 58, e2e 7. Đang làm: E2-1 (QLDA-37), E1-7 (QLDA-80) |
 | 6 Nghiệm thu, bàn giao | Chưa bắt đầu | | |
 Trạng thái: Chưa bắt đầu · Đang làm · Chờ duyệt · Đã duyệt · Cần rà soát.
 
@@ -97,7 +97,7 @@ Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), buil
 
 ## Bước tiếp theo
 0. E0-3 và E1-4 đã xong; E10-1, E2-2, E0-5 đang chạy. Kế tiếp tự giao: E1-5 (phòng ban, lọc), E2-1 (danh sách dự án, S02); E0-2 (môi trường staging, CD) chờ quyết định của sếp; sếp cần cung cấp OAuth client Google cho staging, tên miền email (ADR-002), và quyết định chi phí Vercel/Supabase (R-008).
-1. Pha 5 sprint 1: rà PR của E1-1 và E1-3 khi agent xong (E1-3 là thay đổi phân quyền, nhạy cảm, cần sếp nhìn kỹ), merge khi 5 check xanh, rồi giao E1-2 (đăng nhập Google). 
+1. Sau E2-1: giao E2-3 (trạng thái, loại task, nhãn), E10-2 (i18n, nên làm trước khi thêm nhiều chuỗi), E2-4 (cần trạng thái đóng của E2-3), E2-6 (phần lớn đã có test trong E2-2: rà trước khi giao).
 2. Sếp gửi template báo cáo Word/Excel (trước sprint 6), ảnh chụp OpenProject, chốt loại task và trạng thái mặc định (trước sprint 3), kiểu quan hệ vào MVP.
 3. Sau sprint 1 và 2: tính velocity thật, đánh giá lại R-003, dùng danh sách cắt dự phòng nếu cần.
 4. Xem Dependabot PR 6 (TypeScript 5.9.3 lên 6.0.3) và PR 7 (React 19.3.1) trước khi merge.
@@ -106,7 +106,13 @@ Không còn (PR 5 đã merge): lint (ESLint, Prettier, tsc), test (Vitest), buil
 - Trang nhận lời mời / đặt mật khẩu (`/auth/accept-invite`): link mời mặc định của Supabase chưa có trang đích; người được mời hiện chưa có đường vào ứng dụng. Cần tạo Story (gợi ý sprint 2-3) và kiểm đăng nhập Google của người được mời.
 - Cần xác nhận kiểm Origin (chống CSRF) đúng khi chạy sau proxy Vercel (E0-5 gom tiện ích dùng chung).
 - Chưa chặn gỡ PM cuối cùng của dự án (trigger ở Story sau).
-- GitHub secret scanning + push protection: sếp/điều phối bật tay (E0-5).
+- GitHub secret scanning + push protection: sếp bật tay (E0-5, chưa làm).
+- E0-5: đăng nhập fail-closed nên Vercel (Production và Preview) bắt buộc có `SUPABASE_SERVICE_ROLE_KEY`; nên đặt `RATE_LIMIT_SECRET`. Root layout render động (mất PPR) vì CSP nonce.
+- E2-2: Thành viên chỉ phụ trách (không tạo) task không giao task đi được; Người xem không nhận việc; thành viên bị gỡ khỏi dự án vẫn giữ `assignee_id` cũ; dự án archived chưa chặn sửa task. Sếp quyết nếu muốn nới.
+- E10-1: biểu tượng (Lucide hay SVG tự vẽ) chưa chốt; `lib/admin/users/policy.ts` và `lib/api/request.ts` đã dùng chung `lib/api/csrf.ts`.
+- E1-5: `GET /api/v1/users` vẫn chỉ Admin (hợp đồng ghi P/M/V xem người trong dự án chung, chưa làm).
+- Kho local dùng chung một stack Supabase: bản `admin_list_users` cũ/lệch của worktree khác làm test-db cục bộ đỏ; CI dựng stack mới nên đúng.
+- Dọn: nâng `lib/admin/users/validate.ts` dùng chung `lib/api/request.ts` (isUuid, unknownFields).
 
 ## Retro sprint 1 (2026-11-13)
 - Giữ: agent Opus 5.5 trong Orca làm song song, phiên điều phối rà độc lập (chạy lại lệnh, không chỉ tin báo cáo); test pgTAP và test tích hợp bắt lỗi thật.
