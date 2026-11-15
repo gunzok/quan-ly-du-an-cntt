@@ -745,4 +745,95 @@ export const en: Messages = {
       nameExists: "You already have a view with this name in this project.",
     },
   },
+  projectNav: {
+    eyebrow: "Project",
+    backToProjects: "All projects",
+    navLabel: "Project views",
+    board: "Board",
+    dashboard: "Overview",
+    settings: "Settings",
+  },
+  kanban: {
+    pageTitle: "Kanban board",
+    boardLabel: "Kanban board",
+    loading: "Loading the Kanban board",
+    loadingMore: (n: number) => `Loading tasks… (${n})`,
+    loadError: "Couldn't load the Kanban board.",
+    retry: "Try again",
+    readOnly: "Read only",
+    readOnlyNote:
+      "You are a Viewer in this project: you can see the board but cannot drag or move tasks.",
+    memberNote:
+      "You can drag and move tasks you are assigned to or created.",
+    noStatusesTitle: "This project has no statuses",
+    noStatusesBody: "Add statuses in Settings to get columns on the board.",
+    openSettings: "Open Settings",
+    emptyTitle: "No tasks yet",
+    emptyBody:
+      "The project's tasks will appear here, one column per status. Columns follow the statuses in Settings.",
+    noMatchTitle: "No tasks match the filters",
+    noMatchBody: "Try removing some filters or the search term.",
+    clearFilters: "Clear filters",
+    columnEmpty: "No tasks",
+    columnCount: (n: number) => `${n} ${n === 1 ? "task" : "tasks"}`,
+    showMore: (n: number) => `Show ${n} more ${n === 1 ? "task" : "tasks"}`,
+    chooseColumn: "Choose a column to view",
+    filters: {
+      label: "Quick filters",
+      assignee: "Assignee",
+      assigneeAll: "Everyone",
+      unassigned: "Unassigned",
+      priority: "Priority",
+      priorityAll: "Any priority",
+      labelFilter: "Label",
+      labelAll: "Any label",
+      search: "Search this project",
+      searchPlaceholder: "Search this project…",
+      searching: "Searching…",
+      searchError: "Search failed. Please try again later.",
+      resultCount: (n: number) =>
+        `${n} matching ${n === 1 ? "task" : "tasks"}`,
+    },
+    card: {
+      due: (date: string) => `Due · ${date}`,
+      overdue: (date: string) => `Late · ${date}`,
+      overdueLabel: "Overdue",
+      subtasks: (done: number, total: number) =>
+        `${done} of ${total} subtasks done`,
+      unassigned: "Unassigned",
+      assignee: (name: string) => `Assignee: ${name}`,
+      formerMember: "Not in this project",
+      dragHandle: (title: string) => `Drag to move task ${title}`,
+      moveMenu: (title: string) => `Move task ${title} to another column`,
+      labels: "Labels",
+      saving: "Saving…",
+    },
+    move: {
+      title: "Move to column",
+      description: (title: string) =>
+        `Choose a column for “${title}”. The task goes to the end of the column.`,
+      listLabel: "Columns",
+      current: "Current column",
+      moved: (title: string, column: string) =>
+        `Moved “${title}” to ${column}.`,
+      failed: (title: string) => `Couldn't move “${title}”`,
+      approximate:
+        "The card was placed near the chosen spot because the neighbouring tasks couldn't be reordered (no permission to edit them, or too many).",
+      reorderFailed:
+        "Some neighbouring tasks couldn't save their order; the board was reloaded.",
+      notFound:
+        "The task no longer exists or you can no longer see it. The board was reloaded.",
+    },
+    dnd: {
+      instructions:
+        "To move a task with the keyboard: focus its drag handle, press Space to pick it up, use the arrow keys to move between cards and columns, then press Space to drop or Escape to cancel.",
+      start: (title: string) => `Picked up task ${title}.`,
+      over: (title: string, column: string, index: number) =>
+        `Task ${title} is over column ${column}, position ${index}.`,
+      overNone: (title: string) => `Task ${title} is not over a column.`,
+      end: (title: string, column: string, index: number) =>
+        `Dropped task ${title} into column ${column}, position ${index}.`,
+      cancel: (title: string) => `Cancelled moving task ${title}.`,
+    },
+  },
 };
