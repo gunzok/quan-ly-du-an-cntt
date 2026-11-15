@@ -6,7 +6,7 @@ Quy ước: REST `/api/v1/<tài-nguyên>` (số nhiều, kebab-case), JSON, UTF-
 ## 1. Quy ước chung
 - **Thành công**: `200` (đọc, sửa), `201` (tạo, kèm `Location`), `204` (xóa).
 - **Phân trang**: `?limit=50&cursor=<mã>`; phản hồi `{ "data": [...], "next_cursor": "..." | null }`. `limit` tối đa 100.
-- **Sắp xếp, lọc**: `?sort=due_date`, `?status_id=...&assignee_id=...&priority=...&label_id=...&due_before=...&q=<từ khóa>`.
+- **Sắp xếp, lọc**: `?sort=due_date`, `?status_id=...&assignee_id=...&priority=...&label_id=...&due_after=...&due_before=...&q=<từ khóa>`. `status_id` nhận nhiều id ngăn bằng dấu phẩy (tối đa 20); `due_after`, `due_before` (`YYYY-MM-DD`) tính cả hai đầu, loại task không có hạn, `due_after` > `due_before` là `400`; `q` tối đa 200 ký tự, bỏ dấu, không phân biệt hoa thường, mọi từ phải có, rỗng thì bỏ qua (E3-3). `sort` chưa làm.
 - **Thời gian**: ISO 8601 UTC; ngày: `YYYY-MM-DD`.
 - **Phiên bản**: tiền tố `/api/v1`; thay đổi phá vỡ tương thích thì lên `/api/v2`.
 
@@ -27,8 +27,8 @@ Quy ước: REST `/api/v1/<tài-nguyên>` (số nhiều, kebab-case), JSON, UTF-
 | 401 | `unauthenticated` | Chưa đăng nhập, phiên hết hạn |
 | 403 | `forbidden` | Đúng người nhưng không đủ quyền (vai trò, BR-02, BR-03, BR-07) |
 | 404 | `not_found` | Không tồn tại, hoặc người dùng không được thấy (không lộ sự tồn tại, BR-10) |
-| 409 | `conflict` | Vòng quan hệ (BR-05), vượt 3 cấp subtask, đóng task cha khi subtask chưa xong (BR-04) |
-| 422 | `business_rule_violated` | Vi phạm quy tắc nghiệp vụ khác |
+| 409 | `conflict` | Vòng quan hệ (BR-05), vòng cha-con của subtask, trùng tên/quan hệ, PM cuối cùng, khóa chết hoặc lỗi tuần tự hóa (thử lại) |
+| 422 | `business_rule_violated` | Vượt 3 cấp subtask, đóng task cha khi subtask chưa xong (BR-04, kèm `task_ids` tối đa 5 id chưa xong), cha không thấy hoặc khác dự án, vi phạm quy tắc nghiệp vụ khác (đã chốt theo ticket E2-4, thay bản đầu ghi 409) |
 | 429 | `rate_limited` | Gọi quá nhiều |
 | 500 | `internal_error` | Lỗi hệ thống, chỉ trả `request_id` |
 
@@ -47,13 +47,15 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | `POST /api/v1/projects` | Tạo dự án (kèm `template_id` tùy chọn) | A P | FR-03, FR-04 |
 | `GET/PATCH /api/v1/projects/{id}` | Xem, sửa dự án | đọc: tất cả trong dự án; sửa: A P | FR-03 |
 | `DELETE /api/v1/projects/{id}` | Xóa vĩnh viễn (BR-11); PM dùng `PATCH` đặt `status = archived` để lưu trữ | A (chỉ Admin, sếp chốt 2026-11-13) | FR-03 |
-| `PUT /api/v1/projects/{id}/members/{user_id}` | Thêm thành viên hoặc đổi vai trò trong dự án (`role`: `pm`/`member`/`viewer`) | A P (PM của dự án đó) | FR-02, FR-03 |
-| `DELETE /api/v1/projects/{id}/members/{user_id}` | Bỏ thành viên | A P | FR-03 |
+| `GET /api/v1/projects/{id}/members`, `GET .../members/{user_id}` | Danh sách thành viên (PM trước, rồi Thành viên, Người xem), mỗi dòng có `user {id, full_name, email, is_active, department}` (E1-6) | A P M V | FR-02 |
+| `PUT /api/v1/projects/{id}/members/{user_id}` | Thêm thành viên hoặc đổi vai trò (`{role}`: `pm`/`member`/`viewer`). Thêm mới `201` + `Location`; đổi hoặc PUT lại cùng vai trò `200` (idempotent). Người đích bị khóa hoặc không tồn tại `422`; hạ PM cuối cùng `409`; vai trò được kiểm trước schema | A P (PM của dự án đó) | FR-02, FR-03 |
+| `DELETE /api/v1/projects/{id}/members/{user_id}` | Bỏ thành viên (`204`; không phải thành viên `404`; PM cuối cùng `409`). Task của người bị gỡ giữ nguyên `assignee_id` | A P | FR-03 |
+| `GET /api/v1/users/search?q=&exclude_project_id=&limit=` | Tìm người để thêm vào dự án: chỉ id, `full_name`, `email`, phòng ban; người đang hoạt động; `q` 2 đến 100 ký tự (ILIKE, chưa bỏ dấu); tối đa 20 dòng. **Ngoại lệ có chủ ý** của quy tắc "không trả email ngoài dự án chung": PM xem được mọi hồ sơ (sếp chốt 2026-11-13) | A, PM của ≥1 dự án (M, V: `403`) | FR-02 |
 | `GET/POST /api/v1/projects/{id}/statuses` | Trạng thái tùy chỉnh (`name`, `category`: `todo`/`in_progress`/`done`, `color`, `position`). Đã làm (E2-3) | đọc: tất cả; ghi: A P | FR-06 |
 | `PATCH/DELETE /api/v1/statuses/{id}` | Sửa, xóa trạng thái. `DELETE ...?replace_with=<uuid>` chuyển task sang trạng thái khác rồi xóa cùng giao dịch; đang dùng mà không có `replace_with`: `409`; thay thế sai, hoặc xóa trạng thái cuối của nhóm todo/done: `422`; tên trùng: `409` | A P | FR-06 |
 | `GET/POST /api/v1/projects/{id}/labels`, `PATCH/DELETE /api/v1/labels/{id}` | Nhãn (E2-3) | đọc: tất cả; ghi: A P | FR-06 |
 | `GET/POST /api/v1/projects/{id}/task-types`, `PATCH/DELETE /api/v1/task-types/{id}` | Loại task (`name`, `is_milestone`, `color`, `position`); xóa có `?replace_with=` như trạng thái (E2-3) | đọc: tất cả; ghi: A P | FR-23 |
-| `GET /api/v1/projects/{id}/tasks` | Danh sách, Kanban, tìm kiếm, lọc. Đã làm (E2-2, E2-3): phân trang cursor `(created_at, id)` mới nhất trước, lọc `assignee_id`, `status_id`, `priority`, `label_id`; tìm kiếm bỏ dấu `q` và lọc đầy đủ ở E3-3 (đang làm). Task trả `status_id`, `type_id`, `label_ids`; `POST/PATCH` nhận `status_id`, `type_id`, `label_ids` (thuộc dự án khác: `422`) | A P M V | FR-08, FR-09 |
+| `GET /api/v1/projects/{id}/tasks` | Danh sách, Kanban, tìm kiếm, lọc. Đã làm (E2-2, E2-3): phân trang cursor `(created_at, id)` mới nhất trước, lọc `assignee_id`, `status_id`, `priority`, `label_id`; tìm kiếm bỏ dấu `q`, `status_id` nhiều giá trị, `due_after`/`due_before` (E3-3, xem mục 1). Task trả `status_id`, `type_id`, `label_ids`, `parent_id`, `depth`; `POST/PATCH` nhận `status_id`, `type_id`, `label_ids` (thuộc dự án khác: `422`) và `parent_id` (E2-4: cha không thấy hoặc khác dự án `422`, vượt 3 cấp `422`, vòng `409`, không sửa được cha `403`, đóng cha khi con chưa xong `422` kèm `task_ids`). Chưa có lọc `parent_id` (E2-5 cần) | A P M V | FR-08, FR-09 |
 | `POST /api/v1/projects/{id}/tasks` | Tạo task hoặc subtask (`parent_id`) | A P M | FR-05, FR-07 |
 | `GET /api/v1/tasks/{id}` | Chi tiết task, subtask, phụ thuộc | A P M V | FR-05 |
 | `PATCH /api/v1/tasks/{id}` | Sửa, đổi trạng thái, kéo thả (`status_id`, `position`) | A P; M nếu phụ trách hoặc tạo (BR-03) | FR-05, FR-08 |
@@ -63,8 +65,8 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | `POST /api/v1/tasks/{id}/relations` | Đặt quan hệ (`kind`: `relates`/`blocks`/`precedes`/`duplicates`, `to_task_id`, `lag_days?` chỉ cho `precedes`, ±365). `201` + `Location`. Tự quan hệ hoặc khác dự án: `422`; trùng hoặc tạo vòng: `409` (`blocks` và `precedes` chung một đồ thị) | A P M (có quyền sửa cả hai task) | FR-10 |
 | `DELETE /api/v1/tasks/{id}/relations/{relation_id}` | Bỏ quan hệ (`204`), gọi được từ task ở đầu nào của quan hệ | giống trên | FR-10 |
 | `GET /api/v1/projects/{id}/gantt` | Dữ liệu Gantt: task có `start_date`, `due_date`, quan hệ, theo khoảng thời gian (`from`, `to`) | A P M V | FR-20 |
-| `GET/POST /api/v1/projects/{id}/views` | Chế độ xem đã lưu (riêng, công khai, yêu thích) và chế độ xem mặc định | đọc: A P M V; ghi: mọi vai trò cho chế độ xem riêng; PM cho công khai | FR-19 |
-| `PATCH/DELETE /api/v1/views/{id}` | Sửa, xóa chế độ xem (không áp dụng cho chế độ xem mặc định) | chủ sở hữu; PM với chế độ xem công khai | FR-19 |
+| `GET/POST /api/v1/projects/{id}/views`, `GET /api/v1/views/{id}` | Chế độ xem đã lưu (E13-1). `POST {name, query, visibility?}` → `201` + `Location`; trùng tên (không phân biệt hoa thường, theo chủ sở hữu) `409`. Mỗi chế độ xem trả `is_favorite` (của người gọi) và `can_edit`. `query` v1 = `{version: 1, filters, sort, group_by, columns, display}`, `filters` dùng đúng tham số của `GET /tasks` (`status_id` dạng mảng); khóa lạ `400` | đọc: A P M V (riêng tư chỉ chủ sở hữu); ghi: mọi vai trò cho chế độ xem riêng; PM, Admin cho công khai | FR-19 |
+| `PATCH/DELETE /api/v1/views/{id}` | Sửa (`{name?, query?, visibility?, is_favorite?}`), xóa chế độ xem; không áp dụng cho chế độ xem mặc định. Body chỉ có `is_favorite` thì chỉ cần quyền đọc. Chỉ chủ sở hữu được đổi công khai về riêng tư | chủ sở hữu; PM, Admin với chế độ xem công khai | FR-19 |
 | `GET /api/v1/task-types` | Loại task của dự án (`?project_id=`); đã làm ở E2-3 | A P M V | FR-23 |
 | `GET /api/v1/notifications` | Thông báo của tôi | A P M V | FR-11 |
 | `POST /api/v1/notifications/{id}/read` | Đánh dấu đã đọc | A P M V | FR-11 |
