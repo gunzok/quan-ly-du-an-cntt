@@ -117,6 +117,8 @@ e2e-install: check-pnpm
 # E2E (tests/e2e/): build ứng dụng trỏ vào Supabase cục bộ rồi chạy Playwright (Playwright tự bật
 # `next start` ở cổng E2E_PORT). Cần stack đang chạy, tài khoản thử đã seed (make db-seed) và
 # SEED_PASSWORD (shell hoặc .env.local). Ghi đè thư mục .next của `make build`.
+# SUPABASE_SERVICE_ROLE_KEY (khóa của stack CỤC BỘ, chỉ phía máy chủ, không vào bundle) cho API
+# quản trị mà màn /admin/users gọi.
 # Đăng nhập có giới hạn tần suất (E0-5): mỗi lần chạy dùng RATE_LIMIT_SECRET ngẫu nhiên để bộ đếm
 # không cộng dồn giữa các lần chạy lại hay giữa các worktree dùng chung stack.
 test-e2e: check-pnpm check-supabase

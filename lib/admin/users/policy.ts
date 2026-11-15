@@ -77,6 +77,12 @@ export function mapAdminUpdateError(error: {
         strings.adminUsers.errors.departmentNotFound,
         [{ field: "department_id", issue: "invalid_value" }],
       );
+    case "department_archived":
+      return apiError(
+        "validation_failed",
+        strings.adminUsers.errors.departmentArchived,
+        [{ field: "department_id", issue: "invalid_value" }],
+      );
     default:
       return null;
   }

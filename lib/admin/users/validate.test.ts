@@ -14,13 +14,21 @@ describe("validateListQuery", () => {
   it("mặc định: không q, limit 50, không con trỏ", () => {
     expect(validateListQuery(new URLSearchParams())).toEqual({
       ok: true,
-      data: { q: null, limit: LIST_LIMIT_DEFAULT, cursor: null },
+      data: {
+        q: null,
+        limit: LIST_LIMIT_DEFAULT,
+        cursor: null,
+        department: { kind: "all" },
+      },
     });
   });
 
   it("cắt khoảng trắng q; q rỗng coi như không tìm", () => {
     const r = validateListQuery(new URLSearchParams("q=%20an%20&limit=10"));
-    expect(r).toEqual({ ok: true, data: { q: "an", limit: 10, cursor: null } });
+    expect(r).toEqual({
+      ok: true,
+      data: { q: "an", limit: 10, cursor: null, department: { kind: "all" } },
+    });
     expect(validateListQuery(new URLSearchParams("q=%20"))).toMatchObject({
       ok: true,
       data: { q: null },
@@ -30,13 +38,13 @@ describe("validateListQuery", () => {
   it("từ chối tham số lạ, tham số lặp, limit ngoài 1..100, q quá dài", () => {
     const r = validateListQuery(
       new URLSearchParams(
-        `department_id=x&limit=0&q=${"a".repeat(101)}&cursor=a&cursor=b`,
+        `dept=x&limit=0&q=${"a".repeat(101)}&cursor=a&cursor=b`,
       ),
     );
     expect(r.ok).toBe(false);
     expect(!r.ok && r.details).toEqual(
       expect.arrayContaining([
-        { field: "department_id", issue: "unknown_field" },
+        { field: "dept", issue: "unknown_field" },
         { field: "cursor", issue: "invalid_value" },
         { field: "q", issue: "too_long" },
         { field: "limit", issue: "invalid_value" },
@@ -47,6 +55,31 @@ describe("validateListQuery", () => {
         false,
       );
     }
+  });
+
+  it('department_id: uuid (chuẩn hóa chữ thường), "none" là chưa gán, giá trị khác bị từ chối', () => {
+    expect(
+      validateListQuery(
+        new URLSearchParams({ department_id: ID.toUpperCase() }),
+      ),
+    ).toMatchObject({ ok: true, data: { department: { kind: "id", id: ID } } });
+    expect(
+      validateListQuery(new URLSearchParams({ department_id: "none" })),
+    ).toMatchObject({ ok: true, data: { department: { kind: "none" } } });
+    for (const bad of ["", "x", "NONE", "null", `${ID}x`]) {
+      expect(
+        validateListQuery(new URLSearchParams({ department_id: bad })),
+        bad,
+      ).toEqual({
+        ok: false,
+        details: [{ field: "department_id", issue: "invalid_format" }],
+      });
+    }
+    expect(
+      validateListQuery(
+        new URLSearchParams(`department_id=none&department_id=${ID}`),
+      ).ok,
+    ).toBe(false);
   });
 
   it("con trỏ hợp lệ được giải mã; con trỏ hỏng bị từ chối", () => {

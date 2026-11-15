@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { ApiError } from "@/lib/api/errors";
 import { fetchUsers, patchUser } from "@/lib/admin/users/client-api";
 import {
@@ -10,19 +10,20 @@ import {
   projectSummary,
 } from "@/lib/admin/users/format";
 import type { AdminUser } from "@/lib/admin/users/model";
-import { SEARCH_MAX_LENGTH } from "@/lib/admin/users/validate";
+import {
+  DEPARTMENT_FILTER_NONE,
+  SEARCH_MAX_LENGTH,
+} from "@/lib/admin/users/validate";
+import { compareDepartments, type Department } from "@/lib/departments/model";
 import { strings } from "@/lib/strings";
 import styles from "./admin-users.module.css";
+import { AssignDepartmentDialog } from "./assign-department-dialog";
 import { ConfirmDialog } from "./confirm-dialog";
+import { DepartmentsDialog } from "./departments-dialog";
 import { InviteDialog } from "./invite-dialog";
 
 const t = strings.adminUsers;
 const SEARCH_DEBOUNCE_MS = 300;
-
-export interface Department {
-  id: string;
-  name: string;
-}
 
 type ListState =
   | { status: "loading"; items: AdminUser[]; nextCursor: null }
@@ -86,15 +87,29 @@ function confirmText(action: RowAction, name: string) {
   }
 }
 
+/** Người dùng có khớp bộ lọc phòng ban không ("" = tất cả, "none" = chưa gán, còn lại là id). */
+function matchesDepartment(user: AdminUser, filter: string) {
+  if (filter === "") return true;
+  if (filter === DEPARTMENT_FILTER_NONE) return user.department === null;
+  return user.department?.id === filter;
+}
+
 export function UsersScreen({
   currentUserId,
-  departments,
+  initialDepartments,
 }: {
   currentUserId: string;
-  departments: Department[];
+  initialDepartments: Department[];
 }) {
   const [query, setQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
+  const [departments, setDepartments] = useState<Department[]>(() =>
+    [...initialDepartments].sort(compareDepartments),
+  );
+  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [departmentsOpen, setDepartmentsOpen] = useState(false);
+  const [assignUser, setAssignUser] = useState<AdminUser | null>(null);
+  const filterId = useId();
   const [reloadToken, setReloadToken] = useState(0);
   const [list, setList] = useState<ListState>({
     status: "loading",
@@ -113,7 +128,10 @@ export function UsersScreen({
   // Tải trang đầu mỗi khi từ khóa (đã chờ gõ xong) đổi hoặc bấm Thử lại.
   useEffect(() => {
     const controller = new AbortController();
-    fetchUsers({ q: appliedQuery }, controller.signal)
+    fetchUsers(
+      { q: appliedQuery, departmentId: departmentFilter },
+      controller.signal,
+    )
       .then((result) => {
         if (controller.signal.aborted) return;
         setList(
@@ -135,7 +153,7 @@ export function UsersScreen({
         // Bị hủy do đổi từ khóa: bỏ qua.
       });
     return () => controller.abort();
-  }, [appliedQuery, reloadToken]);
+  }, [appliedQuery, departmentFilter, reloadToken]);
 
   // Chờ người dùng gõ xong rồi mới tìm.
   useEffect(() => {
@@ -160,6 +178,7 @@ export function UsersScreen({
     const result = await fetchUsers({
       q: appliedQuery,
       cursor: list.nextCursor,
+      departmentId: departmentFilter,
     });
     setLoadingMore(false);
     if (!result.ok) {
@@ -184,10 +203,54 @@ export function UsersScreen({
       prev.status === "ready"
         ? {
             ...prev,
-            items: prev.items.map((u) => (u.id === user.id ? user : u)),
+            // Người không còn khớp bộ lọc phòng ban (vừa bị chuyển phòng) thì rời khỏi danh sách.
+            items: prev.items.flatMap((u) =>
+              u.id !== user.id
+                ? [u]
+                : matchesDepartment(user, departmentFilter)
+                  ? [user]
+                  : [],
+            ),
           }
         : prev,
     );
+  }
+
+  function onDepartmentChanged(dept: Department) {
+    setDepartments((prev) =>
+      [...prev.filter((d) => d.id !== dept.id), dept].sort(compareDepartments),
+    );
+    // Đổi tên: cập nhật tên phòng ban trên các dòng đang hiển thị.
+    setList((prev) =>
+      prev.status === "ready"
+        ? {
+            ...prev,
+            items: prev.items.map((u) =>
+              u.department?.id === dept.id
+                ? { ...u, department: { id: dept.id, name: dept.name } }
+                : u,
+            ),
+          }
+        : prev,
+    );
+  }
+
+  function onDepartmentAssigned(user: AdminUser) {
+    setAssignUser(null);
+    replaceUser(user);
+    setAnnouncement(
+      t.done.departmentChanged(
+        displayName(user),
+        user.department?.name ?? t.noDepartment,
+      ),
+    );
+  }
+
+  function changeFilter(value: string) {
+    if (value === departmentFilter) return;
+    setList({ status: "loading", items: [], nextCursor: null });
+    setLoadMoreError(null);
+    setDepartmentFilter(value);
   }
 
   function openAction(user: AdminUser, action: RowAction) {
@@ -219,7 +282,10 @@ export function UsersScreen({
       prev.status === "ready"
         ? {
             ...prev,
-            items: [user, ...prev.items.filter((u) => u.id !== user.id)],
+            items: [
+              ...(matchesDepartment(user, departmentFilter) ? [user] : []),
+              ...prev.items.filter((u) => u.id !== user.id),
+            ],
           }
         : prev,
     );
@@ -237,7 +303,10 @@ export function UsersScreen({
         <div className={styles.headerText}>
           <span className="label">
             <span className={styles.dot} aria-hidden="true" />
-            {list.status === "ready" && !list.nextCursor && !appliedQuery
+            {list.status === "ready" &&
+            !list.nextCursor &&
+            !appliedQuery &&
+            !departmentFilter
               ? t.eyebrowCount(count)
               : t.eyebrow}
           </span>
@@ -249,14 +318,23 @@ export function UsersScreen({
           </h1>
           <p className={styles.intro}>{t.intro}</p>
         </div>
-        <button
-          ref={inviteButtonRef}
-          type="button"
-          className={styles.primaryButton}
-          onClick={() => setInviteOpen(true)}
-        >
-          {t.invite.open} <span aria-hidden="true">→</span>
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={() => setDepartmentsOpen(true)}
+          >
+            {t.manageDepartments}
+          </button>
+          <button
+            ref={inviteButtonRef}
+            type="button"
+            className={styles.primaryButton}
+            onClick={() => setInviteOpen(true)}
+          >
+            {t.invite.open} <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </header>
 
       <div className={styles.content}>
@@ -295,6 +373,25 @@ export function UsersScreen({
               className={styles.searchInput}
             />
           </label>
+          <span className={styles.filter}>
+            <label htmlFor={filterId}>{t.departmentFilterLabel}:</label>
+            <select
+              id={filterId}
+              value={departmentFilter}
+              onChange={(e) => changeFilter(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="">{t.departmentFilterAll}</option>
+              <option value={DEPARTMENT_FILTER_NONE}>
+                {t.departmentFilterNone}
+              </option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.archived ? `${d.name}${t.archivedSuffix}` : d.name}
+                </option>
+              ))}
+            </select>
+          </span>
         </form>
 
         <p role="status" aria-live="polite" className={styles.announcement}>
@@ -304,8 +401,10 @@ export function UsersScreen({
         <UsersTable
           list={list}
           query={appliedQuery}
+          filtered={departmentFilter !== ""}
           currentUserId={currentUserId}
           onAction={openAction}
+          onChangeDepartment={setAssignUser}
           onRetry={retry}
         />
 
@@ -331,9 +430,23 @@ export function UsersScreen({
 
       <InviteDialog
         open={inviteOpen}
-        departments={departments}
+        departments={departments.filter((d) => !d.archived)}
         onClose={() => setInviteOpen(false)}
         onInvited={onInvited}
+      />
+
+      <DepartmentsDialog
+        open={departmentsOpen}
+        departments={departments}
+        onClose={() => setDepartmentsOpen(false)}
+        onChanged={onDepartmentChanged}
+      />
+
+      <AssignDepartmentDialog
+        user={assignUser}
+        departments={departments}
+        onClose={() => setAssignUser(null)}
+        onAssigned={onDepartmentAssigned}
       />
 
       <ConfirmDialog
@@ -356,14 +469,18 @@ export function UsersScreen({
 function UsersTable({
   list,
   query,
+  filtered,
   currentUserId,
   onAction,
+  onChangeDepartment,
   onRetry,
 }: {
   list: ListState;
   query: string;
+  filtered: boolean;
   currentUserId: string;
   onAction: (user: AdminUser, action: RowAction) => void;
+  onChangeDepartment: (user: AdminUser) => void;
   onRetry: () => void;
 }) {
   if (list.status === "error") {
@@ -385,7 +502,7 @@ function UsersTable({
     return (
       <div className={`${styles.stateBox} blueprint-grid`}>
         <p className={styles.stateTitle}>
-          {query ? t.emptySearch(query) : t.empty}
+          {query ? t.emptySearch(query) : filtered ? t.emptyFilter : t.empty}
         </p>
       </div>
     );
@@ -437,6 +554,7 @@ function UsersTable({
                 user={user}
                 isSelf={user.id === currentUserId}
                 onAction={onAction}
+                onChangeDepartment={onChangeDepartment}
               />
             ))
           )}
@@ -450,10 +568,12 @@ function UserRow({
   user,
   isSelf,
   onAction,
+  onChangeDepartment,
 }: {
   user: AdminUser;
   isSelf: boolean;
   onAction: (user: AdminUser, action: RowAction) => void;
+  onChangeDepartment: (user: AdminUser) => void;
 }) {
   const name = displayName(user);
   const hintId = `self-hint-${user.id}`;
@@ -473,12 +593,22 @@ function UserRow({
           </span>
         </div>
       </td>
-      <td>
-        {user.department ? (
-          user.department.name
-        ) : (
-          <span className={styles.muted}>{t.noDepartment}</span>
-        )}
+      <td className={styles.deptCell}>
+        <div className={styles.deptCellInner}>
+          {user.department ? (
+            <span>{user.department.name}</span>
+          ) : (
+            <span className={styles.muted}>{t.noDepartment}</span>
+          )}
+          <button
+            type="button"
+            className={styles.linkButton}
+            aria-label={t.changeDepartmentAction(name)}
+            onClick={() => onChangeDepartment(user)}
+          >
+            {t.changeDepartment}
+          </button>
+        </div>
       </td>
       <td>
         <span className={user.is_admin ? styles.badgeAdmin : styles.badge}>

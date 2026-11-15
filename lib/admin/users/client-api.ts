@@ -9,7 +9,7 @@ import type { AdminUser, UserListResponse } from "./model";
 export type ApiResult<T> =
   { ok: true; data: T } | { ok: false; error: ApiError };
 
-async function call<T>(
+export async function call<T>(
   input: string,
   init?: RequestInit,
 ): Promise<ApiResult<T>> {
@@ -46,11 +46,17 @@ async function call<T>(
 }
 
 export function fetchUsers(
-  params: { q?: string; cursor?: string | null },
+  params: {
+    q?: string;
+    cursor?: string | null;
+    /** id phòng ban, hoặc "none" (DEPARTMENT_FILTER_NONE) để lọc người chưa có phòng ban. */
+    departmentId?: string | null;
+  },
   signal?: AbortSignal,
 ) {
   const search = new URLSearchParams();
   if (params.q) search.set("q", params.q);
+  if (params.departmentId) search.set("department_id", params.departmentId);
   if (params.cursor) search.set("cursor", params.cursor);
   const qs = search.toString();
   return call<UserListResponse>(`/api/v1/users${qs ? `?${qs}` : ""}`, {
