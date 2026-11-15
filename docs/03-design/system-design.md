@@ -81,7 +81,8 @@ sequenceDiagram
 
 ## 5. Xác thực và phân quyền
 - Đăng nhập email/mật khẩu và Google qua Supabase Auth; phiên lưu bằng cookie httpOnly (thư viện `@supabase/ssr`).
-- Vai trò toàn hệ thống nằm ở `profiles.role` (BR-01): `admin`, `pm`, `member`, `viewer`. Quyền trong dự án qua `project_members` (BR-10).
+- Quyền toàn hệ thống chỉ là cờ `profiles.is_admin` (BR-01 sửa 2026-11-13); vai trò PM, Thành viên, Người xem nằm theo từng dự án ở `project_members.role` (BR-10).
+- Nhận lời mời (E1-8, PR 26): email mời (`supabase/templates/invite.html`) trỏ tới `/auth/accept-invite?token_hash=…&type=invite`. Trang GET chỉ hiện biểu mẫu (không tiêu thụ token, để trình quét link của email không làm hỏng lời mời); Server Action gọi `verifyOtp` rồi `updateUser` đặt mật khẩu (tối thiểu 12 ký tự) và đưa vào ứng dụng. Giới hạn 20 lần/15 phút/IP. Nếu `verifyOtp` xong mà `updateUser` lỗi thì token đã bị dùng: Admin gửi lại lời mời sẽ gặp `409` (cần luồng quên mật khẩu hoặc gửi lại cho tài khoản chưa có mật khẩu, chưa có Story).
 - Phiên: proxy gọi `getUser()` (hỏi máy chủ Auth) thay vì chỉ xác minh JWT tại chỗ, để người dùng bị xóa hoặc phiên bị thu hồi bị chuyển về /login không lặp; cookie phiên httpOnly, SameSite=Lax, Secure ở production (quyết định ở E1-1, PR 15).
 - Đăng nhập Google (E1-2): nút gọi Server Action `signInWithGoogle`, mã PKCE nằm trong cookie httpOnly, Supabase Auth đưa về `/auth/callback` đổi mã lấy phiên rồi về `/`; không có tham số `next`. Đăng ký tự do bị chặn ở Auth (`enable_signup = false`), người được Admin mời tạo bằng API admin.
 - Hai lớp kiểm quyền: (1) Route Handler kiểm vai trò theo [api-contract.md](api-contract.md); (2) RLS ở Postgres (phòng thủ chiều sâu, NFR-06). Không bao giờ chỉ tin kiểm tra ở giao diện.

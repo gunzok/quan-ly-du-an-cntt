@@ -6,7 +6,7 @@ Chỉ màn có trạng thái "Đã duyệt" trong [review-log.md](review-log.md)
 | Mã | Màn | Mục đích | Use case, Epic | Actor | Mockup |
 |---|---|---|---|---|---|
 | S01 | Đăng nhập | Vào hệ thống bằng email/mật khẩu hoặc Google, đổi ngôn ngữ | UC-01, UC-13, E1, E10 | Mọi vai trò | `Main.dc.html` |
-| S02 | Danh sách dự án | Xem dự án của mình, tiến độ, trễ hạn, tạo dự án | UC-03, UC-04, E2 | Mọi vai trò | `Projects.dc.html` |
+| S02 | Danh sách dự án | Xem dự án của mình, tiến độ, trễ hạn, tạo dự án | UC-03, UC-04, E2 | Mọi vai trò | `Projects.dc.html`. Đã code ở E2-1 (PR 27): là trang chủ `/` sau đăng nhập; tab Đang hoạt động / Đã lưu trữ có số đếm, tìm theo tên, tiến độ tính theo `completed_at` nên hiện 0% cho đến khi E2-3 (đã merge) cho task vào trạng thái nhóm done |
 | S03 | Bảng Kanban | Xem, kéo thả task theo trạng thái, lọc nhanh | UC-05, UC-06, E2, E3 | Mọi vai trò (Người xem chỉ đọc) | `Kanban.dc.html` |
 | S04 | Danh sách task và bộ lọc | Xem task dạng bảng, subtask 3 cấp, tìm kiếm, lọc | UC-05, UC-07, E3 | Mọi vai trò | `List.dc.html` |
 | S05 | Chi tiết task (v2) | Sửa task: loại, ngày bắt đầu, ngày kết thúc, việc con, nhiều kiểu quan hệ, cảnh báo bị chặn, nhật ký task | UC-05, UC-08, UC-12, E2, E6, E8 | PM, Thành viên, Admin | `mockups/v2/TaskDetail.dc.html` (v1 giữ ở `mockups/v1/`) |
@@ -24,7 +24,8 @@ Chỉ màn có trạng thái "Đã duyệt" trong [review-log.md](review-log.md)
 | S16 | Thông báo và cài đặt email | Ngăn thông báo, bật tắt email theo loại | UC-09, FR-11, FR-12, E4 | Mọi vai trò | `mockups/v3/Notifications.dc.html` |
 | S17 | Quản lý template dự án và báo cáo | Admin tải lên và bật template báo cáo; danh sách template dự án | BR-08, FR-04, E5, E7 | Admin, PM | `mockups/v3/Templates.dc.html` |
 | S18 | Hồ sơ cá nhân (v2) | Tên, số điện thoại, ngôn ngữ, giao diện, vai trò trong từng dự án | FR-17, E1 | Mọi vai trò | `mockups/v3/Profile-v2.dc.html` (v1 giữ ở `Profile.dc.html`, đã có sửa nên xem v2) |
-| S19 | Cấu hình dự án | Trạng thái, loại task, nhãn | FR-06, E2 (Story E2-7) | PM, Admin | `mockups/v3/ProjectSettings.dc.html` |
+| S19 | Cấu hình dự án | Trạng thái, loại task, nhãn | FR-06, E2 (Story E2-7) | PM, Admin | `mockups/v3/ProjectSettings.dc.html`. Đã code ở E2-3 (PR 30): `/projects/{id}/settings`, lối vào là link "Cấu hình" trên thẻ dự án; còn thiếu AC "cột mới hiện ở Kanban" (chờ S03) |
+| S20 | Nhận lời mời | Người được mời đặt mật khẩu và vào ứng dụng | FR-02, E1-8 | Người được mời | Đã code ở E1-8 (PR 26): `/auth/accept-invite`, dựng từ `components/ui` theo design system; chưa có mockup riêng |
 
 ## Màn đã có mockup ở S13 đến S19 (E0-8); còn thiếu
 - Hộp thoại tạo dự án, chọn template (UC-03, UC-04).
