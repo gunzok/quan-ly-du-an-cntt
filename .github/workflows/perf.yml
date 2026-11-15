@@ -1,0 +1,59 @@
+name: Perf
+
+# Đo hiệu năng API trên dự án 2.000 task (Story E0-7, NFR-02). CHỈ chạy tay (Actions → Perf →
+# Run workflow), không chạy trên PR hay push vì tốn vài phút. Số đo trên runner dùng chung chỉ để
+# tham khảo xu hướng; số chuẩn đo cục bộ hoặc trên staging trước phát hành (test-strategy.md).
+on:
+  workflow_dispatch:
+    inputs:
+      tasks:
+        description: Số task của dự án perf
+        default: "2000"
+      iterations:
+        description: Số lần đo mỗi API (sau khởi động)
+        default: "100"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  perf:
+    name: perf
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      PERF_TASKS: ${{ inputs.tasks }}
+      PERF_ITERATIONS: ${{ inputs.iterations }}
+      PERF_JSON_OUT: perf-result.json
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: make install
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.1.0
+      - name: Sinh SEED_PASSWORD ngẫu nhiên (chỉ sống trong job, không lưu)
+        run: |
+          pw="$(openssl rand -base64 32 | tr -d '\n')"
+          echo "::add-mask::$pw"
+          echo "SEED_PASSWORD=$pw" >> "$GITHUB_ENV"
+      - run: make db-start
+      - run: make perf-seed
+      - run: make perf
+      - name: Lưu kết quả đo
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: perf-result
+          path: perf-result.json
+          if-no-files-found: ignore
+          retention-days: 30
