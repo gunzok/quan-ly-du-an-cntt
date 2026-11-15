@@ -1,3 +1,5 @@
+import { messageKeyOf } from "@/lib/i18n/message-key";
+
 /**
  * Cấu trúc lỗi thống nhất theo docs/03-design/api-contract.md mục 2.
  */
@@ -25,7 +27,14 @@ export interface ApiErrorDetail {
 
 export interface ApiError {
   code: ApiErrorCode;
+  /** Thông điệp tiếng Việt (giữ cho khách API). */
   message: string;
+  /**
+   * Khóa ổn định của thông điệp trong từ điển giao diện (Story E10-2), ví dụ
+   * "adminUsers.errors.emailExists". Giao diện dịch theo khóa này; vắng khi thông điệp không lấy
+   * từ từ điển.
+   */
+  message_key?: string;
   details?: ApiErrorDetail[];
   /** Id task liên quan (ví dụ việc con chưa xong khi đóng task cha, BR-04). */
   task_ids?: string[];
@@ -47,6 +56,11 @@ export const API_ERROR_STATUS: Record<ApiErrorCode, number> = {
   internal_error: 500,
 };
 
+/** Thân phản hồi lỗi; tự gắn `message_key` khi thông điệp lấy từ từ điển tiếng Việt. */
 export function apiErrorBody(error: ApiError): ApiErrorBody {
-  return { error };
+  const key = error.message_key ?? messageKeyOf(error.message);
+  const { code, message, ...rest } = error;
+  return {
+    error: { code, message, ...(key ? { message_key: key } : {}), ...rest },
+  };
 }
