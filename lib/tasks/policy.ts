@@ -1,5 +1,6 @@
 import type { ApiError } from "@/lib/api/errors";
 import { apiError } from "@/lib/api/respond";
+import { mapTaskConfigError } from "@/lib/project-config/policy";
 import { strings } from "@/lib/strings";
 
 /**
@@ -47,11 +48,15 @@ export function canDeleteTask(actor: Actor, task: TaskOwnership): boolean {
  *   - 23514 `tasks_dates_check` (BR-13): 422.
  *   - 23514 khác (ràng buộc độ dài, khoảng giá trị): 400. Schema API đã chặn trước, đây là lưới đỡ.
  *   - 42501 (RLS hoặc quyền cột): 403.
+ *   - P0001 status_not_in_project / type_not_in_project / label_not_in_project, 23503 (E2-3):
+ *     trạng thái, loại, nhãn không thuộc dự án của task: 422.
  */
 export function mapTaskWriteError(error: {
   code?: string;
   message?: string;
 }): ApiError | null {
+  const config = mapTaskConfigError(error);
+  if (config) return config;
   switch (error.code) {
     case "P0001":
       if (error.message === "assignee_not_member") {

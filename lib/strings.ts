@@ -443,6 +443,142 @@ export const strings = {
       actionFailed: "Không thực hiện được thao tác.",
     },
   },
+  /** Story E2-3 (QLDA-41): trạng thái, loại task, nhãn theo dự án (API và màn cấu hình dự án). */
+  projectConfig: {
+    pageTitle: "Cấu hình dự án",
+    eyebrow: (project: string) => `Dự án / ${project} / Cấu hình`,
+    heading: "Trạng thái, loại task, nhãn",
+    canEditNote:
+      "Chỉ PM của dự án và Admin được sửa; Thành viên và Người xem chỉ đọc.",
+    readOnly: "Bạn đang xem ở chế độ chỉ đọc.",
+    backToProjects: "Danh sách dự án",
+    openSettings: "Cấu hình",
+    openSettingsAction: (name: string) => `Cấu hình dự án ${name}`,
+    tabsLabel: "Mục cấu hình",
+    loading: "Đang tải cấu hình dự án",
+    loadError: "Không tải được cấu hình dự án.",
+    retry: "Thử lại",
+    deleteHint:
+      "Xóa một trạng thái hoặc loại task đang có task sẽ yêu cầu chọn mục thay thế cho các task đó.",
+    taskCount: (n: number) => `${n} task`,
+    milestone: "Mốc",
+    categories: {
+      todo: "Chưa bắt đầu",
+      in_progress: "Đang thực hiện",
+      done: "Đã xong",
+    },
+    colors: {
+      gray: "Xám",
+      blue: "Xanh dương",
+      purple: "Tím",
+      pink: "Hồng",
+      amber: "Hổ phách",
+      green: "Xanh lá",
+      slate: "Xám đậm",
+      red: "Đỏ",
+      custom: "Màu riêng",
+    },
+    kinds: {
+      statuses: {
+        tab: "Trạng thái",
+        listLabel: "Danh sách trạng thái",
+        empty: "Chưa có trạng thái nào.",
+        add: "Thêm trạng thái",
+        addTitle: "Thêm trạng thái",
+        editTitle: (name: string) => `Sửa trạng thái “${name}”`,
+        deleteTitle: (name: string) => `Xóa trạng thái “${name}”?`,
+        inUseBody: (n: number) =>
+          `Có ${n} task đang ở trạng thái này. Chọn trạng thái để chuyển các task sang trước khi xóa.`,
+        unusedBody: "Không có task nào ở trạng thái này. Không hoàn tác được.",
+        replaceLabel: "Chuyển task sang trạng thái",
+      },
+      "task-types": {
+        tab: "Loại task",
+        listLabel: "Danh sách loại task",
+        empty: "Chưa có loại task nào.",
+        add: "Thêm loại",
+        addTitle: "Thêm loại task",
+        editTitle: (name: string) => `Sửa loại task “${name}”`,
+        deleteTitle: (name: string) => `Xóa loại task “${name}”?`,
+        inUseBody: (n: number) =>
+          `Có ${n} task thuộc loại này. Chọn loại để chuyển các task sang trước khi xóa.`,
+        unusedBody: "Không có task nào thuộc loại này. Không hoàn tác được.",
+        replaceLabel: "Chuyển task sang loại",
+      },
+      labels: {
+        tab: "Nhãn",
+        listLabel: "Danh sách nhãn",
+        empty: "Chưa có nhãn nào.",
+        add: "Thêm nhãn",
+        addTitle: "Thêm nhãn",
+        editTitle: (name: string) => `Sửa nhãn “${name}”`,
+        deleteTitle: (name: string) => `Xóa nhãn “${name}”?`,
+        inUseBody: (n: number) =>
+          `Nhãn đang gắn với ${n} task; xóa sẽ gỡ nhãn khỏi các task đó. Không hoàn tác được.`,
+        unusedBody: "Nhãn chưa gắn với task nào. Không hoàn tác được.",
+        replaceLabel: "",
+      },
+    },
+    form: {
+      name: "Tên",
+      category: "Nhóm",
+      categoryHint: "Nhóm “Đã xong” được tính là hoàn thành khi tính tiến độ.",
+      color: "Màu",
+      milestone: "Là mốc (milestone)",
+      save: "Lưu",
+      saving: "Đang lưu…",
+      add: "Thêm",
+      nameRequired: "Nhập tên.",
+      nameTooLong: "Tên tối đa 100 ký tự.",
+    },
+    actions: {
+      groupLabel: (name: string) => `Thao tác với ${name}`,
+      edit: "Sửa",
+      moveUp: "Lên",
+      moveDown: "Xuống",
+      moveUpAction: (name: string) => `Đưa ${name} lên`,
+      moveDownAction: (name: string) => `Đưa ${name} xuống`,
+      delete: "Xóa",
+      confirmDelete: "Xóa",
+      moveAndDelete: "Chuyển task và xóa",
+    },
+    done: {
+      added: (name: string) => `Đã thêm “${name}”.`,
+      updated: (name: string) => `Đã lưu “${name}”.`,
+      moved: (name: string) => `Đã đổi thứ tự “${name}”.`,
+      deleted: (name: string) => `Đã xóa “${name}”.`,
+      deletedMoved: (name: string, n: number) =>
+        `Đã xóa “${name}” và chuyển ${n} task.`,
+    },
+    errors: {
+      nameExists: {
+        statuses:
+          "Dự án đã có trạng thái trùng tên (không phân biệt hoa thường).",
+        "task-types":
+          "Dự án đã có loại task trùng tên (không phân biệt hoa thường).",
+        labels: "Dự án đã có nhãn trùng tên (không phân biệt hoa thường).",
+      },
+      inUse: {
+        statuses:
+          "Trạng thái đang có task. Chọn trạng thái thay thế (replace_with) để chuyển task trước khi xóa.",
+        "task-types":
+          "Loại task đang được dùng. Chọn loại thay thế (replace_with) để chuyển task trước khi xóa.",
+        labels: "Nhãn đang được dùng.",
+      },
+      invalidReplacement: "Mục thay thế phải là một mục khác thuộc cùng dự án.",
+      lastOfCategory:
+        "Dự án phải còn ít nhất một trạng thái nhóm “Chưa bắt đầu” và một trạng thái nhóm “Đã xong”.",
+      lastType: "Dự án phải còn ít nhất một loại task.",
+      forbidden:
+        "Chỉ PM của dự án hoặc Admin mới sửa được trạng thái, loại task, nhãn.",
+      statusNotInProject: "Trạng thái hoặc loại task không thuộc dự án này.",
+      typeNotInProject: "Loại task không thuộc dự án này.",
+      labelNotInProject: "Nhãn không thuộc dự án của task.",
+      replaceRequired: "Chọn mục thay thế.",
+      network: "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.",
+      actionFailed: "Không thực hiện được thao tác.",
+    },
+  },
   /** Thông điệp lỗi của lớp bảo mật chung (Story E0-5): CSRF, giới hạn tần suất. */
   security: {
     crossOrigin: "Yêu cầu không đến từ ứng dụng này nên bị từ chối.",
