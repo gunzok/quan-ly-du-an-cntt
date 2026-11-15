@@ -25,6 +25,25 @@ describe("decideAuthGate", () => {
     }
   });
 
+  it("chưa đăng nhập vào được đúng /auth/accept-invite (E1-7), đường dẫn gần giống thì không", () => {
+    expect(decideAuthGate("/auth/accept-invite", false)).toEqual({
+      action: "next",
+    });
+    for (const path of ["/auth/accept-invitex", "/auth/accept-invite/x"]) {
+      expect(decideAuthGate(path, false)).toEqual({
+        action: "redirect",
+        to: "/login",
+      });
+    }
+  });
+
+  it("đã đăng nhập vào /auth/accept-invite thì về /", () => {
+    expect(decideAuthGate("/auth/accept-invite", true)).toEqual({
+      action: "redirect",
+      to: "/",
+    });
+  });
+
   it("chưa đăng nhập gọi API thì trả 401, không chuyển hướng", () => {
     expect(decideAuthGate("/api/v1/me", false)).toEqual({
       action: "unauthorized",

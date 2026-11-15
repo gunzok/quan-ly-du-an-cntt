@@ -27,6 +27,8 @@ export interface RateLimitRule {
  * - loginIp: mọi lần thử đăng nhập (mật khẩu và Google) từ một IP. Nới vì nhân viên một văn phòng
  *   có thể dùng chung một IP NAT.
  * - loginEmail: lần thử đăng nhập mật khẩu cho một email (mọi IP). Chặn dò mật khẩu một tài khoản.
+ * - acceptInviteIp: lần gửi form đặt mật khẩu ở /auth/accept-invite (Story E1-7) từ một IP, chỉ
+ *   đếm khi form hợp lệ (trước khi gọi Supabase Auth). Chặn dò token mời; FAIL-CLOSED.
  * - api: mọi request /api/v1/* của một người dùng đã đăng nhập.
  * - export: xuất báo cáo (Story sau), chặt hơn api; Route Handler xuất báo cáo gọi thêm
  *   `limitUser(userId, "export")` ngoài giới hạn api chung.
@@ -34,6 +36,7 @@ export interface RateLimitRule {
 export const RATE_LIMITS = {
   loginIp: { limit: 50, windowSeconds: 300 },
   loginEmail: { limit: 10, windowSeconds: 900 },
+  acceptInviteIp: { limit: 20, windowSeconds: 900 },
   api: { limit: 300, windowSeconds: 60 },
   export: { limit: 10, windowSeconds: 600 },
 } as const satisfies Record<string, RateLimitRule>;
