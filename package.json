@@ -16,7 +16,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "audit:deps": "pnpm audit --audit-level high",
-    "test:ui-kit": "eval \"$(supabase status -o env 2>/dev/null)\" && NEXT_PUBLIC_SUPABASE_URL=\"$API_URL\" NEXT_PUBLIC_SUPABASE_ANON_KEY=\"$ANON_KEY\" playwright test -c playwright.ui-kit.config.ts"
+    "test:ui-kit": "eval \"$(supabase status -o env 2>/dev/null)\" && NEXT_PUBLIC_SUPABASE_URL=\"$API_URL\" NEXT_PUBLIC_SUPABASE_ANON_KEY=\"$ANON_KEY\" SUPABASE_SERVICE_ROLE_KEY=\"$SERVICE_ROLE_KEY\" RATE_LIMIT_SECRET=\"ui-kit-$(date +%s)-$$\" playwright test -c playwright.ui-kit.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.3.1",
