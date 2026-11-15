@@ -48,7 +48,7 @@ select col_type_is('public', 'tasks', 'priority', 'task_priority', 'priority dù
 select col_default_is('public', 'tasks', 'priority', 'medium'::public.task_priority, 'priority mặc định medium');
 select col_default_is('public', 'tasks', 'depth', '1', 'depth mặc định 1');
 select col_is_null('public', 'tasks', 'parent_id', 'parent_id cho phép null');
-select col_is_null('public', 'tasks', 'status_id', 'status_id cho phép null (khóa ngoại thêm ở E2-3)');
+select col_not_null('public', 'tasks', 'status_id', 'status_id bắt buộc (E2-3: trigger đặt mặc định, khóa ngoại kép cùng dự án)');
 select has_index('public', 'tasks', 'tasks_project_status_position_idx', 'Chỉ mục Kanban');
 select has_index('public', 'tasks', 'tasks_project_assignee_idx', 'Chỉ mục người phụ trách');
 select has_index('public', 'tasks', 'tasks_project_due_date_idx', 'Chỉ mục hạn chót');
@@ -153,7 +153,7 @@ select throws_ok(format(
 select throws_ok(format(
   'insert into public.tasks (project_id, title, status_id) values (%L, ''x'', gen_random_uuid())',
   tests.uid('project_a')),
-  '42501', null, 'Chưa ghi được status_id (trạng thái là Story E2-3)');
+  'P0001', 'status_not_in_project', 'E2-3: status_id ghi được nhưng phải là trạng thái của chính dự án');
 
 -- ===========================================================================
 -- UPDATE (tasks_update): PM, Admin mọi task; Thành viên chỉ task mình tạo hoặc phụ trách (BR-03)

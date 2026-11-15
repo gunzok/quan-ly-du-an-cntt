@@ -115,16 +115,14 @@ describe("validateTaskCreate", () => {
       title: "x",
       created_by: UUID,
       parent_id: UUID,
-      status_id: UUID,
-      label_ids: [],
+      completed_at: "2026-11-14T00:00:00Z",
     });
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.details.map((d) => d.field).sort()).toEqual([
+        "completed_at",
         "created_by",
-        "label_ids",
         "parent_id",
-        "status_id",
       ]);
       expect(r.details.every((d) => d.issue === "unknown_field")).toBe(true);
     }
@@ -226,16 +224,15 @@ describe("validateTaskPatch", () => {
     });
   });
 
-  it("từ chối đổi project_id, status_id, created_by, completed_at", () => {
+  it("từ chối đổi project_id, created_by, completed_at", () => {
     const r = validateTaskPatch({
       project_id: UUID,
-      status_id: UUID,
       created_by: UUID,
       completed_at: "2026-11-14T00:00:00Z",
     });
     expect(r.ok).toBe(false);
     if (!r.ok) {
-      expect(r.details).toHaveLength(4);
+      expect(r.details).toHaveLength(3);
       expect(r.details.every((d) => d.issue === "unknown_field")).toBe(true);
     }
   });
@@ -282,6 +279,7 @@ describe("validateTaskListQuery", () => {
         assignee_id: null,
         status_id: null,
         priority: null,
+        label_id: null,
       },
     });
   });
@@ -303,6 +301,7 @@ describe("validateTaskListQuery", () => {
         assignee_id: UUID,
         status_id: UUID,
         priority: "urgent",
+        label_id: null,
       },
     });
   });
@@ -321,5 +320,69 @@ describe("validateTaskListQuery", () => {
     ]) {
       expect(validateTaskListQuery(new URLSearchParams(qs)).ok).toBe(false);
     }
+  });
+});
+
+describe("E2-3: status_id, type_id, label_ids, label_id", () => {
+  const A = "11111111-1111-4111-8111-111111111111";
+  const B = "22222222-2222-4222-8222-222222222222";
+
+  it("tạo task nhận trạng thái, loại, nhãn (chữ thường, bỏ trùng, sắp xếp)", () => {
+    const r = validateTaskCreate({
+      title: "x",
+      status_id: A.toUpperCase(),
+      type_id: B,
+      label_ids: [B, A, B.toUpperCase()],
+    });
+    expect(r).toMatchObject({
+      ok: true,
+      data: { status_id: A, type_id: B, label_ids: [A, B] },
+    });
+  });
+
+  it("không gửi trạng thái, loại: để CSDL lấy mặc định", () => {
+    const r = validateTaskCreate({ title: "x" });
+    expect(r.ok && "status_id" in r.data).toBe(false);
+    expect(r.ok && "type_id" in r.data).toBe(false);
+  });
+
+  it("từ chối uuid sai, null, mảng nhãn sai hoặc quá 20", () => {
+    const bad: [Record<string, unknown>, string, string][] = [
+      [{ status_id: "abc" }, "status_id", "invalid_format"],
+      [{ status_id: null }, "status_id", "invalid_value"],
+      [{ type_id: 1 }, "type_id", "invalid_format"],
+      [{ label_ids: "x" }, "label_ids", "invalid_value"],
+      [{ label_ids: ["abc"] }, "label_ids", "invalid_value"],
+      [{ label_ids: Array(21).fill(A) }, "label_ids", "too_long"],
+    ];
+    for (const [body, field, issue] of bad) {
+      expect(validateTaskCreate({ title: "x", ...body })).toEqual({
+        ok: false,
+        details: [{ field, issue }],
+      });
+      expect(validateTaskPatch(body)).toEqual({
+        ok: false,
+        details: [{ field, issue }],
+      });
+    }
+  });
+
+  it("PATCH đổi trạng thái (kéo thả Kanban) và thay toàn bộ nhãn", () => {
+    expect(validateTaskPatch({ status_id: A, position: 3 })).toEqual({
+      ok: true,
+      data: { status_id: A, position: 3 },
+    });
+    expect(validateTaskPatch({ label_ids: [] })).toEqual({
+      ok: true,
+      data: { label_ids: [] },
+    });
+  });
+
+  it("lọc theo label_id", () => {
+    const r = validateTaskListQuery(new URLSearchParams({ label_id: A }));
+    expect(r.ok && r.data.label_id).toBe(A);
+    expect(
+      validateTaskListQuery(new URLSearchParams({ label_id: "x" })).ok,
+    ).toBe(false);
   });
 });
