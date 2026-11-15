@@ -17,7 +17,7 @@
 
 .PHONY: install lint test build security check-pnpm check-gitleaks \
 	check-supabase db-start db-stop db-reset db-seed db-test test-db test-integration \
-	e2e-install test-e2e
+	e2e-install test-e2e perf-seed perf-clean perf
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -130,3 +130,33 @@ test-e2e: check-pnpm check-supabase
 	export NEXT_PUBLIC_SUPABASE_URL="$$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$$ANON_KEY" E2E_PORT="$(E2E_PORT)"; \
 	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="e2e-$$(date +%s)-$$$$"; \
 	pnpm build && pnpm exec playwright test
+
+# ---------------------------------------------------------------------------
+# Hiệu năng (Story E0-7, NFR-02). KHÔNG chạy trong CI mặc định (tốn vài phút); chạy cục bộ trước
+# mỗi lần phát hành. Cần stack đang chạy và SEED_PASSWORD (shell hoặc .env.local) như db-seed.
+# Chỉ đụng dự án "[PERF] Dự án 2000 task" và tài khoản perf-*@example.com: không reset CSDL, không
+# đổi mật khẩu persona của db-seed (an toàn trên stack dùng chung).
+# ---------------------------------------------------------------------------
+
+# Tạo dự án perf (PERF_TASKS task, mặc định 2000) với 12 tài khoản giả. Chạy lại không nhân đôi.
+perf-seed: check-supabase
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/seed.ts
+
+# Xóa dự án perf và tài khoản perf (nhật ký activity_logs vẫn giữ, bảng chỉ thêm theo BR-09).
+perf-clean: check-supabase
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/seed.ts --clean
+
+# Đo P50/P95/P99 các API chính bằng phiên PM perf; thoát khác 0 khi P95 vượt ngưỡng
+# (scripts/perf/stats.ts; chỉnh bằng PERF_P95_MS, PERF_THRESHOLDS). Mặc định build rồi tự bật
+# `next start` ở PERF_PORT (3200); đặt PERF_BASE_URL để đo ứng dụng đang chạy sẵn (bỏ bước build).
+# RATE_LIMIT_SECRET ngẫu nhiên như test-e2e để bộ đếm giới hạn tần suất không cộng dồn giữa các lần.
+perf: check-pnpm check-supabase
+	@eval "$$(supabase status -o env 2>/dev/null)"; \
+	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
+		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
+		exit 1; fi; \
+	unset NODE_ENV; \
+	export NEXT_PUBLIC_SUPABASE_URL="$$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$$ANON_KEY"; \
+	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="perf-$$(date +%s)-$$$$"; \
+	if [ -z "$$PERF_BASE_URL" ]; then pnpm build || exit 1; fi; \
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/measure.ts
