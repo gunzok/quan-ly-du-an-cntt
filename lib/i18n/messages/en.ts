@@ -745,4 +745,86 @@ export const en: Messages = {
       nameExists: "You already have a view with this name in this project.",
     },
   },
+  dashboard: {
+    pageTitle: "Project overview",
+    backToProjects: "Project list",
+    eyebrow: (name: string, total: number) =>
+      `Project / ${name} · ${total} ${total === 1 ? "task" : "tasks"}`,
+    heading: "Overview",
+    navLabel: "Project views",
+    nav: {
+      board: "Board",
+      dashboard: "Overview",
+      settings: "Settings",
+    },
+    loading: "Loading project metrics",
+    loadError: "Could not load project metrics.",
+    retry: "Try again",
+    todayNote: (date: string) =>
+      `Overdue is counted up to the end of ${date} (Vietnam time); completed tasks are never overdue.`,
+    percent: (n: number) => `${n}%`,
+    kpisLabel: "Key metrics",
+    kpi: {
+      completion: "Completed",
+      completionNote: (done: string, total: string) =>
+        `${done} / ${total} tasks`,
+      completionAria: (n: number) => `${n}% completed`,
+      inProgress: "In progress",
+      inProgressNote: "tasks being worked on",
+      overdue: "Overdue",
+      overdueNote: "open and past due",
+      blocked: "Blocked",
+      blockedNote: "waiting on other tasks",
+    },
+    colCount: "Tasks",
+    colShare: "Share",
+    byGroup: {
+      title: "By status group",
+      summary: (parts: string) => `Distribution by status group: ${parts}`,
+      part: (name: string, count: string, pct: number) =>
+        `${name} ${count} (${pct}%)`,
+    },
+    byStatus: {
+      title: "By status",
+      total: (n: string) => `${n} tasks`,
+      colStatus: "Status",
+      colGroup: "Group",
+    },
+    byAssignee: {
+      title: "Work by assignee",
+      colPerson: "Assignee",
+      colOpen: "Open",
+      colOverdue: "Overdue",
+      colDone: "Done",
+      unassigned: "Unassigned",
+      formerMember: "Former member",
+      leftBadge: "Left project",
+      empty: "No tasks yet.",
+    },
+    byPriority: {
+      title: "By priority",
+      colPriority: "Priority",
+    },
+    byType: {
+      title: "By task type",
+      colType: "Type",
+      milestone: "Milestone",
+    },
+    overdueList: {
+      title: "Overdue tasks",
+      empty: "No overdue tasks.",
+      days: (n: number) => `${n} ${n === 1 ? "day" : "days"} overdue`,
+      due: (date: string) => `Due ${date}`,
+      more: (shown: number, total: number) =>
+        `Showing ${shown} of ${total} overdue tasks, earliest due first.`,
+    },
+    empty: {
+      title: "This project has no tasks yet",
+      bodyCanCreate:
+        "Progress metrics will appear here once the project has tasks. Create the first task on the project board.",
+      bodyReadOnly:
+        "Progress metrics will appear here once the PM or members create tasks.",
+      action: "Open the board to create a task",
+    },
+  },
 };
