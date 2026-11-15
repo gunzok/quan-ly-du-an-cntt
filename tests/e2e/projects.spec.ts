@@ -76,7 +76,7 @@ test.describe.serial("PM tạo, sửa, lưu trữ; Admin xóa vĩnh viễn", () 
 
   test("PM tạo, sửa và lưu trữ dự án (sáng)", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "light" });
-    await signInAs(page, "pm@example.com");
+    await signInAs(page, "member@example.com");
     await expect(card(page, SEED_A)).toBeVisible();
     await expect(
       card(page, SEED_A).getByRole("progressbar", {
@@ -237,7 +237,7 @@ test("Người xem: chỉ thấy dự án mình thuộc, không có nút tạo, 
 
 test("360 px: không tràn ngang, vùng bấm tối thiểu 44 px", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
-  await signInAs(page, "pm@example.com");
+  await signInAs(page, "member@example.com");
   await expect(card(page, SEED_A)).toBeVisible();
 
   const overflow = await page.evaluate(
