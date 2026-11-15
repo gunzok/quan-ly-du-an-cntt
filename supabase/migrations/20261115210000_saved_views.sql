@@ -45,10 +45,13 @@
 -- lib/tasks/search.ts): q 1..200 ký tự không ký tự điều khiển; status_id 1..20 uuid không trùng;
 -- assignee_id, label_id là uuid; priority trong enum; due_after ≤ due_before, ngày YYYY-MM-DD có
 -- thật. uuid lưu chữ thường (API chuẩn hóa).
+-- SECURITY DEFINER theo quy ước schema private (rls-profiles.test.sql kiểm); hàm thuần, không đọc
+-- bảng nào nên không mở thêm quyền.
 create or replace function private.saved_view_query_is_valid(p_query jsonb)
 returns boolean
 language plpgsql
 immutable
+security definer
 set search_path = ''
 as $$
 declare
@@ -244,9 +247,11 @@ create index saved_view_favorites_user_id_idx on public.saved_view_favorites (us
 -- ---------------------------------------------------------------------------
 -- 3. Trigger: project_id, owner_id, is_default không đổi (mọi đường ghi, kể cả service_role)
 -- ---------------------------------------------------------------------------
+-- SECURITY DEFINER theo quy ước schema private; chỉ so NEW với OLD, không đọc bảng.
 create or replace function private.guard_saved_view_identity()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 begin
