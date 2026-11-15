@@ -12,6 +12,7 @@ Liên quan: NFR-01, NFR-02, NFR-03, NFR-06, NFR-08, NFR-13. Các ngưỡng đán
 | E2E | Luồng chính trên trình duyệt (xem mục 4) | Playwright | Mọi PR (luồng chính), đêm (đầy đủ) |
 | Hiệu năng | 2.000 task: API P95 dưới 500 ms, xuất báo cáo dưới 30 giây | Script tải + dữ liệu seed | Trước mỗi lần phát hành |
 | Trợ năng | Axe tự động trên các màn chính, kiểm tra bàn phím | `@axe-core/playwright` | E2E |
+| Bộ component | Token, tương phản, focus, 360 px, hộp thoại và toast của `/dev/ui` (sáng/tối) | `pnpm test:ui-kit` (Playwright, `next dev`) | Cục bộ, không chạy trong CI |
 | UAT | Người dùng thật (PM, vài thành viên) | Kịch bản có sẵn | Trước release production |
 
 ## 2. Ngưỡng chất lượng (đề xuất)
