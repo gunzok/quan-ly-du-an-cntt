@@ -119,6 +119,8 @@ e2e-install: check-pnpm
 # SEED_PASSWORD (shell hoặc .env.local). Ghi đè thư mục .next của `make build`.
 # SUPABASE_SERVICE_ROLE_KEY (khóa của stack CỤC BỘ, chỉ phía máy chủ, không vào bundle) cho API
 # quản trị mà màn /admin/users gọi.
+# Đăng nhập có giới hạn tần suất (E0-5): mỗi lần chạy dùng RATE_LIMIT_SECRET ngẫu nhiên để bộ đếm
+# không cộng dồn giữa các lần chạy lại hay giữa các worktree dùng chung stack.
 test-e2e: check-pnpm check-supabase
 	@eval "$$(supabase status -o env 2>/dev/null)"; \
 	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
@@ -126,5 +128,5 @@ test-e2e: check-pnpm check-supabase
 		exit 1; fi; \
 	unset NODE_ENV; \
 	export NEXT_PUBLIC_SUPABASE_URL="$$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$$ANON_KEY" E2E_PORT="$(E2E_PORT)"; \
-	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY"; \
+	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="e2e-$$(date +%s)-$$$$"; \
 	pnpm build && pnpm exec playwright test
