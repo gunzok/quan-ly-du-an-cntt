@@ -12,8 +12,8 @@ import { TASK_PRIORITIES, type TaskPriority } from "./model";
  * thêm thư viện). Từ chối trường lạ (`unknown_field`), không tin kiểu dữ liệu từ trình duyệt.
  * Giới hạn độ dài khớp ràng buộc CHECK trong migration 20261114090000_tasks.sql.
  *
- * Chưa nhận: parent_id (E2-4), status_id, type_id (E2-3), label_ids (E2-3): gửi lên là
- * `unknown_field`.
+ * Chưa nhận: parent_id (E2-4): gửi lên là `unknown_field`. status_id, type_id, label_ids (E2-3):
+ * phải thuộc chính dự án của task; CSDL kiểm (trigger, khóa ngoại kép), API trả 422.
  */
 
 export const TITLE_MAX_LENGTH = 500;
@@ -24,6 +24,8 @@ export const POSITION_MAX_ABS = 1e12;
 export const TASK_BODY_MAX_BYTES = 48 * 1024;
 export const LIST_LIMIT_DEFAULT = 50;
 export const LIST_LIMIT_MAX = 100;
+/** Số nhãn tối đa trên một task (khớp public.set_task_labels). */
+export const TASK_LABELS_MAX = 20;
 const CURSOR_MAX_LENGTH = 256;
 
 // Ký tự điều khiển: không hợp lệ trong tên; trong mô tả chỉ cho tab và xuống dòng.
@@ -129,6 +131,36 @@ function readDate(field: string): Reader<string | null> {
   };
 }
 
+function readUuid(field: string): Reader<string> {
+  return (value, details) => {
+    if (isUuid(value)) return value.toLowerCase();
+    details.push({
+      field,
+      issue: value === null ? "invalid_value" : "invalid_format",
+    });
+    return undefined;
+  };
+}
+
+/** Mảng uuid nhãn, bỏ trùng; rỗng = không nhãn nào. */
+const readLabelIds: Reader<string[]> = (value, details) => {
+  if (
+    !Array.isArray(value) ||
+    value.length > TASK_LABELS_MAX ||
+    !value.every(isUuid)
+  ) {
+    details.push({
+      field: "label_ids",
+      issue:
+        Array.isArray(value) && value.every(isUuid)
+          ? "too_long"
+          : "invalid_value",
+    });
+    return undefined;
+  }
+  return [...new Set(value.map((v) => v.toLowerCase()))].sort();
+};
+
 const readPosition: Reader<number> = (value, details) => {
   if (
     typeof value === "number" &&
@@ -152,6 +184,11 @@ export interface TaskCreateInput {
   start_date: string | null;
   due_date: string | null;
   position?: number;
+  /** Không gửi: trạng thái todo đầu tiên của dự án (trigger). */
+  status_id?: string;
+  /** Không gửi: loại đầu tiên của dự án ("Task"). */
+  type_id?: string;
+  label_ids?: string[];
 }
 
 const CREATE_FIELDS = [
@@ -162,6 +199,9 @@ const CREATE_FIELDS = [
   "start_date",
   "due_date",
   "position",
+  "status_id",
+  "type_id",
+  "label_ids",
 ] as const;
 
 export function validateTaskCreate(body: unknown): Validation<TaskCreateInput> {
@@ -196,6 +236,16 @@ export function validateTaskCreate(body: unknown): Validation<TaskCreateInput> {
   if (body.position !== undefined) {
     input.position = readPosition(body.position, details);
   }
+  for (const field of ["status_id", "type_id"] as const) {
+    if (body[field] !== undefined) {
+      const id = readUuid(field)(body[field], details);
+      if (id !== undefined) input[field] = id;
+    }
+  }
+  if (body.label_ids !== undefined) {
+    const ids = readLabelIds(body.label_ids, details);
+    if (ids !== undefined) input.label_ids = ids;
+  }
   return details.length > 0
     ? { ok: false, details }
     : { ok: true, data: input };
@@ -213,6 +263,10 @@ export interface TaskPatch {
   start_date?: string | null;
   due_date?: string | null;
   position?: number;
+  status_id?: string;
+  type_id?: string;
+  /** Thay toàn bộ nhãn của task. */
+  label_ids?: string[];
 }
 
 const PATCH_FIELDS = CREATE_FIELDS;
@@ -244,6 +298,12 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
   if ("due_date" in body)
     set("due_date", readDate("due_date")(body.due_date, details));
   if ("position" in body) set("position", readPosition(body.position, details));
+  if ("status_id" in body)
+    set("status_id", readUuid("status_id")(body.status_id, details));
+  if ("type_id" in body)
+    set("type_id", readUuid("type_id")(body.type_id, details));
+  if ("label_ids" in body)
+    set("label_ids", readLabelIds(body.label_ids, details));
 
   if (details.length === 0 && Object.keys(patch).length === 0) {
     details.push({ field: "body", issue: "required" });
@@ -255,8 +315,8 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/projects/{id}/tasks?limit=&cursor=&assignee_id=&status_id=&priority=
-// Sắp xếp mặc định: mới tạo trước (created_at giảm dần, id giảm dần). Tìm kiếm văn bản và bộ lọc
-// đầy đủ (label_id, due_before, q, sort) là Story E3-3.
+// &label_id= (E2-3). Sắp xếp mặc định: mới tạo trước (created_at giảm dần, id giảm dần). Tìm kiếm
+// văn bản và bộ lọc đầy đủ (due_before, q, sort) là Story E3-3.
 // ---------------------------------------------------------------------------
 export interface TaskCursor {
   created_at: string;
@@ -298,6 +358,7 @@ export interface TaskListQuery {
   assignee_id: string | null;
   status_id: string | null;
   priority: TaskPriority | null;
+  label_id: string | null;
 }
 
 const LIST_PARAMS = [
@@ -306,6 +367,7 @@ const LIST_PARAMS = [
   "assignee_id",
   "status_id",
   "priority",
+  "label_id",
 ] as const;
 
 export function validateTaskListQuery(
@@ -323,6 +385,7 @@ export function validateTaskListQuery(
     assignee_id: null,
     status_id: null,
     priority: null,
+    label_id: null,
   };
 
   const rawLimit = params.get("limit");
@@ -342,7 +405,7 @@ export function validateTaskListQuery(
       details.push({ field: "cursor", issue: "invalid_format" });
   }
 
-  for (const field of ["assignee_id", "status_id"] as const) {
+  for (const field of ["assignee_id", "status_id", "label_id"] as const) {
     const raw = params.get(field);
     if (raw === null) continue;
     if (isUuid(raw)) {

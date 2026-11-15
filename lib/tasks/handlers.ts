@@ -4,7 +4,14 @@ import type { ApiError } from "@/lib/api/errors";
 import { isSameOrigin, isUuid, readJsonBody } from "@/lib/api/request";
 import { apiError, errorResponse, jsonResponse } from "@/lib/api/respond";
 import { strings } from "@/lib/strings";
-import { TASK_COLUMNS, type Task, type TaskListResponse } from "./model";
+import { labelNotInProject } from "@/lib/project-config/policy";
+import {
+  TASK_SELECT,
+  toTask,
+  type Task,
+  type TaskListResponse,
+  type TaskRow,
+} from "./model";
 import {
   canCreateTask,
   canDeleteTask,
@@ -116,11 +123,27 @@ async function loadTask(
 ): Promise<Task | null> {
   const { data, error } = await session
     .from("tasks")
-    .select(TASK_COLUMNS)
+    .select(TASK_SELECT)
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return (data as Task | null) ?? null;
+  return data ? toTask(data as unknown as TaskRow) : null;
+}
+
+/** Mọi nhãn trong label_ids thuộc dự án (đọc qua RLS). Kiểm trước để không ghi dở dang. */
+async function labelsBelongTo(
+  session: SupabaseClient,
+  projectId: string,
+  labelIds: readonly string[],
+): Promise<boolean> {
+  if (labelIds.length === 0) return true;
+  const { data, error } = await session
+    .from("labels")
+    .select("id")
+    .eq("project_id", projectId)
+    .in("id", [...labelIds]);
+  if (error) throw error;
+  return (data ?? []).length === labelIds.length;
 }
 
 /** Bước 1-3 chung cho /tasks/{id}: Origin (nếu ghi), phiên, task thấy được, quyền trong dự án. */
@@ -174,12 +197,20 @@ export async function handleListTasks(
         ctx,
       );
     }
-    const { limit, cursor, assignee_id, status_id, priority } = parsed.data;
+    const { limit, cursor, assignee_id, status_id, priority, label_id } =
+      parsed.data;
 
+    // Lọc theo nhãn: nhúng task_labels lần hai với bí danh và !inner (chỉ task có nhãn đó), để
+    // phần task_labels trả về vẫn đủ mọi nhãn của task.
     let query = deps.session
       .from("tasks")
-      .select(TASK_COLUMNS)
+      .select(
+        label_id
+          ? `${TASK_SELECT}, filter_labels:task_labels!inner(label_id)`
+          : TASK_SELECT,
+      )
       .eq("project_id", projectId);
+    if (label_id) query = query.eq("filter_labels.label_id", label_id);
     if (assignee_id) query = query.eq("assignee_id", assignee_id);
     if (status_id) query = query.eq("status_id", status_id);
     if (priority) query = query.eq("priority", priority);
@@ -195,7 +226,7 @@ export async function handleListTasks(
       .limit(limit + 1);
     if (error) throw error;
 
-    const rows = (data ?? []) as Task[];
+    const rows = ((data ?? []) as unknown as TaskRow[]).map(toTask);
     const page = rows.slice(0, limit);
     const last = page[page.length - 1];
     const body: TaskListResponse = {
@@ -244,22 +275,44 @@ export async function handleCreateTask(
         ctx,
       );
     }
-    const input = parsed.data;
+    const { label_ids: labelIds, ...input } = parsed.data;
     if (!isDateOrderValid(input.start_date, input.due_date)) {
       return fail(dateOrderError(), ctx);
     }
+    if (
+      labelIds &&
+      !(await labelsBelongTo(deps.session, projectId, labelIds))
+    ) {
+      return fail(labelNotInProject(), ctx);
+    }
 
     // created_by không gửi: cột lấy mặc định auth.uid() và trình duyệt không có quyền cột này.
+    // status_id, type_id không gửi: trigger apply_task_config lấy mặc định của dự án.
     const { data, error } = await deps.session
       .from("tasks")
       .insert({ ...input, project_id: projectId })
-      .select(TASK_COLUMNS)
+      .select(TASK_SELECT)
       .single();
     if (error) {
       const mapped = mapTaskWriteError(error);
       return mapped ? fail(mapped, ctx) : internal(ctx, "create", error);
     }
-    const task = data as Task;
+    let task = toTask(data as unknown as TaskRow);
+    if (labelIds && labelIds.length > 0) {
+      const { error: labelError } = await deps.session.rpc("set_task_labels", {
+        p_task_id: task.id,
+        p_label_ids: labelIds,
+      });
+      if (labelError) {
+        // Không để lại task thiếu nhãn: người tạo luôn xóa được task mình vừa tạo.
+        await deps.session.from("tasks").delete().eq("id", task.id);
+        const mapped = mapTaskWriteError(labelError);
+        return mapped
+          ? fail(mapped, ctx)
+          : internal(ctx, "create labels", labelError);
+      }
+      task = (await loadTask(deps.session, task.id)) ?? task;
+    }
     return jsonResponse({ data: task }, 201, {
       location: `/api/v1/tasks/${task.id}`,
     });
@@ -315,7 +368,7 @@ export async function handlePatchTask(
         ctx,
       );
     }
-    const patch = parsed.data;
+    const { label_ids: labelIds, ...patch } = parsed.data;
 
     // Sau khi sửa người gọi vẫn phải còn quyền (RLS WITH CHECK): Thành viên chỉ phụ trách, không
     // tạo task, thì không giao task đi cho người khác.
@@ -338,19 +391,44 @@ export async function handlePatchTask(
       return fail(dateOrderError(), ctx);
     }
 
-    const { data, error } = await deps.session
-      .from("tasks")
-      .update(patch)
-      .eq("id", task.id)
-      .select(TASK_COLUMNS)
-      .maybeSingle();
-    if (error) {
-      const mapped = mapTaskWriteError(error);
-      return mapped ? fail(mapped, ctx) : internal(ctx, "update", error);
+    if (
+      labelIds &&
+      !(await labelsBelongTo(deps.session, task.project_id, labelIds))
+    ) {
+      return fail(labelNotInProject(), ctx);
     }
-    // Không dòng nào: task vừa bị xóa hoặc quyền vừa đổi giữa lúc đọc và ghi.
-    if (!data) return fail(apiError("not_found"), ctx);
-    return jsonResponse({ data: data as Task });
+
+    // Nhãn ghi bằng lệnh riêng (public.set_task_labels) sau khi sửa task; đã kiểm nhãn thuộc dự
+    // án ở trên nên hiếm khi lệnh sau lỗi. Hai bước không cùng giao dịch (xem mô tả PR).
+    if (Object.keys(patch).length > 0) {
+      const { data, error } = await deps.session
+        .from("tasks")
+        .update(patch)
+        .eq("id", task.id)
+        .select("id")
+        .maybeSingle();
+      if (error) {
+        const mapped = mapTaskWriteError(error);
+        return mapped ? fail(mapped, ctx) : internal(ctx, "update", error);
+      }
+      // Không dòng nào: task vừa bị xóa hoặc quyền vừa đổi giữa lúc đọc và ghi.
+      if (!data) return fail(apiError("not_found"), ctx);
+    }
+    if (labelIds) {
+      const { error } = await deps.session.rpc("set_task_labels", {
+        p_task_id: task.id,
+        p_label_ids: labelIds,
+      });
+      if (error) {
+        const mapped = mapTaskWriteError(error);
+        return mapped
+          ? fail(mapped, ctx)
+          : internal(ctx, "update labels", error);
+      }
+    }
+    const updated = await loadTask(deps.session, task.id);
+    if (!updated) return fail(apiError("not_found"), ctx);
+    return jsonResponse({ data: updated });
   } catch (error) {
     return internal(ctx, "update", error);
   }

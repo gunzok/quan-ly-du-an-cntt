@@ -229,9 +229,13 @@ describe.skipIf(!enabled)("API task (Supabase cục bộ)", () => {
       priority: "medium",
       depth: 1,
       parent_id: null,
-      status_id: null,
       assignee_id: null,
+      label_ids: [],
+      completed_at: null,
     });
+    // E2-3: không gửi status_id, type_id thì lấy mặc định của dự án ("Mới", "Task").
+    expect(typeof data.status_id).toBe("string");
+    expect(typeof data.type_id).toBe("string");
 
     const listed = await json<TaskListResponse>(await list("member", projectA));
     expect(listed.data.map((t) => t.id)).toContain(data.id);
