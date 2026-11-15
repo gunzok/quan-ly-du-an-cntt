@@ -16,10 +16,9 @@ import {
   type TaskStatus,
   type TaskType,
 } from "@/lib/project-config/model";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
 import { ConfigFormDialog, DeleteConfigDialog } from "./config-dialogs";
-
-const t = strings.projectConfig;
 
 type AnyItem = ConfigItemByKind[ConfigKind];
 
@@ -37,6 +36,8 @@ export function ConfigPanel({
   projectId: string;
   canEdit: boolean;
 }) {
+  const strings = useStrings();
+  const t = strings.projectConfig;
   const { toast } = useToast();
   const [reloadKey, setReloadKey] = useState(0);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -115,7 +116,7 @@ export function ConfigPanel({
     if (!result.ok) {
       toast({
         title: t.errors.actionFailed,
-        description: result.error.message,
+        description: apiErrorText(strings, result.error),
         tone: "error",
       });
       return;
@@ -177,7 +178,7 @@ export function ConfigPanel({
       {loaded?.status === "error" && !loading ? (
         <div role="alert" className="flex flex-wrap items-center gap-3">
           <p className="text-sm text-danger">
-            {t.loadError} {loaded.error.message}
+            {t.loadError} {apiErrorText(strings, loaded.error)}
           </p>
           <Button variant="secondary" onClick={reload}>
             {t.retry}

@@ -4,7 +4,8 @@ import { useActionState } from "react";
 import type { FieldIssue } from "@/lib/api/errors";
 import { signIn, type SignInState } from "@/lib/auth/actions";
 import { EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH } from "@/lib/auth/validate";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
 import styles from "./login.module.css";
 
 const initialState: SignInState = {};
@@ -14,6 +15,7 @@ function fieldIssue(state: SignInState, field: string): FieldIssue | undefined {
 }
 
 export function LoginForm() {
+  const strings = useStrings();
   const [state, formAction, pending] = useActionState(signIn, initialState);
   const emailIssue = fieldIssue(state, "email");
   const passwordIssue = fieldIssue(state, "password");
@@ -68,7 +70,7 @@ export function LoginForm() {
       </div>
 
       <div role="alert" className={styles.formError}>
-        {state.error?.message}
+        {state.error ? apiErrorText(strings, state.error) : null}
       </div>
 
       <button

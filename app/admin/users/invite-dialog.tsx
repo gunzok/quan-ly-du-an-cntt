@@ -6,12 +6,11 @@ import { inviteUser } from "@/lib/admin/users/client-api";
 import type { AdminUser } from "@/lib/admin/users/model";
 import { FULL_NAME_MAX_LENGTH } from "@/lib/admin/users/validate";
 import { EMAIL_MAX_LENGTH } from "@/lib/auth/validate";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
 import styles from "./admin-users.module.css";
 import { useModal } from "./use-modal";
 import type { Department } from "@/lib/departments/model";
-
-const t = strings.adminUsers.invite;
 
 function issueOf(
   error: ApiError | null,
@@ -31,6 +30,8 @@ export function InviteDialog({
   onClose: () => void;
   onInvited: (user: AdminUser) => void;
 }) {
+  const strings = useStrings();
+  const t = strings.adminUsers.invite;
   const ref = useModal(open);
   const ids = {
     title: useId(),
@@ -78,7 +79,7 @@ export function InviteDialog({
   // Email đã tồn tại: hiện thông điệp cụ thể dưới ô email thay vì thông điệp chung theo loại lỗi.
   const emailMessage =
     error?.code === "conflict"
-      ? error.message
+      ? apiErrorText(strings, error)
       : emailIssue && strings.errors.field[emailIssue];
 
   return (
@@ -170,14 +171,14 @@ export function InviteDialog({
           </select>
           {deptIssue && (
             <p id={`${ids.dept}-error`} className={styles.errorText}>
-              {error?.message}
+              {error ? apiErrorText(strings, error) : null}
             </p>
           )}
         </div>
 
         <div role="alert" className={styles.errorText}>
           {error && !error.details?.length && error.code !== "conflict"
-            ? error.message
+            ? apiErrorText(strings, error)
             : null}
         </div>
 

@@ -2,10 +2,11 @@
 
 import { useFormStatus } from "react-dom";
 import { signInWithGoogle } from "@/lib/auth/actions";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import styles from "./login.module.css";
 
 function GoogleButton() {
+  const strings = useStrings();
   const { pending } = useFormStatus();
   return (
     <button
@@ -37,6 +38,7 @@ function GoogleButton() {
  * (PKCE, code verifier trong cookie httpOnly) rồi chuyển trình duyệt sang Google.
  */
 export function GoogleSignIn() {
+  const strings = useStrings();
   return (
     <form action={signInWithGoogle} className={styles.googleGroup}>
       <GoogleButton />

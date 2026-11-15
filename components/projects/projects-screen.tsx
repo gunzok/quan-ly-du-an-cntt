@@ -18,11 +18,11 @@ import type {
   ProjectCounts,
   ProjectStatus,
 } from "@/lib/projects/model";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
 import { ProjectCard, type ProjectAction } from "./project-card";
 import { ProjectFormDialog } from "./project-form-dialog";
 
-const t = strings.projects;
 const SEARCH_DEBOUNCE_MS = 300;
 const Q_MAX_LENGTH = 200;
 
@@ -60,6 +60,8 @@ export function ProjectsScreen(props: ProjectsScreenProps) {
 }
 
 function Screen({ isAdmin, canCreate }: ProjectsScreenProps) {
+  const strings = useStrings();
+  const t = strings.projects;
   const { toast } = useToast();
   const [tab, setTab] = useState<ProjectStatus>("active");
   const [search, setSearch] = useState("");
@@ -153,7 +155,7 @@ function Screen({ isAdmin, canCreate }: ProjectsScreenProps) {
       );
       setCounts(result.data.counts);
     } else {
-      toast({ title: result.error.message, tone: "error" });
+      toast({ title: apiErrorText(strings, result.error), tone: "error" });
     }
   }
 
@@ -189,7 +191,7 @@ function Screen({ isAdmin, canCreate }: ProjectsScreenProps) {
     if (!result.ok) {
       toast({
         title: t.errors.actionFailed,
-        description: result.error.message,
+        description: apiErrorText(strings, result.error),
         tone: "error",
       });
       return;
@@ -309,6 +311,8 @@ function ListBody({
   onEdit: (project: Project) => void;
   onAction: (project: Project, action: ProjectAction) => Promise<void>;
 }) {
+  const strings = useStrings();
+  const t = strings.projects;
   if (list.status === "loading" && list.items.length === 0) {
     return (
       <SkeletonGroup
@@ -339,7 +343,7 @@ function ListBody({
         className="flex flex-col items-start gap-3 rounded-lg border border-solid border-border p-6"
       >
         <p className="font-medium text-danger">{t.loadError}</p>
-        <p className="text-text-muted">{list.error.message}</p>
+        <p className="text-text-muted">{apiErrorText(strings, list.error)}</p>
         <Button variant="secondary" onClick={onRetry}>
           {t.retry}
         </Button>

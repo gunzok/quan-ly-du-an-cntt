@@ -23,18 +23,19 @@ import {
   DESCRIPTION_MAX_LENGTH,
   NAME_MAX_LENGTH,
 } from "@/lib/projects/constants";
-import { strings } from "@/lib/strings";
-
-const t = strings.projects;
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
+import type { Messages } from "@/lib/i18n/messages";
 
 type FieldName = "name" | "description" | "start_date" | "end_date";
 type Errors = Partial<Record<FieldName, string>>;
 
 /** Lỗi từng ô từ phản hồi API (details) hoặc kiểm tra phía trình duyệt. */
-function errorsFromApi(error: ApiError): Errors {
+function errorsFromApi(strings: Messages, error: ApiError): Errors {
+  const t = strings.projects;
   const out: Errors = {};
   if (error.code === "business_rule_violated") {
-    out.end_date = error.message;
+    out.end_date = apiErrorText(strings, error);
     return out;
   }
   for (const d of error.details ?? []) {
@@ -51,7 +52,8 @@ function errorsFromApi(error: ApiError): Errors {
   return out;
 }
 
-function validate(input: ProjectInput): Errors {
+function validate(strings: Messages, input: ProjectInput): Errors {
+  const t = strings.projects;
   const errors: Errors = {};
   if (!input.name) errors.name = t.form.nameRequired;
   else if (input.name.length > NAME_MAX_LENGTH)
@@ -101,6 +103,8 @@ function FormBody({
   project: Project | null;
   onSaved: (project: Project, mode: "created" | "updated") => void;
 }) {
+  const strings = useStrings();
+  const t = strings.projects;
   const editing = project !== null;
   const [name, setName] = useState(project?.name ?? "");
   const [description, setDescription] = useState(project?.description ?? "");
@@ -119,7 +123,7 @@ function FormBody({
       start_date: startDate || null,
       end_date: endDate || null,
     };
-    const local = validate(input);
+    const local = validate(strings, input);
     setErrors(local);
     setFormError(null);
     if (Object.keys(local).length > 0) return;
@@ -133,10 +137,10 @@ function FormBody({
       onSaved(result.data.data, editing ? "updated" : "created");
       return;
     }
-    const fieldErrors = errorsFromApi(result.error);
+    const fieldErrors = errorsFromApi(strings, result.error);
     setErrors(fieldErrors);
     if (Object.keys(fieldErrors).length === 0)
-      setFormError(result.error.message);
+      setFormError(apiErrorText(strings, result.error));
   }
 
   return (

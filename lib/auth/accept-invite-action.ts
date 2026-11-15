@@ -7,7 +7,6 @@ import {
   consumeRateLimits,
   logRateLimitUnavailable,
 } from "@/lib/api/rate-limit";
-import { strings } from "@/lib/strings";
 import { createClient } from "@/lib/supabase/server";
 import {
   acceptInvite,
@@ -16,15 +15,19 @@ import {
 } from "./accept-invite";
 import { HOME_PATH } from "./routes";
 
+export type AcceptInviteFormError =
+  "rateLimited" | "unavailable" | "passwordNotSet";
+
 export interface AcceptInviteState {
   /** Link không dùng được (giả, hết hạn, đã dùng): trang chuyển sang hướng dẫn xin gửi lại. */
   linkInvalid?: boolean;
   fieldErrors?: AcceptInviteFieldErrors;
-  /** Lỗi chung của form (giới hạn tần suất, lỗi máy chủ). Văn bản luôn lấy từ lib/strings.ts. */
-  formError?: string;
+  /**
+   * Lỗi chung của form (giới hạn tần suất, lỗi máy chủ): khóa trong `acceptInvite.errors` của từ
+   * điển; form hiển thị theo ngôn ngữ của người dùng (Story E10-2).
+   */
+  formError?: AcceptInviteFormError;
 }
-
-const t = strings.acceptInvite;
 
 /**
  * Server Action đặt mật khẩu cho người được mời (Story E1-7). Next.js tự kiểm Origin của Server
@@ -51,10 +54,10 @@ export async function submitAcceptInvite(
   ]);
   if (!gate.ok) {
     if (gate.reason === "limited") {
-      return { formError: t.errors.rateLimited };
+      return { formError: "rateLimited" };
     }
     logRateLimitUnavailable("accept_invite", gate.detail);
-    return { formError: t.errors.unavailable };
+    return { formError: "unavailable" };
   }
 
   const supabase = await createClient();
@@ -64,7 +67,7 @@ export async function submitAcceptInvite(
       case "link_invalid":
         return { linkInvalid: true };
       case "rate_limited":
-        return { formError: t.errors.rateLimited };
+        return { formError: "rateLimited" };
       case "password_not_set":
         console.error(
           JSON.stringify({
@@ -72,9 +75,9 @@ export async function submitAcceptInvite(
             event: "accept_invite_password_not_set",
           }),
         );
-        return { formError: t.errors.passwordNotSet };
+        return { formError: "passwordNotSet" };
       default:
-        return { formError: t.errors.unavailable };
+        return { formError: "unavailable" };
     }
   }
   redirect(HOME_PATH);

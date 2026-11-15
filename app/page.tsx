@@ -6,19 +6,21 @@ import { AppShell } from "@/components/projects/app-shell";
 import { ProjectsScreen } from "@/components/projects/projects-screen";
 import { LOGIN_PATH } from "@/lib/auth/routes";
 import { canCreateProject } from "@/lib/projects/policy";
-import { strings } from "@/lib/strings";
+import { getStrings } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = {
-  title: `${strings.projects.pageTitle} · ${strings.app.name}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const strings = await getStrings();
+  return { title: `${strings.projects.pageTitle} · ${strings.app.name}` };
+}
 
 /**
  * Trang chủ = S02 Danh sách dự án (Story E2-1, mockup v3 bp-Projects.dc.html). Máy chủ chỉ kiểm
  * phiên và quyền tạo dự án để ẩn/hiện nút; danh sách lấy qua /api/v1/projects ở trình duyệt, API
  * kiểm quyền lần nữa ở từng request.
  */
-export default function Home() {
+export default async function Home() {
+  const strings = await getStrings();
   return (
     <Suspense
       fallback={
@@ -35,6 +37,7 @@ export default function Home() {
 async function ProjectsGate() {
   // Phần này luôn chạy theo request (supabase-js đọc giờ hiện tại để kiểm hạn phiên).
   await connection();
+  const strings = await getStrings();
   const supabase = await createClient();
   // getUser hỏi Supabase Auth: phiên đã thu hồi thì không còn hợp lệ (proxy chỉ kiểm tra lạc quan).
   const { data } = await supabase.auth.getUser();

@@ -19,11 +19,9 @@ import {
   type ProjectMember,
   type ProjectRole,
 } from "@/lib/project-members/model";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
 import { AddMemberDialog, ChangeRoleDialog } from "./member-dialogs";
-
-const t = strings.projectMembers;
-const roles = strings.projects.roles;
 
 type Loaded =
   | { key: number; status: "ready"; members: ProjectMember[] }
@@ -49,6 +47,9 @@ export function MembersPanel({
   currentUserId: string;
   canEdit: boolean;
 }) {
+  const strings = useStrings();
+  const t = strings.projectMembers;
+  const roles = strings.projects.roles;
   const router = useRouter();
   const { toast } = useToast();
   const [reloadKey, setReloadKey] = useState(0);
@@ -109,7 +110,7 @@ export function MembersPanel({
     if (!result.ok) {
       toast({
         title: t.errors.actionFailed,
-        description: result.error.message,
+        description: apiErrorText(strings, result.error),
         tone: "error",
       });
       return;
@@ -145,7 +146,7 @@ export function MembersPanel({
       {loaded?.status === "error" && !loading ? (
         <div role="alert" className="flex flex-wrap items-center gap-3">
           <p className="text-sm text-danger">
-            {t.loadError} {loaded.error.message}
+            {t.loadError} {apiErrorText(strings, loaded.error)}
           </p>
           <Button variant="secondary" onClick={reload}>
             {t.retry}

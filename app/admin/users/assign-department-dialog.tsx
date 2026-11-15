@@ -6,11 +6,10 @@ import { patchUser } from "@/lib/admin/users/client-api";
 import { displayName } from "@/lib/admin/users/format";
 import type { AdminUser } from "@/lib/admin/users/model";
 import type { Department } from "@/lib/departments/model";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
 import styles from "./admin-users.module.css";
 import { useModal } from "./use-modal";
-
-const t = strings.adminUsers.assign;
 
 /**
  * Hộp thoại đổi phòng ban của một người (S08). Danh sách chọn gồm phòng ban đang dùng và phòng ban
@@ -27,6 +26,8 @@ export function AssignDepartmentDialog({
   onClose: () => void;
   onAssigned: (user: AdminUser) => void;
 }) {
+  const strings = useStrings();
+  const t = strings.adminUsers.assign;
   const ref = useModal(user !== null);
   const ids = { title: useId(), desc: useId(), select: useId() };
   const [error, setError] = useState<ApiError | null>(null);
@@ -80,7 +81,7 @@ export function AssignDepartmentDialog({
           noValidate
         >
           <h2 id={ids.title} className={styles.dialogTitle}>
-            {t.title(displayName(user))}
+            {t.title(displayName(user, strings.adminUsers))}
           </h2>
           <p id={ids.desc} className={styles.muted}>
             {t.description}
@@ -107,7 +108,7 @@ export function AssignDepartmentDialog({
             </select>
           </div>
           <div role="alert" className={styles.errorText}>
-            {error?.message}
+            {error ? apiErrorText(strings, error) : null}
           </div>
           <div className={styles.dialogActions}>
             <button

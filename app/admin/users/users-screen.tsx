@@ -15,14 +15,15 @@ import {
   SEARCH_MAX_LENGTH,
 } from "@/lib/admin/users/validate";
 import { compareDepartments, type Department } from "@/lib/departments/model";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useI18n, useStrings } from "@/lib/i18n/client";
+import type { Messages } from "@/lib/i18n/messages";
 import styles from "./admin-users.module.css";
 import { AssignDepartmentDialog } from "./assign-department-dialog";
 import { ConfirmDialog } from "./confirm-dialog";
 import { DepartmentsDialog } from "./departments-dialog";
 import { InviteDialog } from "./invite-dialog";
 
-const t = strings.adminUsers;
 const SEARCH_DEBOUNCE_MS = 300;
 
 type ListState =
@@ -47,14 +48,21 @@ const ACTION_PATCH: Record<
   revoke: { is_admin: false },
 };
 
-const ACTION_DONE: Record<RowAction, (name: string) => string> = {
-  lock: t.done.locked,
-  unlock: t.done.unlocked,
-  grant: t.done.granted,
-  revoke: t.done.revoked,
-};
+function actionDone(t: Messages["adminUsers"], action: RowAction) {
+  const done: Record<RowAction, (name: string) => string> = {
+    lock: t.done.locked,
+    unlock: t.done.unlocked,
+    grant: t.done.granted,
+    revoke: t.done.revoked,
+  };
+  return done[action];
+}
 
-function confirmText(action: RowAction, name: string) {
+function confirmText(
+  t: Messages["adminUsers"],
+  action: RowAction,
+  name: string,
+) {
   switch (action) {
     case "lock":
       return {
@@ -101,6 +109,8 @@ export function UsersScreen({
   currentUserId: string;
   initialDepartments: Department[];
 }) {
+  const strings = useStrings();
+  const t = strings.adminUsers;
   const [query, setQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [departments, setDepartments] = useState<Department[]>(() =>
@@ -182,7 +192,7 @@ export function UsersScreen({
     });
     setLoadingMore(false);
     if (!result.ok) {
-      setLoadMoreError(result.error.message);
+      setLoadMoreError(apiErrorText(strings, result.error));
       return;
     }
     setList((prev) => {
@@ -240,7 +250,7 @@ export function UsersScreen({
     replaceUser(user);
     setAnnouncement(
       t.done.departmentChanged(
-        displayName(user),
+        displayName(user, t),
         user.department?.name ?? t.noDepartment,
       ),
     );
@@ -268,11 +278,13 @@ export function UsersScreen({
     );
     setWorking(false);
     if (!result.ok) {
-      setPendingError(result.error.message);
+      setPendingError(apiErrorText(strings, result.error));
       return;
     }
     replaceUser(result.data.data);
-    setAnnouncement(ACTION_DONE[pending.action](displayName(result.data.data)));
+    setAnnouncement(
+      actionDone(t, pending.action)(displayName(result.data.data, t)),
+    );
     setPending(null);
   }
 
@@ -294,7 +306,7 @@ export function UsersScreen({
 
   const count = list.status === "ready" ? list.items.length : 0;
   const confirm = pending
-    ? confirmText(pending.action, displayName(pending.user))
+    ? confirmText(t, pending.action, displayName(pending.user, t))
     : null;
 
   return (
@@ -483,11 +495,13 @@ function UsersTable({
   onChangeDepartment: (user: AdminUser) => void;
   onRetry: () => void;
 }) {
+  const strings = useStrings();
+  const t = strings.adminUsers;
   if (list.status === "error") {
     return (
       <div role="alert" className={styles.stateBox}>
         <p className={styles.stateTitle}>{t.loadError}</p>
-        <p className={styles.muted}>{list.error.message}</p>
+        <p className={styles.muted}>{apiErrorText(strings, list.error)}</p>
         <button
           type="button"
           className={styles.secondaryButton}
@@ -575,7 +589,9 @@ function UserRow({
   onAction: (user: AdminUser, action: RowAction) => void;
   onChangeDepartment: (user: AdminUser) => void;
 }) {
-  const name = displayName(user);
+  const { t: strings, locale } = useI18n();
+  const t = strings.adminUsers;
+  const name = displayName(user, t);
   const hintId = `self-hint-${user.id}`;
   return (
     <tr>
@@ -615,14 +631,16 @@ function UserRow({
           {user.is_admin ? t.adminYes : t.adminNo}
         </span>
       </td>
-      <td className={styles.muted}>{projectSummary(user)}</td>
+      <td className={styles.muted}>{projectSummary(user, t)}</td>
       <td>
         <span className={`${styles.status} ${styles[`status_${user.status}`]}`}>
           <span className={styles.statusDot} aria-hidden="true" />
           {t.status[user.status]}
         </span>
       </td>
-      <td className={styles.mono}>{formatLastSignIn(user.last_sign_in_at)}</td>
+      <td className={styles.mono}>
+        {formatLastSignIn(user.last_sign_in_at, { t, locale })}
+      </td>
       <td className={styles.actionsCell}>
         <div
           role="group"

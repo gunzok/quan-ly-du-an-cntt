@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import styles from "./admin-users.module.css";
 import { useModal } from "./use-modal";
 
@@ -26,6 +26,7 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const strings = useStrings();
   const ref = useModal(open);
   const titleId = useId();
   const bodyId = useId();

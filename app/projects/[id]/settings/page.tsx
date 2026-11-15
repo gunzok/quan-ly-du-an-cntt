@@ -8,12 +8,13 @@ import { isUuid } from "@/lib/api/request";
 import { LOGIN_PATH } from "@/lib/auth/routes";
 import { canManageConfig } from "@/lib/project-config/policy";
 import type { ProjectRole } from "@/lib/projects/model";
-import { strings } from "@/lib/strings";
+import { getStrings } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = {
-  title: `${strings.projectConfig.pageTitle} · ${strings.app.name}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const strings = await getStrings();
+  return { title: `${strings.projectConfig.pageTitle} · ${strings.app.name}` };
+}
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -22,7 +23,8 @@ type Params = { params: Promise<{ id: string }> };
  * Máy chủ chỉ kiểm phiên, dự án thấy được (RLS) và quyền sửa để chọn chế độ chỉ đọc; dữ liệu lấy
  * qua /api/v1 ở trình duyệt, API kiểm quyền lần nữa ở từng request.
  */
-export default function ProjectSettingsPage({ params }: Params) {
+export default async function ProjectSettingsPage({ params }: Params) {
+  const strings = await getStrings();
   return (
     <Suspense
       fallback={
@@ -38,6 +40,7 @@ export default function ProjectSettingsPage({ params }: Params) {
 
 async function SettingsGate({ params }: Params) {
   await connection();
+  const strings = await getStrings();
   const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();

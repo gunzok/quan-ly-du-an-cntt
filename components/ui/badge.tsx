@@ -1,6 +1,9 @@
+"use client";
+
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { strings } from "@/lib/strings";
+import type { Messages } from "@/lib/i18n/messages";
+import { useStrings } from "@/lib/i18n/client";
 import {
   AlertIcon,
   CheckIcon,
@@ -62,6 +65,7 @@ const smallIcon = "size-3 shrink-0";
 
 /** Huy hiệu "Mới": chấm hồng trang trí + chữ. */
 export function NewBadge({ className }: { className?: string }) {
+  const strings = useStrings();
   return (
     <Badge
       tone="new"
@@ -73,7 +77,7 @@ export function NewBadge({ className }: { className?: string }) {
   );
 }
 
-export type TaskStatus = keyof typeof strings.ui.status;
+export type TaskStatus = keyof Messages["ui"]["status"];
 
 const statusMeta: Record<TaskStatus, { tone: BadgeTone; icon: ReactNode }> = {
   todo: { tone: "neutral", icon: <CircleIcon className={smallIcon} /> },
@@ -94,6 +98,7 @@ export function StatusBadge({
   status: TaskStatus;
   className?: string;
 }) {
+  const strings = useStrings();
   const meta = statusMeta[status];
   return (
     <Badge tone={meta.tone} icon={meta.icon} className={className}>
@@ -102,7 +107,7 @@ export function StatusBadge({
   );
 }
 
-export type TaskPriority = keyof typeof strings.ui.priority;
+export type TaskPriority = keyof Messages["ui"]["priority"];
 
 const priorityMeta: Record<
   TaskPriority,
@@ -122,6 +127,7 @@ export function PriorityBadge({
   priority: TaskPriority;
   className?: string;
 }) {
+  const strings = useStrings();
   const meta = priorityMeta[priority];
   return (
     <Badge
