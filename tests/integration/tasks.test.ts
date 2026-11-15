@@ -607,7 +607,7 @@ describe.skipIf(!enabled)("API task (Supabase cục bộ)", () => {
       "validation_failed",
     );
     await expectError(
-      await list("outsider", projectB, "?q=tim"),
+      await list("outsider", projectB, "?sort=due_date"),
       400,
       "validation_failed",
     );
