@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
-import { strings } from "@/lib/strings";
+import { vi as strings } from "@/lib/i18n/messages/vi";
 import { e2ePassword } from "./env";
 
 /**

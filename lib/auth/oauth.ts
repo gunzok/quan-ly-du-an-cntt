@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Messages } from "@/lib/i18n/messages";
 import { strings } from "@/lib/strings";
 import { AUTH_CALLBACK_PATH, HOME_PATH, LOGIN_PATH } from "./routes";
 
@@ -55,10 +56,11 @@ export function loginErrorPath(key: OAuthErrorKey): string {
  */
 export function loginErrorMessage(
   value: string | string[] | undefined,
+  messages: Messages = strings,
 ): string | undefined {
   const key = Array.isArray(value) ? value[0] : value;
   return OAUTH_ERROR_KEYS.includes(key as OAuthErrorKey)
-    ? strings.errors.oauth[key as OAuthErrorKey]
+    ? messages.errors.oauth[key as OAuthErrorKey]
     : undefined;
 }
 

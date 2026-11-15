@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
-import { strings } from "@/lib/strings";
+import { I18nProvider } from "@/lib/i18n/client";
+import { getLocaleState, getStrings } from "@/lib/i18n/server";
 import "./globals.css";
 
 // Phông theo design system v2 (Blueprint); cả 3 có bộ ký tự tiếng Việt.
@@ -24,10 +25,10 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: strings.app.name,
-  description: strings.app.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getStrings();
+  return { title: t.app.name, description: t.app.description };
+}
 
 /**
  * CSP dùng nonce theo từng request (Story E0-5, proxy.ts). Static shell của Cache Components được
@@ -44,12 +45,18 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   await connection();
+  // Ngôn ngữ theo hồ sơ > cookie > Accept-Language > vi (Story E10-2); URL không đổi.
+  const { locale, signedIn } = await getLocaleState();
   return (
     <html
-      lang="vi"
+      lang={locale}
       className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <I18nProvider locale={locale} signedIn={signedIn}>
+          {children}
+        </I18nProvider>
+      </body>
     </html>
   );
 }

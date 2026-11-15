@@ -7,11 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastProvider } from "@/components/ui/toast";
 import { HOME_PATH } from "@/lib/auth/routes";
 import type { ConfigKind } from "@/lib/project-config/model";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import { MembersPanel } from "@/components/project-members/members-panel";
 import { ConfigPanel } from "./config-panel";
 
-const t = strings.projectConfig;
 const KINDS: readonly ConfigKind[] = ["statuses", "task-types", "labels"];
 
 export interface ProjectSettingsScreenProps {
@@ -41,6 +40,8 @@ function Screen({
   canEdit,
   currentUserId,
 }: ProjectSettingsScreenProps) {
+  const strings = useStrings();
+  const t = strings.projectConfig;
   return (
     <div className="flex flex-col gap-5 px-4 py-6 sm:px-8">
       <Link

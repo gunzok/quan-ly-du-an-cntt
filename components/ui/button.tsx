@@ -2,7 +2,7 @@
 
 import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import { SpinnerIcon } from "./icons";
 
 export type ButtonVariant = "primary" | "secondary" | "danger" | "text";
@@ -56,6 +56,7 @@ export function Button({
   onClick,
   ...props
 }: ButtonProps) {
+  const strings = useStrings();
   const blocked = disabled || loading;
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {

@@ -23,14 +23,14 @@ import {
   type ProjectRole,
   type UserCandidate,
 } from "@/lib/project-members/model";
-import { strings } from "@/lib/strings";
+import type { ApiError } from "@/lib/api/errors";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
+import type { Messages } from "@/lib/i18n/messages";
 
-const t = strings.projectMembers;
-const roles = strings.projects.roles;
-const ROLE_OPTIONS = PROJECT_ROLES.map((role) => ({
-  value: role,
-  label: roles[role],
-}));
+function roleOptions(roles: Messages["projects"]["roles"]) {
+  return PROJECT_ROLES.map((role) => ({ value: role, label: roles[role] }));
+}
 /** Chờ người dùng ngừng gõ rồi mới tìm (đỡ tốn lượt giới hạn tần suất). */
 const SEARCH_DEBOUNCE_MS = 250;
 
@@ -48,7 +48,7 @@ type SearchState =
   | { status: "idle" }
   | { status: "searching" }
   | { status: "ready"; q: string; users: UserCandidate[] }
-  | { status: "error"; message: string };
+  | { status: "error"; error: ApiError };
 
 /** Hộp thoại thêm thành viên: tìm người (họ tên/email), chọn một người, chọn vai trò. */
 export function AddMemberDialog({
@@ -76,6 +76,8 @@ function AddBody({
   projectId: string;
   onAdded: (member: ProjectMember) => void;
 }) {
+  const strings = useStrings();
+  const t = strings.projectMembers;
   const resultsId = useId();
   const [q, setQ] = useState("");
   const [search, setSearch] = useState<SearchState>({ status: "idle" });
@@ -97,7 +99,7 @@ function AddBody({
           setSearch(
             result.ok
               ? { status: "ready", q: trimmed, users: result.data.data }
-              : { status: "error", message: result.error.message },
+              : { status: "error", error: result.error },
           );
         })
         .catch((error: unknown) => {
@@ -139,7 +141,7 @@ function AddBody({
       onAdded(result.data.data);
       return;
     }
-    setFormError(result.error.message);
+    setFormError(apiErrorText(strings, result.error));
   }
 
   return (
@@ -168,7 +170,7 @@ function AddBody({
           {statusText}
         </p>
         {search.status === "error" && !tooShort ? (
-          <FormError message={search.message} />
+          <FormError message={apiErrorText(strings, search.error)} />
         ) : null}
         <fieldset
           id={resultsId}
@@ -225,7 +227,7 @@ function AddBody({
           {(control) => (
             <Select
               {...control}
-              options={ROLE_OPTIONS}
+              options={roleOptions(strings.projects.roles)}
               value={role}
               onChange={(e) => setRole(e.target.value as ProjectRole)}
             />
@@ -292,6 +294,8 @@ function RoleBody({
   isLastPm: boolean;
   onSaved: (member: ProjectMember, changed: boolean) => void;
 }) {
+  const strings = useStrings();
+  const t = strings.projectMembers;
   const name = displayName(member.user);
   const [role, setRole] = useState<ProjectRole>(member.role);
   const [formError, setFormError] = useState<string | null>(null);
@@ -308,7 +312,7 @@ function RoleBody({
       onSaved(result.data.data, result.data.data.role !== member.role);
       return;
     }
-    setFormError(result.error.message);
+    setFormError(apiErrorText(strings, result.error));
   }
 
   return (
@@ -320,7 +324,7 @@ function RoleBody({
           {(control) => (
             <Select
               {...control}
-              options={ROLE_OPTIONS}
+              options={roleOptions(strings.projects.roles)}
               value={role}
               onChange={(e) => setRole(e.target.value as ProjectRole)}
             />

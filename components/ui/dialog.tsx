@@ -3,7 +3,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import { Button } from "./button";
 import { CloseIcon } from "./icons";
 
@@ -50,6 +50,7 @@ export function DialogContent({
   showClose = true,
   ...props
 }: DialogContentProps) {
+  const strings = useStrings();
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-text/40 data-[state=open]:animate-fade-in" />
@@ -97,10 +98,11 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = strings.ui.cancel,
+  cancelLabel,
   tone = "danger",
   onConfirm,
 }: ConfirmDialogProps) {
+  const strings = useStrings();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
 
@@ -127,7 +129,7 @@ export function ConfirmDialog({
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <DialogClose asChild>
             <Button variant="secondary" disabled={pending}>
-              {cancelLabel}
+              {cancelLabel ?? strings.ui.cancel}
             </Button>
           </DialogClose>
           <Button

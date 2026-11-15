@@ -4,27 +4,30 @@ import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { requireAdmin } from "@/lib/admin/users/handlers";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { HOME_PATH, LOGIN_PATH } from "@/lib/auth/routes";
 import {
   DEPARTMENT_COLUMNS,
   toDepartment,
   type DepartmentRow,
 } from "@/lib/departments/model";
-import { strings } from "@/lib/strings";
+import { getStrings } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import styles from "./admin-users.module.css";
 import { UsersScreen } from "./users-screen";
 
-export const metadata: Metadata = {
-  title: `${strings.adminUsers.pageTitle} · ${strings.app.name}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const strings = await getStrings();
+  return { title: `${strings.adminUsers.pageTitle} · ${strings.app.name}` };
+}
 
 /**
  * S08 Quản lý người dùng, bản Blueprint v3 (docs/03-design/ui-ux/mockups/v3/bp-Admin.dc.html).
  * Chỉ Admin vào được: người khác nhận trang "không tìm thấy" (không lộ trang tồn tại, BR-10).
  * Dữ liệu bảng lấy qua /api/v1/users ở trình duyệt; máy chủ kiểm quyền lần nữa ở từng request.
  */
-export default function AdminUsersPage() {
+export default async function AdminUsersPage() {
+  const strings = await getStrings();
   return (
     <div className={styles.canvas}>
       <div className={styles.frame}>
@@ -44,6 +47,7 @@ export default function AdminUsersPage() {
 
 async function AdminUsersGate() {
   await connection();
+  const strings = await getStrings();
   const supabase = await createClient();
   const gate = await requireAdmin(supabase);
   if (!gate.ok) {
@@ -99,6 +103,7 @@ async function AdminUsersGate() {
           <span className={styles.meName}>{myName}</span>
           <span className="label">{strings.adminUsers.adminBadge}</span>
         </div>
+        <LanguageSwitcher className="items-start" />
       </aside>
       <UsersScreen
         currentUserId={gate.userId}

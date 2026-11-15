@@ -201,6 +201,7 @@ describe.skipIf(!enabled)("Giới hạn tần suất (Supabase cục bộ)", () 
         error: {
           code: "rate_limited",
           message: expect.any(String),
+          message_key: "security.rateLimited",
           request_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
         },
       });

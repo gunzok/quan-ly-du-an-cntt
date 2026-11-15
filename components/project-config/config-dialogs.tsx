@@ -31,9 +31,9 @@ import {
   type TaskStatus,
   type TaskType,
 } from "@/lib/project-config/model";
-import { strings } from "@/lib/strings";
-
-const t = strings.projectConfig;
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
+import type { Messages } from "@/lib/i18n/messages";
 
 type AnyItem = ConfigItemByKind[ConfigKind];
 
@@ -43,7 +43,8 @@ const DEFAULT_COLOR: Record<ConfigKind, string> = {
   labels: "#8A93A6",
 };
 
-function colorOptions(current: string) {
+function colorOptions(strings: Messages, current: string) {
+  const t = strings.projectConfig;
   const options: { value: string; label: string }[] = CONFIG_COLORS.map(
     (c) => ({ value: c.value, label: t.colors[c.key] }),
   );
@@ -96,6 +97,8 @@ function FormBody({
   item: AnyItem | null;
   onSaved: (item: AnyItem, mode: "created" | "updated") => void;
 }) {
+  const strings = useStrings();
+  const t = strings.projectConfig;
   const k = t.kinds[kind];
   const editing = item !== null;
   const [name, setName] = useState(item?.name ?? "");
@@ -138,9 +141,9 @@ function FormBody({
       return;
     }
     if (result.error.details?.some((d) => d.field === "name")) {
-      setNameError(result.error.message);
+      setNameError(apiErrorText(strings, result.error));
     } else {
-      setFormError(result.error.message);
+      setFormError(apiErrorText(strings, result.error));
     }
   }
 
@@ -198,7 +201,7 @@ function FormBody({
                 <Select
                   {...control}
                   value={color}
-                  options={colorOptions(color)}
+                  options={colorOptions(strings, color)}
                   onChange={(e) => setColor(e.target.value)}
                 />
               </div>
@@ -251,6 +254,8 @@ export function DeleteConfigDialog({
   others: AnyItem[];
   onDeleted: (item: AnyItem, moved: number) => void;
 }) {
+  const strings = useStrings();
+  const t = strings.projectConfig;
   const k = t.kinds[kind];
   const needsReplacement = kind !== "labels" && item.task_count > 0;
   const [open, setOpen] = useState(false);
@@ -281,7 +286,7 @@ export function DeleteConfigDialog({
     );
     setPending(false);
     if (!result.ok) {
-      setError(result.error.message);
+      setError(apiErrorText(strings, result.error));
       return;
     }
     setOpen(false);
