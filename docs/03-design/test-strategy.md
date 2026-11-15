@@ -24,6 +24,7 @@ Liên quan: NFR-01, NFR-02, NFR-03, NFR-06, NFR-08, NFR-13. Các ngưỡng đán
 
 ## 3. Dữ liệu test
 - Dùng dữ liệu giả sinh ra (`supabase/seed.sql`, script tạo 2.000 task), không dữ liệu thật; repo công khai (R-002).
+- Hiệu năng (E0-7, PR 37): `make perf-seed` tạo dự án 2.000 task (3 cấp 400/800/800, 12 tài khoản `perf-*@example.com`, 20 nhãn, 600 quan hệ đủ 4 kiểu, đi qua trigger thật, idempotent; `make perf-clean` xóa), `make perf` đo P50/P95/P99 qua HTTP thật bằng phiên PM perf. Ngưỡng P95 (đề xuất): danh sách task (trang đầu, cursor, tìm `q` có dấu và không dấu, lọc kết hợp), `GET /projects`, `GET /projects/{id}` dưới 500 ms (NFR-02, NFR-16); `GET /tasks/{id}` và `/relations` dưới 300 ms (chặt hơn để bắt hồi quy). Số đo 2026-11-15 (M1 Pro, Supabase cục bộ, `next start`): danh sách task 38 đến 67 ms, `GET /projects` 151 ms, `GET /tasks/{id}` 38 ms. Đo tuần tự một luồng; giới hạn 300 request/phút làm mỗi lần đo mất 2 đến 3 phút. Workflow `perf.yml` chỉ chạy tay, số trên runner chung chỉ để tham khảo. Đề xuất cho E3-4: viết lại RLS `tasks_select` để quyền tính một lần mỗi truy vấn (hiện `project_stats` mất 27 ms trong CSDL vì tính quyền từng dòng).
 - Tài khoản test cho 4 vai trò nằm trong seed; mật khẩu test đặt ở biến môi trường, không commit.
 - Template báo cáo mẫu trong `tests/fixtures/` (khi sếp cung cấp mẫu thật, R-005, thay bằng bản đã ẩn thông tin nhạy cảm).
 - Báo cáo xuất ra so sánh với tệp chuẩn (golden file) cho một dự án seed cố định.
