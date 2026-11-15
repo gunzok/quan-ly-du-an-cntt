@@ -34,7 +34,7 @@ erDiagram
 ## 2. Từ điển dữ liệu
 | Bảng | Cột chính | Ghi chú |
 |---|---|---|
-| `departments` | `id`, `name`, `position` | Phòng ban, danh mục do Admin quản lý (yêu cầu 2026-11-13) |
+| `departments` | `id`, `name`, `position`, `archived_at` | Phòng ban, danh mục do Admin quản lý (yêu cầu 2026-11-13). Tên duy nhất không phân biệt hoa thường (`departments_name_ci_key`); lưu trữ thay vì xóa, chỉ xóa cứng được phòng ban không còn ai (RLS + `private.department_has_members`) |
 | `profiles` | `id` (= `auth.users.id`), `full_name`, `email`, `department_id`, `is_admin`, `locale` (`vi`/`en`), `is_active` | `is_admin` là quyền toàn hệ thống (BR-01 sửa 2026-11-13); vai trò nằm ở `project_members`. Chỉ họ tên, email, số điện thoại, phòng ban (NFR-14); `phone` do chính người dùng nhập, PM và Admin xem được |
 | `profile_contacts` | `user_id` (PK, → `profiles`), `phone`, `updated_at` | Số điện thoại tách khỏi `profiles` vì RLS lọc theo hàng (E1-3, PR 14); chỉ chính chủ, PM của dự án chung và Admin đọc; chỉ chính chủ ghi; định dạng `^\+?[0-9][0-9 .()-]{5,19}$` |
 | `projects` | `id`, `name`, `description`, `start_date`, `end_date`, `status` (`active`/`archived`), `created_by`, `template_id` | FR-03 |
@@ -43,7 +43,7 @@ erDiagram
 | `saved_views` | `id`, `project_id` (null nếu toàn cục), `owner_id`, `name`, `query jsonb` (bộ lọc, sắp xếp, nhóm, cột, chế độ hiển thị), `visibility` (`private`/`public`), `is_favorite` | Chế độ xem đã lưu (FR-19); chế độ xem mặc định tạo bằng seed, không sửa được |
 | `task_statuses` | `id`, `project_id`, `name`, `category` (`todo`/`in_progress`/`done`), `position` | Trạng thái tùy chỉnh (FR-06); `category` để tính tiến độ |
 | `labels` | `id`, `project_id`, `name`, `color` | FR-06 |
-| `tasks` | `id`, `project_id`, `parent_id`, `depth` (1-3), `type_id`, `title`, `description`, `assignee_id`, `created_by`, `priority` (`low`/`medium`/`high`/`urgent`), `start_date`, `due_date`, `status_id`, `position`, `completed_at` | `depth` ≤ 3 (FR-07); `start_date` ≤ `due_date` (BR-13); hai ngày cho Gantt (FR-20, FR-21) |
+| `tasks` | `id`, `project_id`, `parent_id`, `depth` (1-3), `type_id`, `title`, `description`, `assignee_id`, `created_by`, `priority` (`low`/`medium`/`high`/`urgent`), `start_date`, `due_date`, `status_id`, `position`, `completed_at` | `depth` ≤ 3 (FR-07); `start_date` ≤ `due_date` (BR-13); hai ngày cho Gantt (FR-20, FR-21). Đã tạo ở E2-2 (`20261114090000_tasks.sql`): `position` là `double precision` (kéo thả chèn giữa không đánh số lại); `type_id`, `status_id` chưa có khóa ngoại (E2-3 thêm), `parent_id`/`depth` có cột nhưng chưa có trigger (E2-4); trigger `check_assignee`: người được giao phải là PM hoặc Thành viên đang hoạt động của dự án; quyền cột cho trình duyệt chỉ gồm `project_id` (khi tạo), `title`, `description`, `assignee_id`, `priority`, `start_date`, `due_date`, `position` |
 | `task_labels` | `task_id`, `label_id` | Nhiều nhiều |
 | `task_relations` | `id`, `from_task_id`, `to_task_id`, `kind` (`relates`/`blocks`/`precedes`/`duplicates`), `lag_days` | Thay `task_dependencies`; quan hệ đảo (bị chặn bởi, đứng sau, bị trùng) suy ra từ `kind`. Không vòng cho `blocks`, `precedes` (BR-05); không tự quan hệ với chính mình. Kiểu vào MVP **[CẦN XÁC NHẬN]** |
 | `notifications` | `id`, `user_id`, `type`, `task_id`, `payload jsonb`, `read_at`, `created_at` | FR-11 |
@@ -84,7 +84,7 @@ Các cột Người xem, Thành viên, PM là vai trò **trong dự án** (`proj
 | `project_members` | Đọc cùng dự án | Đọc cùng dự án; không tự nâng vai trò | Thêm, đổi vai trò, gỡ thành viên dự án mình là PM | Toàn quyền |
 | `departments` | Đọc | Đọc | Đọc | Đọc, ghi |
 | `profile_contacts` | Chỉ của mình | Chỉ của mình | Của mình và thành viên dự án mình là PM | Đọc tất cả; ghi chỉ của mình |
-| `tasks` | Đọc | Đọc; sửa task mình phụ trách hoặc tạo (BR-03); tạo task | Đọc, sửa mọi task trong dự án | Toàn quyền |
+| `tasks` | Đọc | Đọc; sửa task mình phụ trách hoặc tạo (BR-03); tạo task; xóa task mình tạo. Thành viên chỉ phụ trách (không tạo) không giao task đi cho người khác được (WITH CHECK = USING) | Đọc, sửa, xóa mọi task trong dự án | Toàn quyền |
 | `activity_logs` | Không | Không | Đọc nhật ký dự án mình thuộc | Đọc tất cả |
 | `saved_views` | Đọc chế độ xem công khai; tạo, sửa chế độ xem riêng của mình | Giống Người xem | Giống Thành viên; sửa chế độ xem công khai của dự án | Toàn quyền |
 | `task_relations` | Đọc | Tạo, xóa khi có quyền sửa cả hai task | Toàn quyền trong dự án | Toàn quyền |
@@ -92,6 +92,8 @@ Các cột Người xem, Thành viên, PM là vai trò **trong dự án** (`proj
 | `report_templates` | Không | Không | Đọc | Toàn quyền |
 | `notifications` | Chỉ của mình | Chỉ của mình | Chỉ của mình | Chỉ của mình |
 Hai hàm quản trị `admin_list_users` và `admin_update_user` (SECURITY DEFINER, `search_path = ''`, chỉ `service_role` gọi được; migration `20261113150000_admin_users.sql`): khóa hàng mọi Admin đang hoạt động trước khi kiểm quy tắc để số Admin không về 0 khi hai Admin thao tác cùng lúc. Người dùng bị khóa (`is_active = false`) không có quyền gì, kể cả đọc hồ sơ của mình. Hàm hỗ trợ RLS là SECURITY DEFINER trong schema `private` (không phơi qua API). `INSERT ... RETURNING` trên `projects` bị từ chối với PM không phải Admin (policy SELECT chạy trước trigger thêm PM): dùng `public.create_project()` hoặc client tự sinh `id` và đọc lại. Chưa chặn gỡ PM cuối cùng của dự án (trigger để Story sau). Mỗi migration thêm bảng mới phải tự `revoke` quyền mặc định của Supabase rồi `grant` theo cột. `activity_logs` không có chính sách UPDATE/DELETE cho bất kỳ vai trò nào. Mọi chính sách có kiểm thử riêng (xem [test-strategy.md](test-strategy.md)).
+
+Bộ đếm giới hạn tần suất (E0-5): `private.rate_limit_counters` (RLS bật, không chính sách, khóa đã băm HMAC) và hàm `private.rate_limit_hit` qua wrapper `public.rate_limit_hit`, chỉ `service_role` gọi được; tự dọn dòng hết hạn.
 
 ## 6. Migration
 - Mỗi thay đổi là một tệp SQL trong `supabase/migrations/` (đặt tên theo thời gian), chạy được từ đầu trên CSDL trống.

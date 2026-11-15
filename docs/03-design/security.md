@@ -26,8 +26,8 @@ flowchart LR
 |---|---|---|
 | F1 | **S**poofing: chiếm phiên đăng nhập | Cookie httpOnly, Secure, SameSite=Lax; hết hạn phiên; đăng nhập Google/mật khẩu qua Supabase Auth |
 | F1 | **T**ampering: sửa dữ liệu gửi lên, CSRF | Kiểm tra đầu vào bằng schema phía máy chủ (không tin giao diện); Route Handler thay đổi dữ liệu bắt buộc header `Origin` trùng origin của yêu cầu, `Content-Type: application/json` và giới hạn kích thước thân (đã có ở API quản trị; E0-5 gom thành tiện ích dùng chung; Server Action do Next.js kiểm Origin). **[CẦN XÁC NHẬN]** đúng khi chạy sau proxy Vercel |
-| F1 | **I**nformation disclosure: XSS đọc dữ liệu | React escape mặc định; không dùng `dangerouslySetInnerHTML` với nội dung người dùng; CSP chặt; mô tả task dạng văn bản thuần hoặc Markdown được làm sạch |
-| F1 | **D**oS: gọi API liên tục, xuất báo cáo nặng | Giới hạn tần suất theo người dùng và IP; giới hạn kỳ và kích thước báo cáo; thời gian chờ tối đa |
+| F1 | **I**nformation disclosure: XSS đọc dữ liệu | React escape mặc định; không dùng `dangerouslySetInnerHTML` với nội dung người dùng; CSP chặt (E0-5: nonce theo từng yêu cầu, `strict-dynamic`, không `unsafe-eval` ở production; `style-src` còn `unsafe-inline` vì thuộc tính `style` của React; root layout render động nên mất static shell/PPR; thêm `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `frame-ancestors 'none'`, HSTS ở production); mô tả task dạng văn bản thuần hoặc Markdown được làm sạch |
+| F1 | **D**oS: gọi API liên tục, xuất báo cáo nặng | Giới hạn tần suất theo người dùng và IP (E0-5, ngưỡng ở [api-contract.md](api-contract.md) mục 5; IP chỉ tin header khi chạy trên Vercel); đăng nhập fail-closed khi bộ đếm lỗi, nên thiếu `SUPABASE_SERVICE_ROLE_KEY` thì không đăng nhập được; giới hạn theo email có thể bị lợi dụng khóa tạm một tài khoản (chấp nhận); giới hạn kỳ và kích thước báo cáo; thời gian chờ tối đa |
 | F2 | **E**levation of privilege: người xem sửa dữ liệu, thành viên xem dự án không thuộc về mình, dùng vai trò của dự án này ở dự án khác | RLS cho từng bảng theo vai trò trong dự án (`project_members.role`), `is_admin` và tư cách thành viên (BR-01, BR-02, BR-03, BR-10); kiểm thử phân quyền tự động trong CI (NFR-06), gồm ca người có vai trò khác nhau ở hai dự án |
 | F2 | **I**nformation disclosure: chế độ xem công khai lộ task của dự án khác | Chế độ xem công khai chỉ trả task người xem đủ quyền (BR-12), lọc theo RLS chứ không theo truy vấn đã lưu |
 | F2 | **T**ampering: sửa hoặc xóa nhật ký | `activity_logs` chỉ cho phép INSERT, không UPDATE/DELETE qua RLS (BR-09) |
@@ -39,7 +39,7 @@ flowchart LR
 ## 4. Quản lý bí mật (repo công khai)
 - Không commit bí mật: gitleaks quét toàn lịch sử trong CI và `.gitignore` chặn `.env*` (trừ `.env.example`).
 - Khóa `service_role` chỉ ở Vercel/GitHub Secrets, dùng phía máy chủ. Mã dùng khóa nằm ở `lib/supabase/admin.ts` (đọc biến không tiền tố `NEXT_PUBLIC_`, chặn chạy ở trình duyệt, không lưu phiên); `make build` kèm kiểm `.next/static` không chứa `service_role`. Trong API quản trị, quyền người gọi được kiểm bằng client phiên (qua RLS) trước khi tạo client service_role.
-- Nếu lộ khóa: thu hồi và tạo lại ngay, rồi ghi sự cố vào `PROJECT_STATE.md`. GitHub secret scanning bật cho repo (**[CẦN XÁC NHẬN]**: kiểm tra đã bật chưa).
+- Nếu lộ khóa: thu hồi và tạo lại ngay, rồi ghi sự cố vào `PROJECT_STATE.md`. GitHub secret scanning và push protection bật cho repo (**[CẦN XÁC NHẬN]**: sếp bật tay ở Settings → Code security, chưa xác nhận). Biến `RATE_LIMIT_SECRET` (chuỗi ngẫu nhiên riêng, tùy chọn) dùng băm khóa bộ đếm.
 
 ## 5. Bảo vệ dữ liệu cá nhân (C1, C2, NFR-14)
 - Nguyên tắc tối thiểu: chỉ lưu họ tên, email, số điện thoại, phòng ban, vai trò, ngôn ngữ ưa thích.
