@@ -335,6 +335,21 @@ export const strings = {
       forbiddenCreate: "Người xem không tạo được task.",
     },
   },
+  /** Story E2-4 (QLDA-42): việc con tối đa 3 cấp và quy tắc đóng task cha (BR-04). */
+  subtasks: {
+    errors: {
+      parentNotFound: "Task cha không tồn tại trong dự án này.",
+      parentNotEditable: "Bạn chỉ gắn việc con vào task mình sửa được.",
+      depthExceeded: "Chỉ chia việc con tối đa 3 cấp.",
+      cycle:
+        "Không thể chọn chính task này hoặc một việc con của nó làm task cha.",
+      openSubtasks:
+        "Còn việc con chưa xong. Hoàn thành hoặc đóng mọi việc con trước khi đóng task cha.",
+      statusChangeBlocked:
+        "Không thực hiện được: một task cha sẽ chuyển sang nhóm hoàn thành trong khi còn việc con chưa xong.",
+      concurrentChange: "Dữ liệu vừa thay đổi. Vui lòng thử lại.",
+    },
+  },
   /** Story E2-1 (QLDA-37): API dự án và màn S02 Danh sách dự án. */
   projects: {
     pageTitle: "Dự án",

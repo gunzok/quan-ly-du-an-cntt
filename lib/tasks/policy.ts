@@ -2,6 +2,7 @@ import type { ApiError } from "@/lib/api/errors";
 import { apiError } from "@/lib/api/respond";
 import { mapTaskConfigError } from "@/lib/project-config/policy";
 import { strings } from "@/lib/strings";
+import { mapSubtaskError, type DbError } from "./subtasks";
 
 /**
  * Logic quyền thuần (không I/O) cho API task, tách ra để test đơn vị. Đây là lớp kiểm thứ nhất
@@ -50,11 +51,12 @@ export function canDeleteTask(actor: Actor, task: TaskOwnership): boolean {
  *   - 42501 (RLS hoặc quyền cột): 403.
  *   - P0001 status_not_in_project / type_not_in_project / label_not_in_project, 23503 (E2-3):
  *     trạng thái, loại, nhãn không thuộc dự án của task: 422.
+ *   - Việc con, BR-04 (E2-4): xem lib/tasks/subtasks.ts. Xét TRƯỚC để 23503 của khóa ngoại
+ *     parent_id không bị hiểu là trạng thái sai dự án.
  */
-export function mapTaskWriteError(error: {
-  code?: string;
-  message?: string;
-}): ApiError | null {
+export function mapTaskWriteError(error: DbError): ApiError | null {
+  const subtask = mapSubtaskError(error);
+  if (subtask) return subtask;
   const config = mapTaskConfigError(error);
   if (config) return config;
   switch (error.code) {

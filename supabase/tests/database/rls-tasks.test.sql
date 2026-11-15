@@ -147,9 +147,9 @@ select throws_ok(format(
   tests.uid('project_a'), tests.uid('pm_a')),
   '42501', null, 'Không giả mạo created_by khi tạo');
 select throws_ok(format(
-  'insert into public.tasks (project_id, title, parent_id) values (%L, ''x'', %L)',
-  tests.uid('project_a'), tests.t('task_m')),
-  '42501', null, 'Chưa ghi được parent_id (subtask là Story E2-4)');
+  'insert into public.tasks (project_id, title, depth) values (%L, ''x'', 2)',
+  tests.uid('project_a')),
+  '42501', null, 'Không tự đặt depth (E2-4: parent_id ghi được, depth do trigger đặt)');
 select throws_ok(format(
   'insert into public.tasks (project_id, title, status_id) values (%L, ''x'', gen_random_uuid())',
   tests.uid('project_a')),

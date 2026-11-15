@@ -114,7 +114,7 @@ describe("validateTaskCreate", () => {
     const r = validateTaskCreate({
       title: "x",
       created_by: UUID,
-      parent_id: UUID,
+      depth: 2,
       completed_at: "2026-11-14T00:00:00Z",
     });
     expect(r.ok).toBe(false);
@@ -122,7 +122,7 @@ describe("validateTaskCreate", () => {
       expect(r.details.map((d) => d.field).sort()).toEqual([
         "completed_at",
         "created_by",
-        "parent_id",
+        "depth",
       ]);
       expect(r.details.every((d) => d.issue === "unknown_field")).toBe(true);
     }
@@ -277,9 +277,12 @@ describe("validateTaskListQuery", () => {
         limit: LIST_LIMIT_DEFAULT,
         cursor: null,
         assignee_id: null,
-        status_id: null,
+        status_ids: null,
         priority: null,
         label_id: null,
+        q: null,
+        due_after: null,
+        due_before: null,
       },
     });
   });
@@ -299,9 +302,12 @@ describe("validateTaskListQuery", () => {
         limit: 100,
         cursor: null,
         assignee_id: UUID,
-        status_id: UUID,
+        status_ids: [UUID],
         priority: "urgent",
         label_id: null,
+        q: null,
+        due_after: null,
+        due_before: null,
       },
     });
   });
@@ -311,7 +317,6 @@ describe("validateTaskListQuery", () => {
       "limit=0",
       "limit=101",
       "limit=abc",
-      "q=tim",
       "sort=due_date",
       "priority=low&priority=high",
       "assignee_id=abc",

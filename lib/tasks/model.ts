@@ -1,7 +1,8 @@
 /**
  * Dạng dữ liệu task trả qua API (api-contract.md mục 4). Trùng tên cột bảng public.tasks.
- * Chưa có `blocked` (quan hệ chặn, Story E2-5) và danh sách subtask (E2-4). status_id, type_id,
- * label_ids: Story E2-3 (trạng thái, loại, nhãn của chính dự án).
+ * Chưa có `blocked` (quan hệ chặn, Story E2-5) và danh sách subtask lồng trong chi tiết task.
+ * status_id, type_id, label_ids: Story E2-3 (trạng thái, loại, nhãn của chính dự án). parent_id,
+ * depth (1-3, trigger đặt): Story E2-4.
  */
 export type TaskPriority = "low" | "medium" | "high" | "urgent";
 

@@ -27,6 +27,8 @@ export interface ApiError {
   code: ApiErrorCode;
   message: string;
   details?: ApiErrorDetail[];
+  /** Id task liên quan (ví dụ việc con chưa xong khi đóng task cha, BR-04). */
+  task_ids?: string[];
   request_id?: string;
 }
 

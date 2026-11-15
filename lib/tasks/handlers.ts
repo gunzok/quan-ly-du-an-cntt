@@ -21,6 +21,7 @@ import {
   type Actor,
   type ProjectRole,
 } from "./policy";
+import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
 import {
   TASK_BODY_MAX_BYTES,
   encodeTaskCursor,
@@ -44,6 +45,10 @@ import {
  *      để không lộ sự tồn tại (BR-10).
  *   4. Quyền theo vai trò trong dự án (BR-02, BR-03): 403.
  *   5. Schema đầu vào, từ chối trường lạ: 400; quy tắc nghiệp vụ (BR-13, người được giao): 422.
+ *      Task cha (E2-4) chỉ biết sau khi đọc thân request nên kiểm sau schema: không thấy hoặc khác
+ *      dự án 422 (một lỗi, không lộ task dự án khác), không sửa được cha 403, tự làm cha 409.
+ *      Trigger check_task_tree kiểm lại tất cả, cộng vòng (409), vượt 3 cấp kể cả cây con (422), và
+ *      BR-04 (đóng cha khi còn việc con chưa xong: 422 kèm task_ids).
  */
 export interface TaskDeps {
   /** Client theo phiên cookie của người gọi (khóa anon, RLS áp dụng). */
@@ -146,6 +151,27 @@ async function labelsBelongTo(
   return (data ?? []).length === labelIds.length;
 }
 
+/**
+ * Task cha hợp lệ cho task (taskId = null khi tạo mới) trong dự án projectId: lớp kiểm thứ nhất,
+ * cho thông điệp rõ. Vòng qua nhiều cấp và giới hạn 3 cấp (kể cả chiều cao cây con) để trigger
+ * check_task_tree kiểm, trong khóa cấu trúc cây nên đúng cả khi đồng thời, và theo đúng thứ tự
+ * vòng (409) trước độ sâu (422).
+ */
+async function parentError(
+  session: SupabaseClient,
+  actor: Actor,
+  projectId: string,
+  parentId: string,
+  taskId: string | null,
+): Promise<ApiError | null> {
+  if (parentId === taskId) return parentCycle();
+  const parent = await loadTask(session, parentId);
+  // Không thấy (dự án khác, không tồn tại) và thấy nhưng khác dự án: cùng một lỗi.
+  if (!parent || parent.project_id !== projectId) return parentNotFound();
+  if (!canEditTask(actor, parent)) return parentNotEditable();
+  return null;
+}
+
 /** Bước 1-3 chung cho /tasks/{id}: Origin (nếu ghi), phiên, task thấy được, quyền trong dự án. */
 async function taskContext(
   request: Request,
@@ -197,23 +223,53 @@ export async function handleListTasks(
         ctx,
       );
     }
-    const { limit, cursor, assignee_id, status_id, priority, label_id } =
-      parsed.data;
+    const {
+      limit,
+      cursor,
+      assignee_id,
+      status_ids,
+      priority,
+      label_id,
+      q,
+      due_after,
+      due_before,
+    } = parsed.data;
 
     // Lọc theo nhãn: nhúng task_labels lần hai với bí danh và !inner (chỉ task có nhãn đó), để
     // phần task_labels trả về vẫn đủ mọi nhãn của task.
-    let query = deps.session
-      .from("tasks")
-      .select(
-        label_id
-          ? `${TASK_SELECT}, filter_labels:task_labels!inner(label_id)`
-          : TASK_SELECT,
-      )
-      .eq("project_id", projectId);
-    if (label_id) query = query.eq("filter_labels.label_id", label_id);
+    //
+    // Có từ khóa (E3-3): đọc qua hàm public.search_tasks (SECURITY INVOKER, RLS của tasks vẫn áp
+    // dụng; bỏ dấu, thoát ký tự LIKE trong CSDL). Hàm trả về hàng của bảng tasks nên nhúng, lọc,
+    // sắp xếp, phân trang dưới đây giữ nguyên; riêng nhãn lọc trong hàm (p_label_id) vì PostgREST
+    // không áp bộ lọc của bảng nhúng lên kết quả RPC.
+    let query = (
+      q
+        ? deps.session
+            .rpc(
+              "search_tasks",
+              // GET: tham số nằm trên URL; không gửi p_label_id khi không lọc (null thành "null").
+              label_id
+                ? { p_project_id: projectId, p_q: q, p_label_id: label_id }
+                : { p_project_id: projectId, p_q: q },
+              { get: true },
+            )
+            .select(TASK_SELECT)
+        : deps.session
+            .from("tasks")
+            .select(
+              label_id
+                ? `${TASK_SELECT}, filter_labels:task_labels!inner(label_id)`
+                : TASK_SELECT,
+            )
+    ).eq("project_id", projectId);
+    if (label_id && !q) {
+      query = query.eq("filter_labels.label_id", label_id);
+    }
     if (assignee_id) query = query.eq("assignee_id", assignee_id);
-    if (status_id) query = query.eq("status_id", status_id);
+    if (status_ids) query = query.in("status_id", status_ids);
     if (priority) query = query.eq("priority", priority);
+    if (due_after) query = query.gte("due_date", due_after);
+    if (due_before) query = query.lte("due_date", due_before);
     if (cursor) {
       // Giá trị con trỏ đã kiểm chặt định dạng (dấu thời gian ISO, uuid) nên ghép vào bộ lọc an toàn.
       query = query.or(
@@ -284,6 +340,16 @@ export async function handleCreateTask(
       !(await labelsBelongTo(deps.session, projectId, labelIds))
     ) {
       return fail(labelNotInProject(), ctx);
+    }
+    if (input.parent_id) {
+      const parent = await parentError(
+        deps.session,
+        actor,
+        projectId,
+        input.parent_id,
+        null,
+      );
+      if (parent) return fail(parent, ctx);
     }
 
     // created_by không gửi: cột lấy mặc định auth.uid() và trình duyệt không có quyền cột này.
@@ -396,6 +462,16 @@ export async function handlePatchTask(
       !(await labelsBelongTo(deps.session, task.project_id, labelIds))
     ) {
       return fail(labelNotInProject(), ctx);
+    }
+    if (patch.parent_id && patch.parent_id !== task.parent_id) {
+      const parent = await parentError(
+        deps.session,
+        actor,
+        task.project_id,
+        patch.parent_id,
+        task.id,
+      );
+      if (parent) return fail(parent, ctx);
     }
 
     // Nhãn ghi bằng lệnh riêng (public.set_task_labels) sau khi sửa task; đã kiểm nhãn thuộc dự
