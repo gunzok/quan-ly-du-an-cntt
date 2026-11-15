@@ -87,15 +87,23 @@ export function decodeCursor(raw: string): ListCursor | null {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/users?q=&limit=&cursor=
+// GET /api/v1/users?q=&limit=&cursor=&department_id=
 // ---------------------------------------------------------------------------
+/** Giá trị đặc biệt của department_id: lọc người chưa có phòng ban. */
+export const DEPARTMENT_FILTER_NONE = "none";
+
+/** Lọc theo phòng ban: tất cả, chưa gán, hoặc một phòng ban cụ thể. */
+export type DepartmentFilter =
+  { kind: "all" } | { kind: "none" } | { kind: "id"; id: string };
+
 export interface ListUsersQuery {
   q: string | null;
   limit: number;
   cursor: ListCursor | null;
+  department: DepartmentFilter;
 }
 
-const LIST_PARAMS = ["q", "limit", "cursor"] as const;
+const LIST_PARAMS = ["q", "limit", "cursor", "department_id"] as const;
 
 export function validateListQuery(
   params: URLSearchParams,
@@ -140,9 +148,21 @@ export function validateListQuery(
     }
   }
 
+  let department: DepartmentFilter = { kind: "all" };
+  const rawDepartment = params.get("department_id");
+  if (rawDepartment !== null) {
+    if (rawDepartment === DEPARTMENT_FILTER_NONE) {
+      department = { kind: "none" };
+    } else if (isUuid(rawDepartment)) {
+      department = { kind: "id", id: rawDepartment.toLowerCase() };
+    } else {
+      details.push({ field: "department_id", issue: "invalid_format" });
+    }
+  }
+
   return details.length > 0
     ? { ok: false, details }
-    : { ok: true, data: { q, limit, cursor } };
+    : { ok: true, data: { q, limit, cursor, department } };
 }
 
 // ---------------------------------------------------------------------------

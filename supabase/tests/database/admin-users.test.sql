@@ -11,19 +11,19 @@ select plan(25);
 -- ===========================================================================
 select ok(
   (select bool_and(prosecdef and proconfig = array['search_path=""']) from pg_proc
-    where oid in ('public.admin_list_users(text,text,uuid,integer,uuid)'::regprocedure,
+    where oid in ('public.admin_list_users(text,text,uuid,integer,uuid,uuid,boolean)'::regprocedure,
       'public.admin_update_user(uuid,uuid,boolean,boolean,boolean,uuid)'::regprocedure)),
   'Hai hàm quản trị là SECURITY DEFINER với search_path rỗng');
 
 select ok(
-  not has_function_privilege('anon', 'public.admin_list_users(text,text,uuid,integer,uuid)', 'execute')
-  and not has_function_privilege('authenticated', 'public.admin_list_users(text,text,uuid,integer,uuid)', 'execute')
+  not has_function_privilege('anon', 'public.admin_list_users(text,text,uuid,integer,uuid,uuid,boolean)', 'execute')
+  and not has_function_privilege('authenticated', 'public.admin_list_users(text,text,uuid,integer,uuid,uuid,boolean)', 'execute')
   and not has_function_privilege('anon', 'public.admin_update_user(uuid,uuid,boolean,boolean,boolean,uuid)', 'execute')
   and not has_function_privilege('authenticated', 'public.admin_update_user(uuid,uuid,boolean,boolean,boolean,uuid)', 'execute'),
   'anon và authenticated (kể cả Admin từ trình duyệt) không gọi được hàm quản trị');
 
 select ok(
-  has_function_privilege('service_role', 'public.admin_list_users(text,text,uuid,integer,uuid)', 'execute')
+  has_function_privilege('service_role', 'public.admin_list_users(text,text,uuid,integer,uuid,uuid,boolean)', 'execute')
   and has_function_privilege('service_role', 'public.admin_update_user(uuid,uuid,boolean,boolean,boolean,uuid)', 'execute'),
   'service_role (API máy chủ) gọi được hàm quản trị');
 
