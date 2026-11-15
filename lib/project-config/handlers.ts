@@ -222,7 +222,7 @@ function writeFailure(
   kind: ConfigKind,
   ctx: Ctx,
   where: string,
-  error: { code?: string; message?: string },
+  error: { code?: string; message?: string; details?: string | null },
 ): Response {
   const mapped = mapConfigWriteError(kind, error);
   return mapped ? fail(mapped, ctx) : internal(ctx, where, error);

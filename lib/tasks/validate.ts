@@ -13,8 +13,9 @@ import { readSearchQuery, readStatusIds } from "./search";
  * thêm thư viện). Từ chối trường lạ (`unknown_field`), không tin kiểu dữ liệu từ trình duyệt.
  * Giới hạn độ dài khớp ràng buộc CHECK trong migration 20261114090000_tasks.sql.
  *
- * Chưa nhận: parent_id (E2-4): gửi lên là `unknown_field`. status_id, type_id, label_ids (E2-3):
- * phải thuộc chính dự án của task; CSDL kiểm (trigger, khóa ngoại kép), API trả 422.
+ * status_id, type_id, label_ids (E2-3): phải thuộc chính dự án của task; CSDL kiểm (trigger, khóa
+ * ngoại kép), API trả 422. parent_id (E2-4): uuid hoặc null (task gốc); cùng dự án, tối đa 3 cấp,
+ * không vòng: handler kiểm trước, trigger check_task_tree quyết định cuối.
  */
 
 export const TITLE_MAX_LENGTH = 500;
@@ -190,6 +191,8 @@ export interface TaskCreateInput {
   /** Không gửi: loại đầu tiên của dự án ("Task"). */
   type_id?: string;
   label_ids?: string[];
+  /** Task cha (E2-4). Không gửi hoặc null: task gốc (cấp 1). */
+  parent_id?: string | null;
 }
 
 const CREATE_FIELDS = [
@@ -203,6 +206,7 @@ const CREATE_FIELDS = [
   "status_id",
   "type_id",
   "label_ids",
+  "parent_id",
 ] as const;
 
 export function validateTaskCreate(body: unknown): Validation<TaskCreateInput> {
@@ -247,6 +251,10 @@ export function validateTaskCreate(body: unknown): Validation<TaskCreateInput> {
     const ids = readLabelIds(body.label_ids, details);
     if (ids !== undefined) input.label_ids = ids;
   }
+  if (body.parent_id !== undefined) {
+    const parent = readNullableUuid("parent_id")(body.parent_id, details);
+    if (parent !== undefined) input.parent_id = parent;
+  }
   return details.length > 0
     ? { ok: false, details }
     : { ok: true, data: input };
@@ -268,6 +276,8 @@ export interface TaskPatch {
   type_id?: string;
   /** Thay toàn bộ nhãn của task. */
   label_ids?: string[];
+  /** Đổi task cha (E2-4); null: tách thành task gốc. Cả cây con đi theo. */
+  parent_id?: string | null;
 }
 
 const PATCH_FIELDS = CREATE_FIELDS;
@@ -305,6 +315,8 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
     set("type_id", readUuid("type_id")(body.type_id, details));
   if ("label_ids" in body)
     set("label_ids", readLabelIds(body.label_ids, details));
+  if ("parent_id" in body)
+    set("parent_id", readNullableUuid("parent_id")(body.parent_id, details));
 
   if (details.length === 0 && Object.keys(patch).length === 0) {
     details.push({ field: "body", issue: "required" });
