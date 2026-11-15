@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar, AvatarGroup } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +109,15 @@ export function ProjectCard({
           {t.card.members(project.member_count)}
         </span>
       </div>
+
+      {/* Story E2-3: cấu hình trạng thái, loại task, nhãn (mọi vai trò xem, PM và Admin sửa). */}
+      <Link
+        href={`/projects/${project.id}/settings`}
+        className="inline-flex min-h-11 w-fit items-center text-sm sm:min-h-0"
+      >
+        {strings.projectConfig.openSettings}
+        <span className="sr-only"> {project.name}</span>
+      </Link>
 
       {canEdit ? (
         <div

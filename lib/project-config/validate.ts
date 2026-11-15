@@ -6,6 +6,7 @@ import {
   type Validation,
 } from "@/lib/api/request";
 import {
+  CONFIG_NAME_MAX_LENGTH,
   STATUS_CATEGORIES,
   type ConfigKind,
   type StatusCategory,
@@ -18,7 +19,7 @@ import {
  * Giới hạn khớp ràng buộc CHECK trong migration 20261115130000_task_statuses_types_labels.sql.
  */
 
-export const CONFIG_NAME_MAX_LENGTH = 100;
+export { CONFIG_NAME_MAX_LENGTH };
 /** |position| tối đa: đủ cho nhiều lần chèn giữa, chặn giá trị vô lý. */
 export const CONFIG_POSITION_MAX_ABS = 1e9;
 export const CONFIG_BODY_MAX_BYTES = 2048;

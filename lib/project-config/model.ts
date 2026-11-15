@@ -4,6 +4,9 @@
  * 20261115130000_task_statuses_types_labels.sql); `task_count` lấy từ
  * public.project_config_task_counts().
  */
+/** Tên trạng thái, loại, nhãn tối đa (ký tự, sau khi chuẩn hóa); khớp CHECK trong migration. */
+export const CONFIG_NAME_MAX_LENGTH = 100;
+
 export type StatusCategory = "todo" | "in_progress" | "done";
 
 export const STATUS_CATEGORIES: readonly StatusCategory[] = [
