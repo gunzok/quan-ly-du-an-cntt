@@ -462,7 +462,7 @@ export const strings = {
   projectConfig: {
     pageTitle: "Cấu hình dự án",
     eyebrow: (project: string) => `Dự án / ${project} / Cấu hình`,
-    heading: "Trạng thái, loại task, nhãn",
+    heading: "Cấu hình dự án",
     canEditNote:
       "Chỉ PM của dự án và Admin được sửa; Thành viên và Người xem chỉ đọc.",
     readOnly: "Bạn đang xem ở chế độ chỉ đọc.",
@@ -591,6 +591,81 @@ export const strings = {
       labelNotInProject: "Nhãn không thuộc dự án của task.",
       replaceRequired: "Chọn mục thay thế.",
       network: "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.",
+      actionFailed: "Không thực hiện được thao tác.",
+    },
+  },
+  /** Story E1-6 (QLDA-33): thành viên dự án và vai trò (API và tab Thành viên ở màn cấu hình). */
+  projectMembers: {
+    tab: "Thành viên",
+    listLabel: "Thành viên dự án",
+    loading: "Đang tải thành viên dự án",
+    loadError: "Không tải được thành viên dự án.",
+    retry: "Thử lại",
+    empty: "Dự án chưa có thành viên.",
+    add: "Thêm thành viên",
+    you: "(Bạn)",
+    locked: "Đã khóa",
+    noEmail: "Chưa có email",
+    roleNote:
+      "PM quản lý dự án và thành viên; Thành viên tạo và sửa task của mình; Người xem chỉ đọc. Dự án luôn phải còn ít nhất một PM đang hoạt động.",
+    assigneeNote:
+      "Gỡ thành viên không đổi người phụ trách của các task đã giao cho họ.",
+    roleOf: (name: string) => `Vai trò của ${name}`,
+    actions: {
+      groupLabel: (name: string) => `Thao tác với thành viên ${name}`,
+      changeRole: "Đổi vai trò",
+      remove: "Gỡ",
+      removeAction: (name: string) => `Gỡ ${name} khỏi dự án`,
+    },
+    addDialog: {
+      title: "Thêm thành viên",
+      description:
+        "Tìm theo họ tên hoặc email (chưa hỗ trợ gõ không dấu), chọn người rồi chọn vai trò.",
+      search: "Tìm người",
+      searchPlaceholder: "Họ tên hoặc email…",
+      searchHint: "Nhập ít nhất 2 ký tự.",
+      results: "Kết quả tìm",
+      searching: "Đang tìm…",
+      noResults: "Không tìm thấy người đang hoạt động nào chưa thuộc dự án.",
+      resultCount: (n: number) => `${n} người phù hợp`,
+      role: "Vai trò",
+      submit: "Thêm vào dự án",
+      pickRequired: "Chọn một người trong kết quả tìm.",
+    },
+    roleDialog: {
+      title: (name: string) => `Đổi vai trò của ${name}`,
+      description: "Vai trò áp dụng riêng cho dự án này.",
+      role: "Vai trò mới",
+      save: "Lưu vai trò",
+      selfWarning:
+        "Bạn đang đổi vai trò của chính mình. Nếu không còn là PM, bạn sẽ không quản lý được dự án này nữa.",
+      lastPmWarning:
+        "Đây là PM đang hoạt động cuối cùng của dự án: thêm hoặc chỉ định một PM khác trước khi đổi.",
+    },
+    removeDialog: {
+      title: (name: string) => `Gỡ ${name} khỏi dự án?`,
+      body: "Người này không còn thấy dự án. Các task đã giao cho họ giữ nguyên người phụ trách.",
+      selfBody:
+        "Bạn sẽ rời dự án và không còn thấy dự án này. Các task đã giao cho bạn giữ nguyên người phụ trách.",
+      confirm: "Gỡ khỏi dự án",
+    },
+    done: {
+      added: (name: string, role: string) =>
+        `Đã thêm ${name} vào dự án với vai trò ${role}.`,
+      changed: (name: string, role: string) =>
+        `Đã đổi vai trò của ${name} thành ${role}.`,
+      unchanged: (name: string, role: string) =>
+        `${name} đã có vai trò ${role}.`,
+      removed: (name: string) => `Đã gỡ ${name} khỏi dự án.`,
+    },
+    errors: {
+      forbidden:
+        "Chỉ PM của dự án hoặc Admin mới thêm, đổi vai trò, gỡ thành viên.",
+      searchForbidden:
+        "Chỉ Admin hoặc PM của ít nhất một dự án mới tìm người để thêm vào dự án.",
+      userInactive: "Người này không tồn tại hoặc đã bị khóa.",
+      lastPm:
+        "Dự án phải còn ít nhất một PM đang hoạt động. Hãy chỉ định PM khác trước.",
       actionFailed: "Không thực hiện được thao tác.",
     },
   },

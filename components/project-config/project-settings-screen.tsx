@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { HOME_PATH } from "@/lib/auth/routes";
 import type { ConfigKind } from "@/lib/project-config/model";
 import { strings } from "@/lib/strings";
+import { MembersPanel } from "@/components/project-members/members-panel";
 import { ConfigPanel } from "./config-panel";
 
 const t = strings.projectConfig;
@@ -18,11 +19,13 @@ export interface ProjectSettingsScreenProps {
   projectName: string;
   /** PM của dự án hoặc Admin; vai trò khác chỉ xem. */
   canEdit: boolean;
+  /** Người đang đăng nhập (tab Thành viên đánh dấu "(Bạn)", xử lý tự hạ vai trò, tự rời). */
+  currentUserId: string;
 }
 
 /**
  * Cấu hình dự án (Story E2-3, mockup v3 bp-ProjectSettings.dc.html): ba tab Trạng thái, Loại task,
- * Nhãn. Dữ liệu qua /api/v1; nút sửa chỉ hiện với PM và Admin (API và RLS vẫn kiểm lại).
+ * Nhãn; tab Thành viên thêm ở Story E1-6. Dữ liệu qua /api/v1; nút sửa chỉ hiện với PM và Admin (API và RLS vẫn kiểm lại).
  */
 export function ProjectSettingsScreen(props: ProjectSettingsScreenProps) {
   return (
@@ -36,6 +39,7 @@ function Screen({
   projectId,
   projectName,
   canEdit,
+  currentUserId,
 }: ProjectSettingsScreenProps) {
   return (
     <div className="flex flex-col gap-5 px-4 py-6 sm:px-8">
@@ -69,12 +73,22 @@ function Screen({
               {t.kinds[kind].tab}
             </TabsTrigger>
           ))}
+          <TabsTrigger value="members">
+            {strings.projectMembers.tab}
+          </TabsTrigger>
         </TabsList>
         {KINDS.map((kind) => (
           <TabsContent key={kind} value={kind}>
             <ConfigPanel kind={kind} projectId={projectId} canEdit={canEdit} />
           </TabsContent>
         ))}
+        <TabsContent value="members">
+          <MembersPanel
+            projectId={projectId}
+            currentUserId={currentUserId}
+            canEdit={canEdit}
+          />
+        </TabsContent>
       </Tabs>
 
       <p className="flex items-start gap-2 rounded-md border border-solid border-border bg-bg-subtle p-3 text-sm text-text">
