@@ -97,6 +97,7 @@ async function SettingsGate({ params }: Params) {
         projectId={project.id as string}
         projectName={project.name as string}
         canEdit={canEdit}
+        currentUserId={data.user.id}
       />
     </AppShell>
   );
