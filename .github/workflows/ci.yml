@@ -121,8 +121,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      # e2e chỉ đăng nhập bằng mật khẩu nên bỏ cả mailpit.
-      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      # Giữ mailpit: tests/e2e/accept-invite.spec.ts lấy link mời từ email (Story E1-7).
+      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
