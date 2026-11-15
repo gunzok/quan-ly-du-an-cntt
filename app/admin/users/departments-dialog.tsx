@@ -8,16 +8,16 @@ import {
 } from "@/lib/departments/client-api";
 import type { Department } from "@/lib/departments/model";
 import { DEPARTMENT_NAME_MAX_LENGTH } from "@/lib/departments/validate";
-import { strings } from "@/lib/strings";
+import { apiErrorText } from "@/lib/i18n/api-error";
+import { useStrings } from "@/lib/i18n/client";
+import type { Messages } from "@/lib/i18n/messages";
 import styles from "./admin-users.module.css";
 import { useModal } from "./use-modal";
 
-const t = strings.departments;
-
 /** Thông điệp lỗi cho ô tên: trùng tên dùng thông điệp máy chủ; còn lại theo loại lỗi trường. */
-function nameErrorOf(error: ApiError | null): string | null {
+function nameErrorOf(strings: Messages, error: ApiError | null): string | null {
   if (!error) return null;
-  if (error.code === "conflict") return error.message;
+  if (error.code === "conflict") return apiErrorText(strings, error);
   const issue = error.details?.find((d) => d.field === "name")?.issue;
   if (!issue) return null;
   if (issue === "required" || issue === "too_long") {
@@ -27,9 +27,12 @@ function nameErrorOf(error: ApiError | null): string | null {
 }
 
 /** Lỗi không gắn với ô nào (mạng, quyền, lỗi hệ thống). */
-function generalErrorOf(error: ApiError | null): string | null {
-  if (!error || nameErrorOf(error)) return null;
-  return error.message;
+function generalErrorOf(
+  strings: Messages,
+  error: ApiError | null,
+): string | null {
+  if (!error || nameErrorOf(strings, error)) return null;
+  return apiErrorText(strings, error);
 }
 
 /**
@@ -47,6 +50,8 @@ export function DepartmentsDialog({
   onClose: () => void;
   onChanged: (department: Department) => void;
 }) {
+  const strings = useStrings();
+  const t = strings.departments;
   const ref = useModal(open);
   const ids = { title: useId(), desc: useId(), add: useId(), status: useId() };
   const [addError, setAddError] = useState<ApiError | null>(null);
@@ -141,7 +146,7 @@ export function DepartmentsDialog({
     focusRowButton(dept.id, "archive");
   }
 
-  const addNameError = nameErrorOf(addError);
+  const addNameError = nameErrorOf(strings, addError);
 
   return (
     <dialog
@@ -199,7 +204,7 @@ export function DepartmentsDialog({
         </p>
       )}
       <div role="alert" className={styles.errorText}>
-        {generalErrorOf(addError)}
+        {generalErrorOf(strings, addError)}
       </div>
 
       <p
@@ -271,9 +276,11 @@ function DepartmentItem({
   onRename: (e: FormEvent<HTMLFormElement>) => void;
   onToggleArchive: () => void;
 }) {
+  const strings = useStrings();
+  const t = strings.departments;
   const inputId = useId();
-  const nameError = nameErrorOf(error);
-  const general = generalErrorOf(error);
+  const nameError = nameErrorOf(strings, error);
+  const general = generalErrorOf(strings, error);
 
   return (
     <li className={styles.deptItem}>

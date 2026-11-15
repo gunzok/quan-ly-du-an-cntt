@@ -1,0 +1,748 @@
+import type { Messages } from "./vi";
+
+/**
+ * Từ điển tiếng Anh (Story E10-2). Kiểu `Messages` lấy từ vi.ts: thiếu hoặc thừa khóa là lỗi biên
+ * dịch. Thuật ngữ theo OpenProject: Task, Status, Type, Label, Project, Member, Viewer, PM.
+ */
+export const en: Messages = {
+  app: {
+    name: "IT Project Management",
+    logoLetters: "QL",
+    description: "Internal IT project management app",
+  },
+  language: {
+    groupLabel: "Language",
+    viShort: "VI",
+    vi: "Tiếng Việt",
+    enShort: "EN",
+    en: "English",
+    changing: "Changing language…",
+    changeFailed: "Could not change the language. Please try again.",
+  },
+  brand: {
+    eyebrow: "Internal system",
+    title: "IT project management",
+    features: [
+      { label: "01 / Plan", text: "Projects, tasks, Gantt" },
+      { label: "02 / Track", text: "Kanban, list, dashboard" },
+      { label: "03 / Report", text: "Export to Excel, Word templates" },
+    ],
+  },
+  login: {
+    pageTitle: "Sign in",
+    eyebrow: "01 / Sign in",
+    heading: "Welcome back",
+    subtitle: "Use the account an Admin invited you with.",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    submit: "Sign in",
+    submitting: "Signing in…",
+    divider: "or",
+    google: "Continue with Google",
+    googleRedirecting: "Redirecting to Google…",
+    googleHint: "Use a Google account whose email an Admin has invited.",
+    inviteOnly: "No account yet? Ask an Admin to invite you.",
+  },
+  home: {
+    signedInAs: "Signed in as:",
+    placeholder: "Placeholder page. Features will be added story by story.",
+    signOut: "Sign out",
+    adminUsers: "User administration",
+    loading: "Loading…",
+  },
+  ui: {
+    loading: "Loading…",
+    close: "Close",
+    cancel: "Cancel",
+    toast: {
+      region: "Notifications",
+      dismiss: "Dismiss notification",
+    },
+    status: {
+      todo: "To do",
+      in_progress: "In progress",
+      done: "Done",
+      blocked: "Blocked",
+      overdue: "Overdue",
+    },
+    priority: {
+      low: "Low",
+      medium: "Normal",
+      high: "High",
+      urgent: "Urgent",
+    },
+    badgeNew: "New",
+  },
+  devUi: {
+    pageTitle: "Base components",
+    eyebrow: "Design system / Blueprint · Development only",
+    intro:
+      "Quick check of base component states, focus and contrast in light and dark mode.",
+    themeLabel: "Display mode",
+    themeSystem: "System",
+    themeLight: "Light",
+    themeDark: "Dark",
+    sections: {
+      buttons: "01 / Buttons",
+      fields: "02 / Inputs",
+      choices: "03 / Choices",
+      badges: "04 / Badges",
+      avatars: "05 / Avatars",
+      feedback: "06 / Feedback",
+      tabs: "07 / Tabs",
+      empty: "08 / Empty state",
+    },
+    sample: {
+      primary: "Create task",
+      secondary: "Export report",
+      danger: "Delete permanently",
+      text: "View all",
+      saving: "Saving…",
+      disabled: "Unavailable",
+      nameLabel: "Project name",
+      namePlaceholder: "For example: Intranet portal",
+      nameHint: "Up to 120 characters.",
+      codeLabel: "Project identifier",
+      codeError: "This project identifier already exists.",
+      disabledLabel: "Department",
+      disabledValue: "Technology division",
+      descriptionLabel: "Description",
+      selectLabel: "Priority",
+      selectPlaceholder: "Choose a priority",
+      checkboxLabel: "Receive email notifications",
+      checkboxCheckedLabel: "Show completed tasks",
+      checkboxDisabledLabel: "Only Admins can change this",
+      switchLabel: "Push notifications",
+      switchCheckedLabel: "Compact mode",
+      switchDisabledLabel: "Calendar sync (coming soon)",
+      label: "Label",
+      avatarPeople: ["Nguyễn Văn An", "Trần Thị Bình", "Lê Minh", "Phạm Hà"],
+      avatarGroupLabel: "Project members",
+      openDialog: "Delete project…",
+      dialogTitle: "Permanently delete this project?",
+      dialogDescription:
+        "All tasks, comments and attachments will be deleted and cannot be recovered.",
+      dialogConfirm: "Delete permanently",
+      dialogDone: "Project deleted (simulated).",
+      toastSuccess: "Show success notification",
+      toastError: "Show error notification",
+      toastWarning: "Show warning notification",
+      toastSuccessText: "Changes saved.",
+      toastErrorText: "Could not save. Please try again.",
+      toastWarningText: "Task is due within 24 hours.",
+      skeletonLabel: "Loading task list",
+      tabOverview: "Overview",
+      tabTasks: "Tasks",
+      tabMembers: "Members",
+      tabOverviewText: "Summary of project progress.",
+      tabTasksText: "The project's task list.",
+      tabMembersText: "Members and roles.",
+      emptyTitle: "No tasks yet",
+      emptyDescription: "Create the first task to start tracking progress.",
+      emptyAction: "Create task",
+    },
+  },
+  errors: {
+    validationFailed: "Please check the information you entered.",
+    invalidCredentials: "Incorrect email or password.",
+    rateLimited: "Too many attempts. Please wait a few minutes and try again.",
+    internal: "Unable to sign in right now. Please try again later.",
+    unauthenticated: "You are not signed in or your session has expired.",
+    oauth: {
+      not_invited:
+        "This Google account has not been invited. Ask an Admin to invite you.",
+      rate_limited:
+        "Too many attempts. Please wait a few minutes and try again.",
+      oauth_failed:
+        "Could not sign in with Google (error or cancelled). Please try again.",
+    },
+    field: {
+      required: "This field is required.",
+      invalid_format: "Invalid email format.",
+      too_long: "The value is too long.",
+      invalid_value: "Invalid value.",
+      unknown_field: "Unsupported field.",
+    },
+  },
+  api: {
+    validationFailed: "Invalid data.",
+    unauthenticated: "You are not signed in or your session has expired.",
+    forbidden: "You are not allowed to perform this action.",
+    notFound: "Not found.",
+    internal: "A system error occurred. Please try again later.",
+  },
+  adminUsers: {
+    pageTitle: "Users",
+    eyebrow: "Administration",
+    eyebrowCount: (n: number) =>
+      `Administration / ${String(n).padStart(2, "0")} ${n === 1 ? "user" : "users"}`,
+    heading: "Users",
+    intro:
+      "Invite users, assign departments, grant Admin rights, lock or unlock accounts. Project roles are assigned on each project's Members page.",
+    navLabel: "Administration navigation",
+    navSection: "Administration",
+    navUsers: "Users",
+    navHome: "Home",
+    adminBadge: "Admin",
+    searchLabel: "Search by name or email",
+    searchPlaceholder: "Search by name or email…",
+    tableCaption: "User list",
+    columns: {
+      user: "User",
+      department: "Department",
+      admin: "Admin rights",
+      projects: "Projects",
+      status: "Status",
+      lastSignIn: "Last sign-in",
+      actions: "Actions",
+    },
+    noDepartment: "Unassigned",
+    departmentFilterLabel: "Department",
+    departmentFilterAll: "All",
+    departmentFilterNone: "No department",
+    archivedSuffix: " (archived)",
+    emptyFilter: "No users belong to the selected department.",
+    changeDepartment: "Change",
+    changeDepartmentAction: (name: string) => `Change department of ${name}`,
+    manageDepartments: "Manage departments",
+    assign: {
+      title: (name: string) => `Change department of ${name}`,
+      description:
+        "Archived departments cannot be assigned; people already in them keep it.",
+      label: "Department",
+      none: "Unassigned",
+      submit: "Save",
+      submitting: "Saving…",
+      cancel: "Cancel",
+    },
+    noName: "(No name)",
+    adminYes: "Admin",
+    adminNo: "No",
+    projectsAll: "All",
+    projectsNone: "None",
+    projectsCount: (n: number, pm: number) => {
+      const projects = `${n} ${n === 1 ? "project" : "projects"}`;
+      return pm > 0 ? `${projects} (PM in ${pm})` : projects;
+    },
+    status: {
+      active: "Active",
+      locked: "Locked",
+      invited: "Invitation pending",
+    },
+    lastSignInNever: "Never signed in",
+    lastSignInToday: (time: string) => `Today ${time}`,
+    lastSignInYesterday: (time: string) => `Yesterday ${time}`,
+    you: "(you)",
+    lock: "Lock",
+    unlock: "Unlock",
+    grantAdmin: "Grant Admin",
+    revokeAdmin: "Revoke Admin",
+    selfActionHint: "You cannot lock yourself or revoke your own Admin rights.",
+    rowActionsLabel: (name: string) => `Actions for ${name}`,
+    loading: "Loading users…",
+    loadMore: "Load more",
+    loadingMore: "Loading more…",
+    empty: "No users yet. Click “Invite user” to get started.",
+    emptySearch: (q: string) => `No users match “${q}”.`,
+    loadError: "Could not load the user list.",
+    retry: "Retry",
+    invite: {
+      open: "Invite user",
+      title: "Invite user",
+      description:
+        "The system sends an invitation email. The account stays pending until the person accepts it.",
+      emailLabel: "Email",
+      nameLabel: "Full name (optional)",
+      departmentLabel: "Department (optional)",
+      departmentNone: "Unassigned",
+      submit: "Send invitation",
+      submitting: "Sending…",
+      cancel: "Cancel",
+      success: (email: string) => `Invitation sent to ${email}.`,
+    },
+    confirm: {
+      cancel: "Cancel",
+      lockTitle: (name: string) => `Lock the account of ${name}?`,
+      lockBody:
+        "This person is signed out and can no longer sign in. Their data and history are kept.",
+      unlockTitle: (name: string) => `Unlock the account of ${name}?`,
+      unlockBody:
+        "This person can sign in again with the same rights as before the lock.",
+      grantTitle: (name: string) => `Grant Admin rights to ${name}?`,
+      grantBody:
+        "Admins see and manage the whole system, including users and all projects.",
+      revokeTitle: (name: string) => `Revoke Admin rights from ${name}?`,
+      revokeBody: "This person keeps only their role in each project.",
+      working: "Working…",
+    },
+    done: {
+      locked: (name: string) => `Locked the account of ${name}.`,
+      unlocked: (name: string) => `Unlocked the account of ${name}.`,
+      granted: (name: string) => `Granted Admin rights to ${name}.`,
+      revoked: (name: string) => `Revoked Admin rights from ${name}.`,
+      departmentChanged: (name: string, department: string) =>
+        `Moved ${name} to ${department}.`,
+    },
+    errors: {
+      emailExists: "This email already has an account in the system.",
+      departmentNotFound: "The department does not exist.",
+      departmentArchived:
+        "The department is archived and cannot be assigned. Choose another department or restore this one.",
+      selfLock: "You cannot lock your own account.",
+      selfRevokeAdmin: "You cannot revoke your own Admin rights.",
+      lastAdmin: "You cannot lock or revoke the last Admin of the system.",
+      notAdminAnymore: "You are no longer an Admin.",
+      authSyncFailed:
+        "Changes were saved but the sign-in status could not be updated. Please try the action again.",
+      network: "Cannot reach the server. Please try again.",
+    },
+  },
+  departments: {
+    title: "Departments",
+    description:
+      "Add, rename or archive departments. Departments cannot be deleted; archiving hides them from pickers while current members keep them.",
+    addLabel: "New department name",
+    add: "Add",
+    adding: "Adding…",
+    listLabel: "Current departments",
+    empty: "No departments yet.",
+    archivedBadge: "Archived",
+    rename: "Rename",
+    renameLabel: (name: string) => `New name for ${name}`,
+    renameAction: (name: string) => `Rename ${name}`,
+    save: "Save",
+    saving: "Saving…",
+    cancel: "Cancel",
+    archive: "Archive",
+    archiveAction: (name: string) => `Archive ${name}`,
+    restore: "Restore",
+    restoreAction: (name: string) => `Restore ${name}`,
+    close: "Close",
+    done: {
+      added: (name: string) => `Added department ${name}.`,
+      renamed: (name: string) => `Renamed to ${name}.`,
+      archived: (name: string) => `Archived department ${name}.`,
+      restored: (name: string) => `Restored department ${name}.`,
+    },
+    errors: {
+      nameExists:
+        "A department with this name already exists (case-insensitive).",
+    },
+  },
+  tasks: {
+    errors: {
+      dateOrder: "The finish date cannot be earlier than the start date.",
+      assigneeNotMember:
+        "The assignee must be an active PM or Member of the project.",
+      forbiddenEdit:
+        "You can only edit tasks assigned to you or created by you.",
+      forbiddenDelete: "You can only delete tasks you created.",
+      forbiddenCreate: "Viewers cannot create tasks.",
+    },
+  },
+  subtasks: {
+    errors: {
+      parentNotFound: "The parent task does not exist in this project.",
+      parentNotEditable:
+        "You can only add subtasks to tasks you are allowed to edit.",
+      depthExceeded: "Subtasks can be nested at most 3 levels deep.",
+      cycle:
+        "You cannot choose this task or one of its subtasks as the parent.",
+      openSubtasks:
+        "Some subtasks are not finished. Complete or close all subtasks before closing the parent task.",
+      statusChangeBlocked:
+        "Not possible: a parent task would move to a done status while it still has unfinished subtasks.",
+      concurrentChange: "The data has just changed. Please try again.",
+    },
+  },
+  projects: {
+    pageTitle: "Projects",
+    eyebrow: "Catalog",
+    navLabel: "Main navigation",
+    navProjects: "Projects",
+    navAdminSection: "Administration",
+    navUsers: "Users",
+    eyebrowActive: (n: number) =>
+      `Catalog / ${String(n).padStart(2, "0")} active ${n === 1 ? "project" : "projects"}`,
+    create: "Create project",
+    tabsLabel: "Project status",
+    tabActive: (n: number | null) => (n === null ? "Active" : `Active (${n})`),
+    tabArchived: (n: number | null) =>
+      n === null ? "Archived" : `Archived (${n})`,
+    searchLabel: "Filter by project name",
+    searchPlaceholder: "Filter by project name…",
+    listLabel: "Project list",
+    loading: "Loading projects",
+    loadMore: "Load more",
+    retry: "Retry",
+    loadError: "Could not load the project list.",
+    emptyActiveTitle: "No projects yet",
+    emptyActiveCanCreate:
+      "Create the first project to start tracking progress.",
+    emptyActiveNoCreate:
+      "You are not in any project yet. Ask a PM or Admin to add you to a project.",
+    emptyArchivedTitle: "No archived projects",
+    emptyArchivedBody: "Archived projects will appear here.",
+    emptySearchTitle: "No matching projects",
+    emptySearchBody: (q: string) => `No project name contains “${q}”.`,
+    createFirst: "Create the first project",
+    card: {
+      eyebrow: "Project",
+      archived: "Archived",
+      progress: "Progress",
+      progressOf: (name: string) => `Progress of ${name}`,
+      tasks: "Tasks",
+      overdue: "Overdue",
+      overdueNone: "None",
+      due: "Due",
+      dueNone: "Not set",
+      members: (n: number) => `${n} ${n === 1 ? "member" : "members"}`,
+      membersLabel: (name: string) => `Members of project ${name}`,
+      actionsLabel: (name: string) => `Actions for project ${name}`,
+      edit: "Edit",
+      editAction: (name: string) => `Edit project ${name}`,
+      archive: "Archive",
+      archiveAction: (name: string) => `Archive project ${name}`,
+      restore: "Restore",
+      restoreAction: (name: string) => `Restore project ${name}`,
+      delete: "Delete permanently",
+      deleteAction: (name: string) => `Permanently delete project ${name}`,
+      unnamedMember: "Member",
+    },
+    roles: {
+      admin: "Admin",
+      pm: "PM",
+      member: "Member",
+      viewer: "Viewer",
+    },
+    form: {
+      createEyebrow: "Project / New",
+      createTitle: "Create project",
+      editEyebrow: "Project / Edit",
+      editTitle: "Edit project",
+      description: "The creator becomes the project's PM.",
+      editDescription: "Change the project's name, description and dates.",
+      name: "Project name",
+      descriptionLabel: "Description",
+      descriptionHint: "Optional.",
+      startDate: "Start date",
+      endDate: "Finish date",
+      submitCreate: "Create project",
+      submitEdit: "Save changes",
+      saving: "Saving…",
+      nameRequired: "Enter a project name.",
+      nameTooLong: "The project name can be at most 200 characters.",
+      descriptionTooLong: "The description can be at most 5000 characters.",
+      invalidDate: "Invalid date.",
+    },
+    confirm: {
+      archiveTitle: (name: string) => `Archive project “${name}”?`,
+      archiveBody:
+        "The project moves to the Archived tab. Its data is kept and it can be restored.",
+      restoreTitle: (name: string) => `Restore project “${name}”?`,
+      restoreBody: "The project returns to the active list.",
+      deleteTitle: (name: string) => `Permanently delete project “${name}”?`,
+      deleteBody:
+        "All tasks and members of the project are deleted too. This cannot be undone.",
+    },
+    done: {
+      created: (name: string) => `Created project “${name}”.`,
+      updated: (name: string) => `Saved project “${name}”.`,
+      archived: (name: string) => `Archived project “${name}”.`,
+      restored: (name: string) => `Restored project “${name}”.`,
+      deleted: (name: string) => `Permanently deleted project “${name}”.`,
+    },
+    errors: {
+      dateOrder: "The finish date cannot be earlier than the start date.",
+      forbiddenCreate:
+        "Only Admins or PMs of at least one project can create projects.",
+      forbiddenEdit: "Only the project's PM or an Admin can edit the project.",
+      forbiddenDelete: "Only Admins can permanently delete projects.",
+      network: "Cannot reach the server. Check your connection and try again.",
+      actionFailed: "The action could not be completed.",
+    },
+  },
+  projectConfig: {
+    pageTitle: "Project settings",
+    eyebrow: (project: string) => `Project / ${project} / Settings`,
+    heading: "Project settings",
+    canEditNote:
+      "Only the project's PM and Admins can edit; Members and Viewers have read-only access.",
+    readOnly: "You are viewing in read-only mode.",
+    backToProjects: "Project list",
+    openSettings: "Settings",
+    openSettingsAction: (name: string) => `Settings of project ${name}`,
+    tabsLabel: "Settings sections",
+    loading: "Loading project settings",
+    loadError: "Could not load the project settings.",
+    retry: "Retry",
+    deleteHint:
+      "Deleting a status or type that has tasks asks you to choose a replacement for those tasks.",
+    taskCount: (n: number) => `${n} ${n === 1 ? "task" : "tasks"}`,
+    milestone: "Milestone",
+    categories: {
+      todo: "Not started",
+      in_progress: "In progress",
+      done: "Done",
+    },
+    colors: {
+      gray: "Gray",
+      blue: "Blue",
+      purple: "Purple",
+      pink: "Pink",
+      amber: "Amber",
+      green: "Green",
+      slate: "Slate",
+      red: "Red",
+      custom: "Custom color",
+    },
+    kinds: {
+      statuses: {
+        tab: "Statuses",
+        listLabel: "Status list",
+        empty: "No statuses yet.",
+        add: "Add status",
+        addTitle: "Add status",
+        editTitle: (name: string) => `Edit status “${name}”`,
+        deleteTitle: (name: string) => `Delete status “${name}”?`,
+        inUseBody: (n: number) =>
+          `${n} ${n === 1 ? "task has" : "tasks have"} this status. Choose a status to move them to before deleting.`,
+        unusedBody: "No tasks have this status. This cannot be undone.",
+        replaceLabel: "Move tasks to status",
+      },
+      "task-types": {
+        tab: "Types",
+        listLabel: "Type list",
+        empty: "No types yet.",
+        add: "Add type",
+        addTitle: "Add type",
+        editTitle: (name: string) => `Edit type “${name}”`,
+        deleteTitle: (name: string) => `Delete type “${name}”?`,
+        inUseBody: (n: number) =>
+          `${n} ${n === 1 ? "task has" : "tasks have"} this type. Choose a type to move them to before deleting.`,
+        unusedBody: "No tasks have this type. This cannot be undone.",
+        replaceLabel: "Move tasks to type",
+      },
+      labels: {
+        tab: "Labels",
+        listLabel: "Label list",
+        empty: "No labels yet.",
+        add: "Add label",
+        addTitle: "Add label",
+        editTitle: (name: string) => `Edit label “${name}”`,
+        deleteTitle: (name: string) => `Delete label “${name}”?`,
+        inUseBody: (n: number) =>
+          `The label is attached to ${n} ${n === 1 ? "task" : "tasks"}; deleting it removes it from them. This cannot be undone.`,
+        unusedBody:
+          "The label is not attached to any task. This cannot be undone.",
+        replaceLabel: "",
+      },
+    },
+    form: {
+      name: "Name",
+      category: "Group",
+      categoryHint:
+        "The “Done” group counts as completed when calculating progress.",
+      color: "Color",
+      milestone: "Is a milestone",
+      save: "Save",
+      saving: "Saving…",
+      add: "Add",
+      nameRequired: "Enter a name.",
+      nameTooLong: "The name can be at most 100 characters.",
+    },
+    actions: {
+      groupLabel: (name: string) => `Actions for ${name}`,
+      edit: "Edit",
+      moveUp: "Up",
+      moveDown: "Down",
+      moveUpAction: (name: string) => `Move ${name} up`,
+      moveDownAction: (name: string) => `Move ${name} down`,
+      delete: "Delete",
+      confirmDelete: "Delete",
+      moveAndDelete: "Move tasks and delete",
+    },
+    done: {
+      added: (name: string) => `Added “${name}”.`,
+      updated: (name: string) => `Saved “${name}”.`,
+      moved: (name: string) => `Reordered “${name}”.`,
+      deleted: (name: string) => `Deleted “${name}”.`,
+      deletedMoved: (name: string, n: number) =>
+        `Deleted “${name}” and moved ${n} ${n === 1 ? "task" : "tasks"}.`,
+    },
+    errors: {
+      nameExists: {
+        statuses:
+          "The project already has a status with this name (case-insensitive).",
+        "task-types":
+          "The project already has a type with this name (case-insensitive).",
+        labels:
+          "The project already has a label with this name (case-insensitive).",
+      },
+      inUse: {
+        statuses:
+          "The status has tasks. Choose a replacement status (replace_with) to move them before deleting.",
+        "task-types":
+          "The type is in use. Choose a replacement type (replace_with) to move tasks before deleting.",
+        labels: "The label is in use.",
+      },
+      invalidReplacement:
+        "The replacement must be a different item of the same project.",
+      lastOfCategory:
+        "The project must keep at least one status in the “Not started” group and one in the “Done” group.",
+      lastType: "The project must keep at least one type.",
+      forbidden:
+        "Only the project's PM or an Admin can edit statuses, types and labels.",
+      statusNotInProject: "The status or type does not belong to this project.",
+      typeNotInProject: "The type does not belong to this project.",
+      labelNotInProject: "The label does not belong to the task's project.",
+      replaceRequired: "Choose a replacement.",
+      network: "Cannot reach the server. Check your connection and try again.",
+      actionFailed: "The action could not be completed.",
+    },
+  },
+  projectMembers: {
+    tab: "Members",
+    listLabel: "Project members",
+    loading: "Loading project members",
+    loadError: "Could not load the project members.",
+    retry: "Retry",
+    empty: "The project has no members.",
+    add: "Add member",
+    you: "(You)",
+    locked: "Locked",
+    noEmail: "No email",
+    roleNote:
+      "PMs manage the project and its members; Members create and edit their own tasks; Viewers have read-only access. A project must always keep at least one active PM.",
+    assigneeNote:
+      "Removing a member does not change the assignee of tasks already assigned to them.",
+    roleOf: (name: string) => `Role of ${name}`,
+    actions: {
+      groupLabel: (name: string) => `Actions for member ${name}`,
+      changeRole: "Change role",
+      remove: "Remove",
+      removeAction: (name: string) => `Remove ${name} from the project`,
+    },
+    addDialog: {
+      title: "Add member",
+      description:
+        "Search by full name or email (searching without Vietnamese accents is not supported yet), pick a person, then a role.",
+      search: "Find people",
+      searchPlaceholder: "Full name or email…",
+      searchHint: "Enter at least 2 characters.",
+      results: "Search results",
+      searching: "Searching…",
+      noResults: "No active person outside the project was found.",
+      resultCount: (n: number) =>
+        `${n} ${n === 1 ? "person matches" : "people match"}`,
+      role: "Role",
+      submit: "Add to project",
+      pickRequired: "Pick a person from the search results.",
+    },
+    roleDialog: {
+      title: (name: string) => `Change role of ${name}`,
+      description: "The role applies to this project only.",
+      role: "New role",
+      save: "Save role",
+      selfWarning:
+        "You are changing your own role. If you are no longer a PM, you will not be able to manage this project.",
+      lastPmWarning:
+        "This is the project's last active PM: add or appoint another PM before changing it.",
+    },
+    removeDialog: {
+      title: (name: string) => `Remove ${name} from the project?`,
+      body: "This person will no longer see the project. Tasks assigned to them keep their assignee.",
+      selfBody:
+        "You will leave the project and no longer see it. Tasks assigned to you keep their assignee.",
+      confirm: "Remove from project",
+    },
+    done: {
+      added: (name: string, role: string) =>
+        `Added ${name} to the project as ${role}.`,
+      changed: (name: string, role: string) =>
+        `Changed the role of ${name} to ${role}.`,
+      unchanged: (name: string, role: string) =>
+        `${name} already has the role ${role}.`,
+      removed: (name: string) => `Removed ${name} from the project.`,
+    },
+    errors: {
+      forbidden:
+        "Only the project's PM or an Admin can add members, change roles or remove members.",
+      searchForbidden:
+        "Only Admins or PMs of at least one project can search for people to add to a project.",
+      userInactive: "This person does not exist or is locked.",
+      lastPm:
+        "The project must keep at least one active PM. Appoint another PM first.",
+      actionFailed: "The action could not be completed.",
+    },
+  },
+  taskRelations: {
+    errors: {
+      cycle: "This relation would create a cycle",
+      duplicate: "This relation already exists",
+      selfRelation: "A task cannot be related to itself.",
+      crossProject: "Both tasks must belong to the same project.",
+      forbiddenEdit:
+        "You need permission to edit both tasks to add or remove a relation between them.",
+    },
+  },
+  security: {
+    crossOrigin: "The request did not come from this app and was rejected.",
+    rateLimited: "Too many requests. Please wait and try again.",
+  },
+  acceptInvite: {
+    pageTitle: "Accept invitation",
+    eyebrow: "Invitation",
+    heading: "Set your password",
+    subtitle:
+      "An Admin invited you to the system. Set a password to sign in next time.",
+    passwordLabel: "New password",
+    passwordHint:
+      "At least 12 characters. A long, memorable passphrase works best.",
+    confirmLabel: "Confirm password",
+    submit: "Set password and open the app",
+    submitting: "Saving…",
+    divider: "or",
+    google: "Continue with Google",
+    googleRedirecting: "Redirecting to Google…",
+    googleHint:
+      "Only a Google account with the exact email that received the invitation works.",
+    backToLogin: "Back to sign in",
+    invalidHeading: "This invitation link cannot be used",
+    invalidBody:
+      "This link is invalid, has expired or has already been used. Each invitation link works only once.",
+    invalidAction:
+      "Ask an Admin to resend the invitation, then open the link in the newest email.",
+    invalidHintSignedUp:
+      "If you have already set a password, sign in as usual.",
+    fieldErrors: {
+      password: {
+        required: "Please enter a password.",
+        too_short: "The password needs at least 12 characters.",
+        too_long: "The password is too long (at most 72 bytes).",
+      },
+      confirm: {
+        required: "Please confirm the password.",
+        mismatch: "The two passwords do not match.",
+      },
+    },
+    errors: {
+      rateLimited:
+        "Too many attempts. Please wait a few minutes and try again.",
+      unavailable:
+        "Unable to process the invitation right now. Please try again later.",
+      passwordNotSet:
+        "The invitation was confirmed but the password could not be set. Try signing in with Google or contact an Admin.",
+    },
+  },
+  savedViews: {
+    errors: {
+      forbidden: "You can only edit or delete your own private views.",
+      publicForbidden:
+        "Only the project's PM and Admins can create, edit or delete public views.",
+      privatizeForbidden: "Only the view's creator can make it private.",
+      defaultReadOnly: "Default views cannot be edited or deleted.",
+      nameExists: "You already have a view with this name in this project.",
+    },
+  },
+};

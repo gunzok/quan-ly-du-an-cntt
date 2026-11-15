@@ -158,6 +158,7 @@ describe.skipIf(!enabled)("Đăng nhập email/mật khẩu (Supabase cục bộ
       error: {
         code: "unauthenticated",
         message: strings.errors.unauthenticated,
+        message_key: "errors.unauthenticated",
       },
     });
   });

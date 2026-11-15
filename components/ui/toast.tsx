@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/cn";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import { AlertIcon, CheckIcon, CloseIcon, ErrorIcon } from "./icons";
 
 export type ToastTone = "success" | "error" | "warning";
@@ -44,6 +44,7 @@ const DEFAULT_DURATION = 5000;
  * role="status" (aria-live="polite") nên trình đọc màn hình đọc được toast mới chèn vào.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const strings = useStrings();
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(1);
 
@@ -110,6 +111,7 @@ function ToastCard({
   item: ToastItem;
   onDismiss: (id: number) => void;
 }) {
+  const strings = useStrings();
   // Tạm dừng đếm giờ khi rê chuột hoặc focus vào toast (đủ thời gian đọc, WCAG 2.2.1).
   const [paused, setPaused] = useState(false);
 

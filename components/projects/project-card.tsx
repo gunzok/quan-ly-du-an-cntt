@@ -8,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/projects/format";
 import type { Project } from "@/lib/projects/model";
-import { strings } from "@/lib/strings";
-
-const t = strings.projects;
+import { useI18n } from "@/lib/i18n/client";
 
 export type ProjectAction = "archive" | "restore" | "delete";
 
@@ -26,6 +24,8 @@ export function ProjectCard({
   onEdit: (project: Project) => void;
   onAction: (project: Project, action: ProjectAction) => Promise<void>;
 }) {
+  const { t: strings, locale } = useI18n();
+  const t = strings.projects;
   const canEdit = isAdmin || project.my_role === "pm";
   const archived = project.status === "archived";
   const roleLabel = project.my_role
@@ -33,7 +33,7 @@ export function ProjectCard({
     : isAdmin
       ? t.roles.admin
       : null;
-  const due = formatDate(project.end_date);
+  const due = formatDate(project.end_date, locale);
   const late = project.overdue_task_count;
   const headingId = `project-${project.id}-name`;
 

@@ -22,20 +22,26 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToastProvider, useToast } from "@/components/ui/toast";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 import { ThemeSwitch } from "./theme-switch";
 
-const t = strings.devUi;
-const s = t.sample;
-
-const statuses = Object.keys(strings.ui.status) as TaskStatus[];
-const priorities = Object.keys(strings.ui.priority) as TaskPriority[];
-const priorityOptions = priorities.map((value) => ({
-  value,
-  label: strings.ui.priority[value],
-}));
+const statuses: TaskStatus[] = [
+  "todo",
+  "in_progress",
+  "done",
+  "blocked",
+  "overdue",
+];
+const priorities: TaskPriority[] = ["low", "medium", "high", "urgent"];
 
 export function UiKit() {
+  const strings = useStrings();
+  const t = strings.devUi;
+  const s = t.sample;
+  const priorityOptions = priorities.map((value) => ({
+    value,
+    label: strings.ui.priority[value],
+  }));
   return (
     <ToastProvider>
       <main className="flex-1 bg-canvas p-0 lg:p-3">
@@ -216,6 +222,7 @@ function Row({ children }: { children: ReactNode }) {
 }
 
 function DialogDemo() {
+  const s = useStrings().devUi.sample;
   const { toast } = useToast();
   return (
     <ConfirmDialog
@@ -232,6 +239,7 @@ function DialogDemo() {
 }
 
 function ToastDemo() {
+  const s = useStrings().devUi.sample;
   const { toast } = useToast();
   return (
     <>

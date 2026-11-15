@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { strings } from "@/lib/strings";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { getStrings } from "@/lib/i18n/server";
 import { GoogleSignIn } from "./google-sign-in";
-import { LanguageSwitcher } from "./language-switcher";
 import { LoginForm } from "./login-form";
 import styles from "./login.module.css";
 import { OAuthError } from "./oauth-error";
 
-export const metadata: Metadata = {
-  title: `${strings.login.pageTitle} · ${strings.app.name}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const strings = await getStrings();
+  return { title: `${strings.login.pageTitle} · ${strings.app.name}` };
+}
 
 /** S01 Đăng nhập, bản Blueprint v3 (docs/03-design/ui-ux/mockups/v3/bp-Main.dc.html). */
-export default function LoginPage({ searchParams }: PageProps<"/login">) {
+export default async function LoginPage({ searchParams }: PageProps<"/login">) {
+  const strings = await getStrings();
   return (
     <div className={styles.canvas}>
       <div className={styles.frame}>
@@ -64,7 +66,9 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
         </aside>
 
         <main className={styles.formPanel}>
-          <LanguageSwitcher />
+          <div className={styles.languages}>
+            <LanguageSwitcher />
+          </div>
 
           <div className={styles.formCenter}>
             <section className={styles.formBox} aria-labelledby="login-heading">

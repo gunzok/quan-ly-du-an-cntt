@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import { strings } from "@/lib/strings";
+import { vi as strings } from "@/lib/i18n/messages/vi";
 import { E2E_EMAIL, e2ePassword } from "./env";
 
 /** Đăng nhập bằng tài khoản thử qua /login, chờ về trang chủ. */

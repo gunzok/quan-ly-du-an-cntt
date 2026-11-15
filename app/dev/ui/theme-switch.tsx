@@ -1,21 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 
 type ThemeChoice = "system" | "light" | "dark";
-
-const choices: { value: ThemeChoice; label: string }[] = [
-  { value: "system", label: strings.devUi.themeSystem },
-  { value: "light", label: strings.devUi.themeLight },
-  { value: "dark", label: strings.devUi.themeDark },
-];
 
 /**
  * Đổi data-theme trên <html> để xem thử (không lưu: lưu lựa chọn thuộc Story khác).
  * "Theo hệ thống" bỏ thuộc tính, để prefers-color-scheme quyết định.
  */
 export function ThemeSwitch() {
+  const strings = useStrings();
+  const choices: { value: ThemeChoice; label: string }[] = [
+    { value: "system", label: strings.devUi.themeSystem },
+    { value: "light", label: strings.devUi.themeLight },
+    { value: "dark", label: strings.devUi.themeDark },
+  ];
   const [theme, setTheme] = useState<ThemeChoice>("system");
 
   function choose(next: ThemeChoice) {

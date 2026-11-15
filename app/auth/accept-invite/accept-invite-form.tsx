@@ -13,9 +13,8 @@ import {
 } from "@/lib/auth/accept-invite-action";
 import { signInWithGoogle } from "@/lib/auth/actions";
 import { LOGIN_PATH } from "@/lib/auth/routes";
-import { strings } from "@/lib/strings";
+import { useStrings } from "@/lib/i18n/client";
 
-const t = strings.acceptInvite;
 const initialState: AcceptInviteState = {};
 
 function Heading({ children }: { children: string }) {
@@ -34,6 +33,8 @@ function Heading({ children }: { children: string }) {
 
 /** Link giả, hết hạn hoặc đã dùng: cùng một thông báo (không lộ tài khoản có tồn tại không). */
 export function InvalidInvite() {
+  const strings = useStrings();
+  const t = strings.acceptInvite;
   return (
     <div className="flex flex-col gap-4">
       <p className="label m-0">{t.eyebrow}</p>
@@ -60,6 +61,8 @@ export function InvalidInvite() {
 }
 
 function SubmitButton() {
+  const strings = useStrings();
+  const t = strings.acceptInvite;
   const { pending } = useFormStatus();
   return (
     <Button type="submit" loading={pending} loadingText={t.submitting}>
@@ -69,6 +72,8 @@ function SubmitButton() {
 }
 
 function GoogleButton() {
+  const strings = useStrings();
+  const t = strings.acceptInvite;
   const { pending } = useFormStatus();
   return (
     <Button
@@ -89,6 +94,8 @@ function GoogleButton() {
  * trình duyệt sẽ cắt ngầm mật khẩu dán vào; máy chủ báo lỗi "quá dài" rõ ràng thay vì vậy.
  */
 export function AcceptInviteForm({ tokenHash }: { tokenHash: string }) {
+  const strings = useStrings();
+  const t = strings.acceptInvite;
   const [state, formAction] = useActionState(submitAcceptInvite, initialState);
 
   if (state.linkInvalid) {
@@ -140,7 +147,7 @@ export function AcceptInviteForm({ tokenHash }: { tokenHash: string }) {
         </Field>
 
         <div role="alert" className="text-sm text-danger empty:hidden">
-          {state.formError}
+          {state.formError ? t.errors[state.formError] : null}
         </div>
 
         <SubmitButton />

@@ -1,18 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { signOut } from "@/lib/auth/actions";
 import { HOME_PATH } from "@/lib/auth/routes";
-import { strings } from "@/lib/strings";
-
-const t = strings.projects;
+import { useStrings } from "@/lib/i18n/client";
 
 const navLink =
   "flex min-h-11 items-center rounded-md px-2.5 text-sm text-text hover:bg-bg-muted hover:text-text sm:min-h-9";
 
 /**
  * Khung trang Blueprint (mockup v3 bp-Projects.dc.html): thanh bên (thương hiệu, điều hướng, người
- * đang đăng nhập, đăng xuất) và vùng nội dung. Dưới `lg` thanh bên nằm trên nội dung.
+ * đang đăng nhập, bộ chọn ngôn ngữ, đăng xuất) và vùng nội dung. Dưới `lg` thanh bên nằm trên nội
+ * dung. Client Component để dùng từ điển theo ngôn ngữ (useStrings) và bộ chọn ngôn ngữ.
  */
 export function AppShell({
   userName,
@@ -27,6 +29,8 @@ export function AppShell({
   isAdmin: boolean;
   children: ReactNode;
 }) {
+  const strings = useStrings();
+  const t = strings.projects;
   return (
     <div className="flex flex-1 flex-col bg-canvas lg:p-3">
       <div className="flex min-h-full flex-1 flex-col overflow-hidden bg-bg lg:flex-row lg:rounded-xl lg:border lg:border-solid lg:border-border">
@@ -81,6 +85,7 @@ export function AppShell({
               {strings.home.signedInAs}{" "}
               <span className="text-text">{email}</span>
             </p>
+            <LanguageSwitcher className="items-start" />
             <form action={signOut}>
               <button
                 type="submit"

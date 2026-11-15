@@ -14,5 +14,10 @@ describe("formatDate", () => {
     expect(formatDate("2027-01-15")).toBe("15/01/2027");
     expect(formatDate(null)).toBeNull();
     expect(formatDate("15/01/2027")).toBeNull();
+    expect(formatDate("2027-02-31")).toBeNull();
+  });
+
+  it("tiếng Anh: ngày, tháng viết tắt, năm", () => {
+    expect(formatDate("2027-01-15", "en")).toBe("15 Jan 2027");
   });
 });

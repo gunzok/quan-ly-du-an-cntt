@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { strings } from "@/lib/strings";
+import { getStrings } from "@/lib/i18n/server";
 import { UiKit } from "./ui-kit";
 
-export const metadata: Metadata = {
-  title: `${strings.devUi.pageTitle} · ${strings.app.name}`,
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const strings = await getStrings();
+  return {
+    title: `${strings.devUi.pageTitle} · ${strings.app.name}`,
+    robots: { index: false, follow: false },
+  };
+}
 
 /**
  * Trang xem thử component nền (Story E10-1). Chỉ có khi `next dev`: bản production (`next build`

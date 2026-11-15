@@ -237,6 +237,7 @@ describe("rateLimitedResponse", () => {
       error: {
         code: "rate_limited",
         message: expect.any(String),
+        message_key: "security.rateLimited",
         request_id: "req-1",
       },
     });
