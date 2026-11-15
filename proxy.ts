@@ -1,4 +1,4 @@
-import type { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { randomUUID } from "node:crypto";
 import { rejectCrossOrigin } from "@/lib/api/csrf";
 import {
@@ -59,8 +59,17 @@ export async function proxy(request: NextRequest) {
   request.headers.set(NONCE_HEADER, nonce);
 
   const pathname = request.nextUrl.pathname;
+  // Trang công cụ phát triển (/dev/*, ví dụ trang xem thử component E10-1) không có ở production.
+  // Chặn ở proxy để trả đúng 404: notFound() trong trang chỉ ra 404 thật khi chưa bắt đầu stream,
+  // còn root layout render động (E0-5) thì phản hồi đã là 200.
+  const devOnly =
+    process.env.NODE_ENV === "production" &&
+    (pathname === "/dev" || pathname.startsWith("/dev/"))
+      ? new NextResponse("Not Found", { status: 404 })
+      : null;
   const crossOrigin = isApiPath(pathname) ? rejectCrossOrigin(request) : null;
   const response =
+    devOnly ??
     crossOrigin ??
     (await updateSession(request, {
       guard: isRateLimitedApiPath(pathname)
