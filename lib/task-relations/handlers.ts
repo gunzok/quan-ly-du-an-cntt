@@ -163,7 +163,7 @@ async function loadRelation(
     .eq("id", rawRelationId.toLowerCase())
     .maybeSingle();
   if (error) throw error;
-  const row = data as RelationWithTasks | null;
+  const row = data as unknown as RelationWithTasks | null;
   if (!row || !row.from_task || !row.to_task) return null;
   if (row.from_task_id === taskId) return { row, other: row.to_task };
   if (row.to_task_id === taskId) return { row, other: row.from_task };
@@ -205,7 +205,7 @@ export async function handleListRelations(
     if (error) throw error;
 
     const body: TaskRelationListResponse = { data: [] };
-    for (const row of (data ?? []) as RelationWithTasks[]) {
+    for (const row of (data ?? []) as unknown as RelationWithTasks[]) {
       const other = row.from_task_id === task.id ? row.to_task : row.from_task;
       if (!other) continue; // RLS đã lọc; phòng thủ thêm
       body.data.push(toRelationView(stripTasks(row), task.id, other));
