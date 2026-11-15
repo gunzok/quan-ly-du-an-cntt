@@ -188,4 +188,9 @@ export const strings = {
       forbiddenCreate: "Người xem không tạo được task.",
     },
   },
+  /** Thông điệp lỗi của lớp bảo mật chung (Story E0-5): CSRF, giới hạn tần suất. */
+  security: {
+    crossOrigin: "Yêu cầu không đến từ ứng dụng này nên bị từ chối.",
+    rateLimited: "Bạn gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.",
+  },
 } as const;
