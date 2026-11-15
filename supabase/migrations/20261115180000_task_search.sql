@@ -8,9 +8,10 @@
 -- Phương án (đơn giản nhất đủ dùng):
 --   * Chỉ mục GIN pg_trgm trên BIỂU THỨC private.task_search_text(title, description), không thêm
 --     cột sinh: thêm cột vào tasks sẽ làm nhật ký activity_logs (to_jsonb(new)) ghi cả cột đó.
---   * Hàm public.search_tasks(project_id, q, label_id?) (SECURITY INVOKER, RLS của tasks vẫn áp dụng; lấy id
---     khớp qua private.search_task_ids, xem mục 4) trả về setof public.tasks để API dùng qua PostgREST rpc() và vẫn nhúng task_labels, lọc, sắp
---     xếp, phân trang như GET bảng tasks (trừ lọc nhãn, làm trong hàm). Bỏ dấu và thoát ký tự LIKE làm trong SQL (một nơi duy
+--   * Hàm public.search_tasks(project_id, q, label_id?) (SECURITY INVOKER, RLS của tasks vẫn áp
+--     dụng; lấy id khớp qua private.search_task_ids, xem mục 4) trả về setof public.tasks để API
+--     gọi qua PostgREST rpc() mà vẫn nhúng task_labels, lọc, sắp xếp, phân trang như GET bảng
+--     tasks (riêng lọc nhãn làm trong hàm). Bỏ dấu và thoát ký tự LIKE làm trong SQL (một nơi duy
 --     nhất), không phụ thuộc cách PostgREST hiểu ký tự `*` trong toán tử like.
 --   * tsvector không dùng: chỉ khớp theo từ/tiền tố, không khớp "chứa chuỗi".
 
