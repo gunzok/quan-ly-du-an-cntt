@@ -1,0 +1,20 @@
+<!--
+  Mẫu email mời người dùng (Story E1-7, QLDA-80). Supabase Auth dùng Go template.
+  Link trỏ về trang của ứng dụng, KHÔNG dùng {{ .ConfirmationURL }} (link /auth/v1/verify tiêu token
+  ngay khi mở, kể cả khi trình quét link của hộp thư mở trước). Trang /auth/accept-invite chỉ tiêu
+  token khi người dùng gửi mật khẩu (verifyOtp phía máy chủ). Không có redirect_to.
+  Staging/production: dán cùng nội dung vào Dashboard > Authentication > Emails > Invite user.
+-->
+<h2>Bạn được mời vào Quản lý Dự án CNTT</h2>
+<p>Admin đã mời bạn dùng hệ thống Quản lý Dự án CNTT với email {{ .Email }}.</p>
+<p>
+  <a
+    href="{{ .SiteURL }}/auth/accept-invite?token_hash={{ .TokenHash }}&amp;type=invite"
+    >Nhận lời mời và đặt mật khẩu</a
+  >
+</p>
+<p>
+  Link chỉ dùng được một lần và có hạn. Nếu link đã hết hạn, hãy liên hệ Admin
+  để được gửi lại.
+</p>
+<p>Nếu bạn không chờ lời mời này, hãy bỏ qua email.</p>

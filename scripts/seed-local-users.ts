@@ -34,7 +34,8 @@ export const PERSONAS: readonly Persona[] = [
   { key: "viewer", email: "viewer@example.com", fullName: "Người xem Thử" },
 ];
 
-export const MIN_PASSWORD_LENGTH = 8;
+// Khớp minimum_password_length trong supabase/config.toml (Story E1-7).
+export const MIN_PASSWORD_LENGTH = 12;
 
 const PASSWORD_HELP = [
   "Đặt mật khẩu cho tài khoản thử rồi chạy lại, ví dụ:",
