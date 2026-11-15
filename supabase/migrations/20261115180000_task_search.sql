@@ -28,12 +28,16 @@ create extension if not exists pg_trgm with schema extensions;
 -- extensions.unaccent(text) chỉ là STABLE (phụ thuộc search_path để tìm từ điển); gọi bản hai
 -- tham số với từ điển ghi rõ schema thì kết quả cố định, nên bọc lại là IMMUTABLE được.
 -- Bỏ dấu trước rồi mới lower(): 'Đ' -> 'D' -> 'd'. unaccent cũng bỏ dấu dạng tổ hợp (NFD).
+-- SECURITY DEFINER theo quy ước của schema private (mọi hàm ở đây đều vậy, rls-profiles.test.sql
+-- kiểm); ba hàm thuần túy này không đọc bảng nào nên không mở thêm quyền. Mệnh đề SET search_path
+-- vốn đã làm hàm không được inline, nên DEFINER không tốn thêm chi phí.
 create or replace function private.search_normalize(p_text text)
 returns text
 language sql
 immutable
 strict
 parallel safe
+security definer
 set search_path = ''
 as $$
   select pg_catalog.lower(extensions.unaccent('extensions.unaccent'::regdictionary, p_text));
@@ -48,6 +52,7 @@ returns text
 language sql
 immutable
 parallel safe
+security definer
 set search_path = ''
 as $$
   select private.search_normalize(p_title || ' ' || coalesce(p_description, ''));
@@ -94,6 +99,7 @@ returns text[]
 language sql
 immutable
 parallel safe
+security definer
 set search_path = ''
 as $$
   select array_agg(
