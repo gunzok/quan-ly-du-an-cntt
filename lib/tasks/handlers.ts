@@ -197,23 +197,53 @@ export async function handleListTasks(
         ctx,
       );
     }
-    const { limit, cursor, assignee_id, status_id, priority, label_id } =
-      parsed.data;
+    const {
+      limit,
+      cursor,
+      assignee_id,
+      status_ids,
+      priority,
+      label_id,
+      q,
+      due_after,
+      due_before,
+    } = parsed.data;
 
     // Lọc theo nhãn: nhúng task_labels lần hai với bí danh và !inner (chỉ task có nhãn đó), để
     // phần task_labels trả về vẫn đủ mọi nhãn của task.
-    let query = deps.session
-      .from("tasks")
-      .select(
-        label_id
-          ? `${TASK_SELECT}, filter_labels:task_labels!inner(label_id)`
-          : TASK_SELECT,
-      )
-      .eq("project_id", projectId);
-    if (label_id) query = query.eq("filter_labels.label_id", label_id);
+    //
+    // Có từ khóa (E3-3): đọc qua hàm public.search_tasks (SECURITY INVOKER, RLS của tasks vẫn áp
+    // dụng; bỏ dấu, thoát ký tự LIKE trong CSDL). Hàm trả về hàng của bảng tasks nên nhúng, lọc,
+    // sắp xếp, phân trang dưới đây giữ nguyên; riêng nhãn lọc trong hàm (p_label_id) vì PostgREST
+    // không áp bộ lọc của bảng nhúng lên kết quả RPC.
+    let query = (
+      q
+        ? deps.session
+            .rpc(
+              "search_tasks",
+              // GET: tham số nằm trên URL; không gửi p_label_id khi không lọc (null thành "null").
+              label_id
+                ? { p_project_id: projectId, p_q: q, p_label_id: label_id }
+                : { p_project_id: projectId, p_q: q },
+              { get: true },
+            )
+            .select(TASK_SELECT)
+        : deps.session
+            .from("tasks")
+            .select(
+              label_id
+                ? `${TASK_SELECT}, filter_labels:task_labels!inner(label_id)`
+                : TASK_SELECT,
+            )
+    ).eq("project_id", projectId);
+    if (label_id && !q) {
+      query = query.eq("filter_labels.label_id", label_id);
+    }
     if (assignee_id) query = query.eq("assignee_id", assignee_id);
-    if (status_id) query = query.eq("status_id", status_id);
+    if (status_ids) query = query.in("status_id", status_ids);
     if (priority) query = query.eq("priority", priority);
+    if (due_after) query = query.gte("due_date", due_after);
+    if (due_before) query = query.lte("due_date", due_before);
     if (cursor) {
       // Giá trị con trỏ đã kiểm chặt định dạng (dấu thời gian ISO, uuid) nên ghép vào bộ lọc an toàn.
       query = query.or(

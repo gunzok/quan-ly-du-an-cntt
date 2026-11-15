@@ -277,9 +277,12 @@ describe("validateTaskListQuery", () => {
         limit: LIST_LIMIT_DEFAULT,
         cursor: null,
         assignee_id: null,
-        status_id: null,
+        status_ids: null,
         priority: null,
         label_id: null,
+        q: null,
+        due_after: null,
+        due_before: null,
       },
     });
   });
@@ -299,9 +302,12 @@ describe("validateTaskListQuery", () => {
         limit: 100,
         cursor: null,
         assignee_id: UUID,
-        status_id: UUID,
+        status_ids: [UUID],
         priority: "urgent",
         label_id: null,
+        q: null,
+        due_after: null,
+        due_before: null,
       },
     });
   });
@@ -311,7 +317,6 @@ describe("validateTaskListQuery", () => {
       "limit=0",
       "limit=101",
       "limit=abc",
-      "q=tim",
       "sort=due_date",
       "priority=low&priority=high",
       "assignee_id=abc",

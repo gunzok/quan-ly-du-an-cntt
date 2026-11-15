@@ -6,6 +6,7 @@ import {
   type Validation,
 } from "@/lib/api/request";
 import { TASK_PRIORITIES, type TaskPriority } from "./model";
+import { readSearchQuery, readStatusIds } from "./search";
 
 /**
  * Schema phía máy chủ cho /api/v1/projects/{id}/tasks và /api/v1/tasks/{id} (viết tay, không
@@ -315,8 +316,9 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/projects/{id}/tasks?limit=&cursor=&assignee_id=&status_id=&priority=
-// &label_id= (E2-3). Sắp xếp mặc định: mới tạo trước (created_at giảm dần, id giảm dần). Tìm kiếm
-// văn bản và bộ lọc đầy đủ (due_before, q, sort) là Story E3-3.
+// &label_id= (E2-3) &q=&due_after=&due_before= (E3-3, xem ./search.ts; status_id nhận nhiều id
+// ngăn bằng dấu phẩy). Mọi bộ lọc kết hợp AND. Sắp xếp mặc định: mới tạo trước (created_at giảm
+// dần, id giảm dần); `sort` chưa làm.
 // ---------------------------------------------------------------------------
 export interface TaskCursor {
   created_at: string;
@@ -356,9 +358,15 @@ export interface TaskListQuery {
   limit: number;
   cursor: TaskCursor | null;
   assignee_id: string | null;
-  status_id: string | null;
+  /** Khớp một trong các trạng thái (E3-3). */
+  status_ids: string[] | null;
   priority: TaskPriority | null;
   label_id: string | null;
+  /** Từ khóa đã cắt khoảng trắng (E3-3); null: không tìm. */
+  q: string | null;
+  /** Hạn chót trong khoảng [due_after, due_before], tính cả hai đầu (E3-3). */
+  due_after: string | null;
+  due_before: string | null;
 }
 
 const LIST_PARAMS = [
@@ -368,6 +376,9 @@ const LIST_PARAMS = [
   "status_id",
   "priority",
   "label_id",
+  "q",
+  "due_after",
+  "due_before",
 ] as const;
 
 export function validateTaskListQuery(
@@ -383,9 +394,12 @@ export function validateTaskListQuery(
     limit: LIST_LIMIT_DEFAULT,
     cursor: null,
     assignee_id: null,
-    status_id: null,
+    status_ids: null,
     priority: null,
     label_id: null,
+    q: null,
+    due_after: null,
+    due_before: null,
   };
 
   const rawLimit = params.get("limit");
@@ -405,7 +419,7 @@ export function validateTaskListQuery(
       details.push({ field: "cursor", issue: "invalid_format" });
   }
 
-  for (const field of ["assignee_id", "status_id", "label_id"] as const) {
+  for (const field of ["assignee_id", "label_id"] as const) {
     const raw = params.get(field);
     if (raw === null) continue;
     if (isUuid(raw)) {
@@ -415,9 +429,21 @@ export function validateTaskListQuery(
     }
   }
 
+  query.status_ids = readStatusIds(params.get("status_id"), details);
+
   const rawPriority = params.get("priority");
   if (rawPriority !== null) {
     query.priority = readPriority(rawPriority, details) ?? null;
+  }
+
+  query.q = readSearchQuery(params.get("q"), details);
+
+  for (const field of ["due_after", "due_before"] as const) {
+    const raw = params.get(field);
+    if (raw !== null) query[field] = readDate(field)(raw, details) ?? null;
+  }
+  if (!isDateOrderValid(query.due_after, query.due_before)) {
+    details.push({ field: "due_before", issue: "invalid_value" });
   }
 
   return details.length > 0
