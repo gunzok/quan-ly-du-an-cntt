@@ -26,7 +26,8 @@ export interface OrderedCard {
 
 export function compareCards(a: OrderedCard, b: OrderedCard): number {
   if (a.position !== b.position) return a.position - b.position;
-  if (a.created_at !== b.created_at) return a.created_at < b.created_at ? -1 : 1;
+  if (a.created_at !== b.created_at)
+    return a.created_at < b.created_at ? -1 : 1;
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
@@ -73,10 +74,18 @@ export function planMove(
   const after = column[i];
   if (!before && !after) return { position: current, others: [], exact: true };
   if (!before) {
-    return { position: after.position - POSITION_STEP, others: [], exact: true };
+    return {
+      position: after.position - POSITION_STEP,
+      others: [],
+      exact: true,
+    };
   }
   if (!after) {
-    return { position: before.position + POSITION_STEP, others: [], exact: true };
+    return {
+      position: before.position + POSITION_STEP,
+      others: [],
+      exact: true,
+    };
   }
   if (gapOk(before.position, after.position)) {
     return {
@@ -124,11 +133,7 @@ function spreadLeft(column: readonly OrderedCard[], i: number): MovePlan {
     if (!prev) break;
     const step = (hi - prev.position) / (count + 1);
     if (step >= MIN_GAP && hi - step < hi) {
-      return build(
-        column.slice(l, i),
-        (k) => hi - step * (count - k),
-        "left",
-      );
+      return build(column.slice(l, i), (k) => hi - step * (count - k), "left");
     }
   }
   const run = column.slice(0, i);

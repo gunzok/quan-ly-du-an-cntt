@@ -763,8 +763,7 @@ export const en: Messages = {
     readOnly: "Read only",
     readOnlyNote:
       "You are a Viewer in this project: you can see the board but cannot drag or move tasks.",
-    memberNote:
-      "You can drag and move tasks you are assigned to or created.",
+    memberNote: "You can drag and move tasks you are assigned to or created.",
     noStatusesTitle: "This project has no statuses",
     noStatusesBody: "Add statuses in Settings to get columns on the board.",
     openSettings: "Open Settings",
@@ -791,8 +790,7 @@ export const en: Messages = {
       searchPlaceholder: "Search this project…",
       searching: "Searching…",
       searchError: "Search failed. Please try again later.",
-      resultCount: (n: number) =>
-        `${n} matching ${n === 1 ? "task" : "tasks"}`,
+      resultCount: (n: number) => `${n} matching ${n === 1 ? "task" : "tasks"}`,
     },
     card: {
       due: (date: string) => `Due · ${date}`,
@@ -823,6 +821,10 @@ export const en: Messages = {
         "Some neighbouring tasks couldn't save their order; the board was reloaded.",
       notFound:
         "The task no longer exists or you can no longer see it. The board was reloaded.",
+      forbidden:
+        "You can't edit this task (members can only edit tasks they're assigned to or created). The card was put back.",
+      openSubtasks:
+        "This task still has unfinished subtasks, so it can't move to a done column yet. Finish the subtasks first. The card was put back.",
     },
     dnd: {
       instructions:

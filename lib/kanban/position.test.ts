@@ -8,7 +8,11 @@ import {
   type OrderedCard,
 } from "./position";
 
-const card = (id: string, position: number, created_at = "2026-11-15T00:00:00Z"): OrderedCard => ({
+const card = (
+  id: string,
+  position: number,
+  created_at = "2026-11-15T00:00:00Z",
+): OrderedCard => ({
   id,
   position,
   created_at,
@@ -21,7 +25,10 @@ function orderAfter(
   createdX = "2026-11-15T12:00:00Z",
 ): string[] {
   const updated = new Map(plan.others.map((u) => [u.id, u.position]));
-  const next = column.map((c) => ({ ...c, position: updated.get(c.id) ?? c.position }));
+  const next = column.map((c) => ({
+    ...c,
+    position: updated.get(c.id) ?? c.position,
+  }));
   next.push(card("X", plan.position, createdX));
   return next.sort(compareCards).map((c) => c.id);
 }
@@ -34,19 +41,36 @@ describe("compareCards", () => {
       card("c", 0, "2026-01-03T00:00:00Z"),
       card("d", 1, "2026-01-01T00:00:00Z"),
     ];
-    expect([...list].sort(compareCards).map((c) => c.id)).toEqual(["c", "d", "a", "b"]);
+    expect([...list].sort(compareCards).map((c) => c.id)).toEqual([
+      "c",
+      "d",
+      "a",
+      "b",
+    ]);
   });
 });
 
 describe("planMove", () => {
   it("cột rỗng: giữ position hiện tại", () => {
-    expect(planMove([], 0, 7)).toEqual({ position: 7, others: [], exact: true });
+    expect(planMove([], 0, 7)).toEqual({
+      position: 7,
+      others: [],
+      exact: true,
+    });
   });
 
   it("đầu cột và cuối cột: lùi/tiến một bước, không sửa thẻ khác", () => {
     const col = [card("a", 2), card("b", 5)];
-    expect(planMove(col, 0, 0)).toEqual({ position: 1, others: [], exact: true });
-    expect(planMove(col, 2, 0)).toEqual({ position: 6, others: [], exact: true });
+    expect(planMove(col, 0, 0)).toEqual({
+      position: 1,
+      others: [],
+      exact: true,
+    });
+    expect(planMove(col, 2, 0)).toEqual({
+      position: 6,
+      others: [],
+      exact: true,
+    });
   });
 
   it("giữa hai thẻ: điểm giữa, chỉ sửa MỘT task", () => {
@@ -60,7 +84,11 @@ describe("planMove", () => {
     const col = [card("a", 0), card("b", 1)];
     for (let n = 0; n < 60; n += 1) {
       const plan = planMove(col, 1, 0);
-      expect(orderAfter(col, plan)).toEqual(["a", "X", ...col.slice(1).map((c) => c.id)]);
+      expect(orderAfter(col, plan)).toEqual([
+        "a",
+        "X",
+        ...col.slice(1).map((c) => c.id),
+      ]);
       for (const u of plan.others) {
         const c = col.find((x) => x.id === u.id);
         if (c) c.position = u.position;
@@ -101,7 +129,13 @@ describe("planMove", () => {
   });
 
   it("đoạn dính nhau ở giữa cột: dãn trong khoảng tới thẻ khác biệt kế tiếp", () => {
-    const col = [card("a", 0), card("b", 5), card("c", 5), card("d", 5), card("e", 9)];
+    const col = [
+      card("a", 0),
+      card("b", 5),
+      card("c", 5),
+      card("d", 5),
+      card("e", 9),
+    ];
     const plan = planMove(col, 2, 0); // giữa b và c
     expect(orderAfter(col, plan)).toEqual(["a", "b", "X", "c", "d", "e"]);
     for (const u of [...plan.others, { id: "X", position: plan.position }]) {

@@ -90,7 +90,12 @@ export const EMPTY_FILTERS: BoardFilters = {
 };
 
 export function hasActiveFilters(f: BoardFilters): boolean {
-  return f.assignee !== "" || f.priority !== "" || f.label !== "" || f.q.trim() !== "";
+  return (
+    f.assignee !== "" ||
+    f.priority !== "" ||
+    f.label !== "" ||
+    f.q.trim() !== ""
+  );
 }
 
 /**
@@ -102,7 +107,11 @@ export function matchesFilters(
   f: BoardFilters,
   matchIds: ReadonlySet<string> | null,
 ): boolean {
-  if (f.assignee === UNASSIGNED ? task.assignee_id !== null : f.assignee && task.assignee_id !== f.assignee) {
+  if (
+    f.assignee === UNASSIGNED
+      ? task.assignee_id !== null
+      : f.assignee && task.assignee_id !== f.assignee
+  ) {
     return false;
   }
   if (f.priority && task.priority !== f.priority) return false;

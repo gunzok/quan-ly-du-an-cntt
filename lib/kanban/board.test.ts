@@ -85,7 +85,11 @@ describe("todayIso, isOverdue", () => {
 });
 
 describe("matchesFilters", () => {
-  const t = task("t", { assignee_id: "u1", priority: "high", label_ids: ["l1"] });
+  const t = task("t", {
+    assignee_id: "u1",
+    priority: "high",
+    label_ids: ["l1"],
+  });
 
   it("không lọc: khớp mọi task", () => {
     expect(hasActiveFilters(EMPTY_FILTERS)).toBe(false);
@@ -93,7 +97,12 @@ describe("matchesFilters", () => {
   });
 
   it("kết hợp AND người phụ trách, ưu tiên, nhãn, từ khóa", () => {
-    const f = { assignee: "u1", priority: "high" as const, label: "l1", q: "abc" };
+    const f = {
+      assignee: "u1",
+      priority: "high" as const,
+      label: "l1",
+      q: "abc",
+    };
     expect(hasActiveFilters(f)).toBe(true);
     expect(matchesFilters(t, f, new Set(["t"]))).toBe(true);
     expect(matchesFilters(t, f, new Set())).toBe(false);

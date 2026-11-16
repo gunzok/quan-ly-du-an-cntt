@@ -823,7 +823,12 @@ const viMessages = {
         "Thẻ được đặt gần vị trí đã chọn vì không sắp lại được các task bên cạnh (thiếu quyền sửa hoặc quá nhiều task).",
       reorderFailed:
         "Một số task bên cạnh chưa lưu được thứ tự; bảng đã được tải lại.",
-      notFound: "Task không còn tồn tại hoặc bạn không còn quyền xem. Bảng đã được tải lại.",
+      notFound:
+        "Task không còn tồn tại hoặc bạn không còn quyền xem. Bảng đã được tải lại.",
+      forbidden:
+        "Bạn không có quyền sửa task này (Thành viên chỉ sửa task mình phụ trách hoặc tạo). Thẻ đã về chỗ cũ.",
+      openSubtasks:
+        "Task còn việc con chưa xong nên chưa chuyển sang cột hoàn thành được. Hoàn thành các việc con trước. Thẻ đã về chỗ cũ.",
     },
     dnd: {
       instructions:
