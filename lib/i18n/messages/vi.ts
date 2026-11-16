@@ -746,6 +746,102 @@ const viMessages = {
       nameExists: "Bạn đã có chế độ xem cùng tên trong dự án này.",
     },
   },
+  /** Story E3-1 (QLDA-47): thanh điều hướng con của dự án (Bảng, Tổng quan, Cấu hình). */
+  projectNav: {
+    eyebrow: "Dự án",
+    backToProjects: "Danh sách dự án",
+    navLabel: "Chế độ xem dự án",
+    board: "Bảng",
+    dashboard: "Tổng quan",
+    settings: "Cấu hình",
+  },
+  /** Story E3-1 (QLDA-47): bảng Kanban (S03) và Kanban trên điện thoại (S09). */
+  kanban: {
+    pageTitle: "Bảng Kanban",
+    boardLabel: "Bảng Kanban",
+    loading: "Đang tải bảng Kanban",
+    loadingMore: (n: number) => `Đang tải task… (${n})`,
+    loadError: "Không tải được bảng Kanban.",
+    retry: "Thử lại",
+    readOnly: "Chỉ xem",
+    readOnlyNote:
+      "Bạn là Người xem của dự án này: xem được bảng nhưng không kéo thả hay chuyển task.",
+    memberNote:
+      "Bạn kéo thả, chuyển được task mình phụ trách hoặc do mình tạo.",
+    noStatusesTitle: "Dự án chưa có trạng thái",
+    noStatusesBody: "Thêm trạng thái ở Cấu hình để có cột trên bảng.",
+    openSettings: "Mở Cấu hình",
+    emptyTitle: "Chưa có task",
+    emptyBody:
+      "Task của dự án sẽ hiện ở đây, mỗi trạng thái một cột. Cột lấy theo trạng thái ở Cấu hình.",
+    noMatchTitle: "Không có task khớp bộ lọc",
+    noMatchBody: "Thử bỏ bớt điều kiện lọc hoặc từ khóa.",
+    clearFilters: "Xóa bộ lọc",
+    columnEmpty: "Chưa có task",
+    columnCount: (n: number) => `${n} task`,
+    showMore: (n: number) => `Hiện thêm ${n} task`,
+    chooseColumn: "Chọn cột để xem",
+    filters: {
+      label: "Lọc nhanh",
+      assignee: "Người phụ trách",
+      assigneeAll: "Mọi người",
+      unassigned: "Chưa giao",
+      priority: "Ưu tiên",
+      priorityAll: "Mọi mức",
+      labelFilter: "Nhãn",
+      labelAll: "Mọi nhãn",
+      search: "Tìm trong dự án",
+      searchPlaceholder: "Tìm trong dự án…",
+      searching: "Đang tìm…",
+      searchError: "Không tìm được. Thử lại sau.",
+      resultCount: (n: number) => `${n} task khớp`,
+    },
+    card: {
+      due: (date: string) => `Hạn · ${date}`,
+      overdue: (date: string) => `Trễ · ${date}`,
+      overdueLabel: "Trễ hạn",
+      subtasks: (done: number, total: number) =>
+        `${done} trên ${total} việc con đã xong`,
+      unassigned: "Chưa giao",
+      assignee: (name: string) => `Người phụ trách: ${name}`,
+      formerMember: "Người ngoài dự án",
+      dragHandle: (title: string) => `Kéo để di chuyển task ${title}`,
+      moveMenu: (title: string) => `Chuyển task ${title} đến cột khác`,
+      labels: "Nhãn",
+      saving: "Đang lưu…",
+    },
+    move: {
+      title: "Chuyển đến cột",
+      description: (title: string) =>
+        `Chọn cột cho task “${title}”. Task được đặt ở cuối cột.`,
+      listLabel: "Các cột",
+      current: "Cột hiện tại",
+      moved: (title: string, column: string) =>
+        `Đã chuyển “${title}” sang ${column}.`,
+      failed: (title: string) => `Không chuyển được task “${title}”`,
+      approximate:
+        "Thẻ được đặt gần vị trí đã chọn vì không sắp lại được các task bên cạnh (thiếu quyền sửa hoặc quá nhiều task).",
+      reorderFailed:
+        "Một số task bên cạnh chưa lưu được thứ tự; bảng đã được tải lại.",
+      notFound:
+        "Task không còn tồn tại hoặc bạn không còn quyền xem. Bảng đã được tải lại.",
+      forbidden:
+        "Bạn không có quyền sửa task này (Thành viên chỉ sửa task mình phụ trách hoặc tạo). Thẻ đã về chỗ cũ.",
+      openSubtasks:
+        "Task còn việc con chưa xong nên chưa chuyển sang cột hoàn thành được. Hoàn thành các việc con trước. Thẻ đã về chỗ cũ.",
+    },
+    dnd: {
+      instructions:
+        "Để di chuyển task bằng bàn phím: đưa tiêu điểm tới nút kéo, nhấn Space để nhấc, dùng phím mũi tên để di chuyển giữa các thẻ và các cột, nhấn Space để thả hoặc Esc để hủy.",
+      start: (title: string) => `Đã nhấc task ${title}.`,
+      over: (title: string, column: string, index: number) =>
+        `Task ${title} đang ở cột ${column}, vị trí ${index}.`,
+      overNone: (title: string) => `Task ${title} chưa ở trên cột nào.`,
+      end: (title: string, column: string, index: number) =>
+        `Đã thả task ${title} vào cột ${column}, vị trí ${index}.`,
+      cancel: (title: string) => `Đã hủy di chuyển task ${title}.`,
+    },
+  },
   /** Dashboard tiến độ S06 (Story E5-1, QLDA-60). */
   dashboard: {
     open: "Xem tổng quan",
