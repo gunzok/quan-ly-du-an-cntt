@@ -19,6 +19,8 @@ import {
   type ProjectRole,
 } from "@/lib/project-members/model";
 import { fetchRelations } from "@/lib/task-relations/client-api";
+import type { TaskRelationView } from "@/lib/task-relations/model";
+import { relationAccess } from "@/lib/task-relations/relation-ui";
 import { deleteTask, fetchTaskDetail } from "@/lib/tasks/client-api";
 import type { TaskDetail } from "@/lib/tasks/detail";
 import {
@@ -39,6 +41,8 @@ export interface TaskDetailScreenProps {
   projectId: string;
   projectName: string;
   taskId: string;
+  /** Id người đang xem: tính quyền sửa task đích khi thêm quan hệ (E8-2), chỉ để khóa giao diện. */
+  userId: string;
   /** Vai trò của người xem trong dự án (null: Admin không là thành viên). */
   role: ProjectRole | null;
   isAdmin: boolean;
@@ -81,6 +85,7 @@ function Screen({
   projectId,
   projectName,
   taskId,
+  userId,
   role,
   isAdmin,
 }: TaskDetailScreenProps) {
@@ -147,7 +152,7 @@ function Screen({
     return () => controller.abort();
   }, [projectId, configKey]);
 
-  // --- Quan hệ (E8-1, chỉ hiển thị) ---------------------------------------------
+  // --- Quan hệ (E8-1 hiển thị; E8-2 thêm, bỏ) ------------------------------------
   const [relKey, setRelKey] = useState(0);
   const [relLoaded, setRelLoaded] = useState<{
     key: number;
@@ -172,6 +177,21 @@ function Screen({
     relLoaded && relLoaded.key === relKey
       ? relLoaded.state
       : { status: "loading" };
+  const updateRelations = useCallback(
+    (update: (list: TaskRelationView[]) => TaskRelationView[]) =>
+      setRelLoaded((prev) =>
+        prev && prev.state.status === "ready"
+          ? {
+              ...prev,
+              state: {
+                status: "ready",
+                relations: update(prev.state.relations),
+              },
+            }
+          : prev,
+      ),
+    [],
+  );
 
   const task = taskState?.status === "ready" ? taskState.value : null;
   const setTask = useCallback(
@@ -376,9 +396,13 @@ function Screen({
             <RelationsSection
               number="03"
               projectId={projectId}
+              task={{ id: task.id, title: task.title }}
               state={relations}
               statuses={config?.statuses ?? []}
+              access={relationAccess(role, isAdmin, task.permissions.can_edit)}
+              actor={{ userId, isAdmin, role }}
               onRetry={() => setRelKey((n) => n + 1)}
+              onChange={updateRelations}
             />
 
             {task.permissions.can_delete ? (
