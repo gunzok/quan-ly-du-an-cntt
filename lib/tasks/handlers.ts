@@ -22,6 +22,7 @@ import {
   type ProjectRole,
 } from "./policy";
 import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
+import { loadTaskDetail } from "./detail";
 import {
   TASK_BODY_MAX_BYTES,
   encodeTaskCursor,
@@ -73,6 +74,11 @@ function internal(ctx: Ctx, where: string, error: unknown): Response {
     `[api/v1/tasks] ${where} request_id=${ctx.requestId} code=${String(e?.code ?? "")} message=${String(e?.message ?? error).slice(0, 200)}`,
   );
   return fail(apiError("internal_error"), ctx);
+}
+
+/** Task đã bị sửa sau lần đọc của người gọi (expected_updated_at lệch): 409. */
+function staleTaskError(): ApiError {
+  return apiError("conflict", strings.taskDetail.errors.stale);
 }
 
 function newCtx(deps: TaskDeps): Ctx {
@@ -230,6 +236,7 @@ export async function handleListTasks(
       status_ids,
       priority,
       label_id,
+      parent_id,
       q,
       due_after,
       due_before,
@@ -266,6 +273,7 @@ export async function handleListTasks(
       query = query.eq("filter_labels.label_id", label_id);
     }
     if (assignee_id) query = query.eq("assignee_id", assignee_id);
+    if (parent_id) query = query.eq("parent_id", parent_id);
     if (status_ids) query = query.in("status_id", status_ids);
     if (priority) query = query.eq("priority", priority);
     if (due_after) query = query.gte("due_date", due_after);
@@ -399,7 +407,13 @@ export async function handleGetTask(
   try {
     const c = await taskContext(request, rawId, deps, ctx, false);
     if (!c.ok) return c.response;
-    return jsonResponse({ data: c.value.task });
+    // E2-5: kèm task cha, việc con tóm tắt, quyền của người gọi (chỉ thêm trường).
+    const detail = await loadTaskDetail(
+      deps.session,
+      c.value.task,
+      c.value.actor,
+    );
+    return jsonResponse({ data: detail });
   } catch (error) {
     return internal(ctx, "get", error);
   }
@@ -434,7 +448,11 @@ export async function handlePatchTask(
         ctx,
       );
     }
-    const { label_ids: labelIds, ...patch } = parsed.data;
+    const {
+      label_ids: labelIds,
+      expected_updated_at: expectedUpdatedAt,
+      ...patch
+    } = parsed.data;
 
     // Sau khi sửa người gọi vẫn phải còn quyền (RLS WITH CHECK): Thành viên chỉ phụ trách, không
     // tạo task, thì không giao task đi cho người khác.
@@ -448,6 +466,14 @@ export async function handlePatchTask(
         apiError("forbidden", strings.tasks.errors.forbiddenEdit),
         ctx,
       );
+    }
+
+    // Sửa đồng thời (E2-5): người gọi gửi updated_at đã đọc mà task đã đổi: 409, không ghi.
+    if (
+      expectedUpdatedAt !== undefined &&
+      Date.parse(expectedUpdatedAt) !== Date.parse(task.updated_at)
+    ) {
+      return fail(staleTaskError(), ctx);
     }
 
     const start =
@@ -477,18 +503,26 @@ export async function handlePatchTask(
     // Nhãn ghi bằng lệnh riêng (public.set_task_labels) sau khi sửa task; đã kiểm nhãn thuộc dự
     // án ở trên nên hiếm khi lệnh sau lỗi. Hai bước không cùng giao dịch (xem mô tả PR).
     if (Object.keys(patch).length > 0) {
-      const { data, error } = await deps.session
-        .from("tasks")
-        .update(patch)
-        .eq("id", task.id)
-        .select("id")
-        .maybeSingle();
+      let update = deps.session.from("tasks").update(patch).eq("id", task.id);
+      // Kiểm lại trong chính câu UPDATE (nguyên tử): ai đó ghi giữa lúc đọc và lúc ghi thì 0 dòng.
+      if (expectedUpdatedAt !== undefined) {
+        update = update.eq("updated_at", expectedUpdatedAt);
+      }
+      const { data, error } = await update.select("id").maybeSingle();
       if (error) {
         const mapped = mapTaskWriteError(error);
         return mapped ? fail(mapped, ctx) : internal(ctx, "update", error);
       }
-      // Không dòng nào: task vừa bị xóa hoặc quyền vừa đổi giữa lúc đọc và ghi.
-      if (!data) return fail(apiError("not_found"), ctx);
+      // Không dòng nào: task vừa bị xóa, quyền vừa đổi, hoặc (có expected_updated_at) vừa bị sửa.
+      if (!data) {
+        if (
+          expectedUpdatedAt !== undefined &&
+          (await loadTask(deps.session, task.id))
+        ) {
+          return fail(staleTaskError(), ctx);
+        }
+        return fail(apiError("not_found"), ctx);
+      }
     }
     if (labelIds) {
       const { error } = await deps.session.rpc("set_task_labels", {
