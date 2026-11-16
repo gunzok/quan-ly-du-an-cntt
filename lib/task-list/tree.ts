@@ -63,7 +63,10 @@ const PRIORITY_RANK: Record<TaskPriority, number> = {
   urgent: 3,
 };
 
-const collator = new Intl.Collator("vi", { sensitivity: "base", numeric: true });
+const collator = new Intl.Collator("vi", {
+  sensitivity: "base",
+  numeric: true,
+});
 
 type Key = string | number | null;
 
@@ -97,7 +100,8 @@ function compareKeys(a: Key, b: Key): number {
 
 /** Thứ tự mặc định và tiêu chí phụ: tạo trước đứng trước, rồi id (ổn định). */
 function compareDefault(a: Task, b: Task): number {
-  if (a.created_at !== b.created_at) return a.created_at < b.created_at ? -1 : 1;
+  if (a.created_at !== b.created_at)
+    return a.created_at < b.created_at ? -1 : 1;
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
@@ -219,7 +223,8 @@ export function buildRows(input: BuildInput): BuildResult {
   const byId = new Map(tasks.map((t) => [t.id, t]));
   const isMatch = (t: Task) => matched === null || matched.has(t.id);
   const compare = taskComparator(input.sort, ctx);
-  const matchCount = matched === null ? tasks.length : tasks.filter(isMatch).length;
+  const matchCount =
+    matched === null ? tasks.length : tasks.filter(isMatch).length;
 
   if (!groupBy) {
     const included = new Set<string>();

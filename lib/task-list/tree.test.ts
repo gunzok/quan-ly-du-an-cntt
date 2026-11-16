@@ -221,7 +221,9 @@ describe("matchesListFilters (cùng ngữ nghĩa API danh sách)", () => {
         null,
       ),
     ).toBe(true);
-    expect(matchesListFilters(t, { due_after: "2026-11-21" }, null)).toBe(false);
+    expect(matchesListFilters(t, { due_after: "2026-11-21" }, null)).toBe(
+      false,
+    );
     expect(matchesListFilters(t, {}, new Set(["y"]))).toBe(false);
   });
   it("lọc theo hạn loại task không có hạn", () => {
@@ -257,7 +259,9 @@ describe("so sánh", () => {
   });
   it("người phụ trách sắp theo tên tiếng Việt", () => {
     expect(
-      [NONE_GROUP, "u1", "u2", "gone"].sort(groupComparator("assignee_id", ctx)),
+      [NONE_GROUP, "u1", "u2", "gone"].sort(
+        groupComparator("assignee_id", ctx),
+      ),
     ).toEqual(["u2", "u1", "gone", NONE_GROUP]);
   });
 });

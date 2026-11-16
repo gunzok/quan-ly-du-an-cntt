@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { HOME_PATH } from "@/lib/auth/routes";
 import { useStrings } from "@/lib/i18n/client";
 
-export type ProjectView = "board" | "dashboard" | "settings";
+export type ProjectView = "board" | "list" | "dashboard" | "settings";
 
 /** Đường dẫn của từng chế độ xem dự án (quy ước liên kết giữa các story E3-1, E5-1, E2-3). */
 export function projectViewHref(projectId: string, view: ProjectView): string {
@@ -15,11 +15,17 @@ export function projectViewHref(projectId: string, view: ProjectView): string {
   return `${base}/${view}`;
 }
 
-const VIEWS: readonly ProjectView[] = ["board", "dashboard", "settings"];
+const VIEWS: readonly ProjectView[] = [
+  "board",
+  "list",
+  "dashboard",
+  "settings",
+];
 
 /**
  * Đầu trang dự án (mockup v3 bp-Kanban.dc.html): đường về danh sách dự án, nhãn mục, tên dự án và
- * thanh điều hướng con Bảng / Tổng quan / Cấu hình (Story E3-1 sở hữu; trang Tổng quan thuộc E5-1).
+ * thanh điều hướng con Bảng / Danh sách / Tổng quan / Cấu hình (Story E3-1 sở hữu; Danh sách thuộc
+ * E3-2, Tổng quan thuộc E5-1).
  * `meta` hiện cạnh nhãn mục (ví dụ "Chỉ xem"), `actions` ở góc phải.
  */
 export function ProjectHeader({
@@ -83,7 +89,7 @@ export function ProjectHeader({
               <span aria-hidden="true" className="font-mono text-label">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              {t[view]}
+              {view === "list" ? strings.taskList.navTab : t[view]}
             </Link>
           );
         })}

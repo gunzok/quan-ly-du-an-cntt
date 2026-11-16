@@ -157,7 +157,8 @@ describe("readViewQuery", () => {
     expect(
       query({ sort: [{ field: "title", direction: "up" }] }).details,
     ).toContainEqual({ field: "query.sort", issue: "invalid_value" });
-    expect(query({ group_by: "label_ids" }).details).toContainEqual({
+    // label_ids hợp lệ từ E3-2; số ít label_id thì không.
+    expect(query({ group_by: "label_id" }).details).toContainEqual({
       field: "query.group_by",
       issue: "invalid_value",
     });
