@@ -1038,4 +1038,67 @@ export const en: Messages = {
       stale: "Someone else just edited this task. Reload and try again.",
     },
   },
+  /** Adding and removing task relations in the task detail panel (Story E8-2, S05 v2). */
+  taskRelationsUi: {
+    add: "Add relation",
+    locked:
+      "You need edit rights on both tasks to add or remove relations. Members can only edit tasks they are assigned to or created.",
+    dialogTitle: "Add relation",
+    dialogDescription: (title: string) =>
+      `Choose a relation type and a target task for “${title}”.`,
+    kindLabel: "Relation type",
+    preview: {
+      relates: (a: string, b: string) => `“${a}” relates to “${b}”.`,
+      blocks: (a: string, b: string) =>
+        `“${a}” blocks “${b}”: “${b}” waits for “${a}” to be done.`,
+      blocked_by: (a: string, b: string) =>
+        `“${a}” is blocked by “${b}”: “${a}” waits for “${b}” to be done.`,
+      precedes: (a: string, b: string) =>
+        `“${a}” precedes “${b}” (used for scheduling, Gantt).`,
+      follows: (a: string, b: string) =>
+        `“${a}” follows “${b}” (used for scheduling, Gantt).`,
+      duplicates: (a: string, b: string) => `“${a}” duplicates “${b}”.`,
+    },
+    targetPlaceholder: "target task",
+    lagLabel: "Lag (days)",
+    lagHint:
+      "Days to wait between the two tasks, from −365 to 365. Leave 0 if not needed.",
+    lagInvalid: "Enter a whole number from −365 to 365.",
+    targetLabel: "Target task",
+    searchPlaceholder: "Search by title, accents optional",
+    searchHint: "Use the up and down arrow keys to move, Enter to pick a task.",
+    resultsLabel: "Tasks in this project",
+    searching: "Searching tasks…",
+    noResults: "No matching tasks.",
+    searchError: "Could not search tasks.",
+    cannotEditTarget: "You cannot edit this task",
+    selected: (title: string) => `Selected: ${title}`,
+    targetRequired: "Pick a target task from the list.",
+    submit: "Add relation",
+    added: (label: string, title: string) =>
+      `Added relation “${label}” with “${title}”.`,
+    addFailed: "Could not add the relation.",
+    lag: (days: number) =>
+      days > 0 ? `${days} days lag` : `${Math.abs(days)} days lead`,
+    removeLabel: (label: string, title: string) =>
+      `Remove relation “${label}” with “${title}”`,
+    remove: "Remove",
+    removeTitle: "Remove this relation?",
+    removeBody: (label: string, title: string) =>
+      `Remove the “${label}” relation with task “${title}”. Both tasks stay as they are.`,
+    removeConfirm: "Remove relation",
+    removed: "Relation removed.",
+    removeFailed: "Could not remove the relation.",
+    errors: {
+      cycle:
+        "This relation would create a cycle: the chain of blocks or precedes would lead back to this task. Pick another task or remove an existing relation first.",
+      duplicate: "These two tasks already have this relation.",
+      selfRelation: "A task cannot be related to itself.",
+      crossProject: "Relations can only link tasks in the same project.",
+      forbidden:
+        "You do not have permission: you must be able to edit both tasks (members can only edit tasks they are assigned to or created).",
+      notFound:
+        "The task or relation no longer exists (it may have just been deleted). The relation list has been reloaded.",
+    },
+  },
 };

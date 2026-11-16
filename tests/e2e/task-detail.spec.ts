@@ -243,7 +243,10 @@ test.describe.serial("Ngăn chi tiết task", () => {
     const relations = p.getByRole("list", { name: t.relations.listLabel });
     await expect(relations).toContainText(t.relations.kinds.blocked_by);
     await expect(relations).toContainText(`Task của thành viên ${tag}`);
-    await expect(p.getByRole("button", { name: /quan hệ/i })).toHaveCount(0);
+    // Thêm, bỏ quan hệ: Story E8-2 (tests/e2e/task-relations.spec.ts).
+    await expect(
+      p.getByRole("button", { name: `+ ${strings.taskRelationsUi.add}` }),
+    ).toBeVisible();
     await expect(p.getByRole("note")).toContainText(
       `Task của thành viên ${tag}`,
     );
