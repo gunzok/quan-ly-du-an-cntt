@@ -1043,6 +1043,48 @@ const viMessages = {
       stale: "Task vừa được người khác sửa. Hãy tải lại rồi thử lại.",
     },
   },
+  notifications: {
+    bellLabel: "Thông báo",
+    bellLabelUnread: (count: number) => `Thông báo, ${count} chưa đọc`,
+    badgeOverflow: "99+",
+    announceNew: (count: number) =>
+      count === 1 ? "Bạn có 1 thông báo mới." : `Bạn có ${count} thông báo mới.`,
+    panelLabel: "Hộp thư thông báo",
+    eyebrow: (count: number) =>
+      `Hộp thư / ${String(count).padStart(2, "0")} chưa đọc`,
+    heading: "Thông báo",
+    filterLabel: "Lọc thông báo",
+    filterUnread: (count: number) => `Chưa đọc (${count})`,
+    filterAll: "Tất cả",
+    markAllRead: "Đánh dấu tất cả đã đọc",
+    markRead: "Đánh dấu đã đọc",
+    markReadOf: (text: string) => `Đánh dấu đã đọc: ${text}`,
+    unreadMark: "Chưa đọc",
+    loading: "Đang tải thông báo",
+    loadMore: "Tải thêm",
+    loadError: "Không tải được thông báo.",
+    retry: "Thử lại",
+    actionFailed: "Chưa đánh dấu được. Hãy thử lại.",
+    emptyUnreadTitle: "Không còn thông báo chưa đọc",
+    emptyUnreadBody: "Bạn đã xem hết. Chọn “Tất cả” để xem lại thông báo cũ.",
+    emptyAllTitle: "Chưa có thông báo",
+    emptyAllBody:
+      "Bạn sẽ nhận thông báo ở đây khi được giao task hoặc task của bạn đổi trạng thái.",
+    someone: "Một người",
+    assigned: (actor: string, title: string) =>
+      `${actor} giao cho bạn task ${title}`,
+    assignedNoActor: (title: string) => `Bạn được giao task ${title}`,
+    statusChanged: (actor: string, title: string, status: string) =>
+      `${actor} đổi trạng thái task ${title} sang ${status}`,
+    statusChangedNoActor: (title: string, status: string) =>
+      `Task ${title} đã chuyển sang ${status}`,
+    hiddenAssigned:
+      "Bạn từng được giao một task mà nay bạn không còn quyền xem.",
+    hiddenStatusChanged:
+      "Một task bạn không còn quyền xem đã đổi trạng thái.",
+    today: (time: string) => `Hôm nay ${time}`,
+    yesterday: (time: string) => `Hôm qua ${time}`,
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */
