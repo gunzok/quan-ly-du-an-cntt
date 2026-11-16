@@ -106,6 +106,7 @@ async function TaskGate({ params }: Params) {
         projectId={project.id as string}
         projectName={project.name as string}
         taskId={task.id as string}
+        userId={data.user.id}
         role={role}
         isAdmin={isAdmin}
       />
