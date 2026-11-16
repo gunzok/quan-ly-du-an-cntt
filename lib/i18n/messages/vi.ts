@@ -1048,7 +1048,9 @@ const viMessages = {
     bellLabelUnread: (count: number) => `Thông báo, ${count} chưa đọc`,
     badgeOverflow: "99+",
     announceNew: (count: number) =>
-      count === 1 ? "Bạn có 1 thông báo mới." : `Bạn có ${count} thông báo mới.`,
+      count === 1
+        ? "Bạn có 1 thông báo mới."
+        : `Bạn có ${count} thông báo mới.`,
     panelLabel: "Hộp thư thông báo",
     eyebrow: (count: number) =>
       `Hộp thư / ${String(count).padStart(2, "0")} chưa đọc`,
@@ -1080,8 +1082,7 @@ const viMessages = {
       `Task ${title} đã chuyển sang ${status}`,
     hiddenAssigned:
       "Bạn từng được giao một task mà nay bạn không còn quyền xem.",
-    hiddenStatusChanged:
-      "Một task bạn không còn quyền xem đã đổi trạng thái.",
+    hiddenStatusChanged: "Một task bạn không còn quyền xem đã đổi trạng thái.",
     today: (time: string) => `Hôm nay ${time}`,
     yesterday: (time: string) => `Hôm qua ${time}`,
   },

@@ -1063,7 +1063,8 @@ export const en: Messages = {
     retry: "Try again",
     actionFailed: "Could not mark as read. Please try again.",
     emptyUnreadTitle: "No unread notifications",
-    emptyUnreadBody: "You're all caught up. Choose “All” to see older notifications.",
+    emptyUnreadBody:
+      "You're all caught up. Choose “All” to see older notifications.",
     emptyAllTitle: "No notifications yet",
     emptyAllBody:
       "You'll be notified here when a task is assigned to you or your task changes status.",
@@ -1075,8 +1076,7 @@ export const en: Messages = {
       `${actor} moved the task ${title} to ${status}`,
     statusChangedNoActor: (title: string, status: string) =>
       `The task ${title} moved to ${status}`,
-    hiddenAssigned:
-      "You were assigned a task that you can no longer view.",
+    hiddenAssigned: "You were assigned a task that you can no longer view.",
     hiddenStatusChanged: "A task you can no longer view changed status.",
     today: (time: string) => `Today ${time}`,
     yesterday: (time: string) => `Yesterday ${time}`,
