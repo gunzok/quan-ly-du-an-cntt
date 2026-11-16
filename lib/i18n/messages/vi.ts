@@ -746,6 +746,89 @@ const viMessages = {
       nameExists: "Bạn đã có chế độ xem cùng tên trong dự án này.",
     },
   },
+  /** Dashboard tiến độ S06 (Story E5-1, QLDA-60). */
+  dashboard: {
+    open: "Xem tổng quan",
+    pageTitle: "Tổng quan dự án",
+    backToProjects: "Danh sách dự án",
+    eyebrow: (name: string, total: number) => `Dự án / ${name} · ${total} task`,
+    heading: "Tổng quan",
+    navLabel: "Chế độ xem dự án",
+    nav: {
+      board: "Bảng",
+      dashboard: "Tổng quan",
+      settings: "Cấu hình",
+    },
+    loading: "Đang tải số liệu dự án",
+    loadError: "Không tải được số liệu dự án.",
+    retry: "Thử lại",
+    todayNote: (date: string) =>
+      `Trễ hạn tính đến hết ngày ${date} (giờ Việt Nam); task đã xong không tính trễ.`,
+    percent: (n: number) => `${n}%`,
+    kpisLabel: "Chỉ số chính",
+    kpi: {
+      completion: "Hoàn thành",
+      completionNote: (done: string, total: string) =>
+        `${done} / ${total} task`,
+      completionAria: (n: number) => `Hoàn thành ${n}%`,
+      inProgress: "Đang làm",
+      inProgressNote: "task đang thực hiện",
+      overdue: "Trễ hạn",
+      overdueNote: "chưa xong, đã quá hạn",
+      blocked: "Bị chặn",
+      blockedNote: "đang chờ task khác",
+    },
+    colCount: "Số task",
+    colShare: "Tỉ lệ",
+    byGroup: {
+      title: "Theo nhóm trạng thái",
+      summary: (parts: string) => `Phân bố theo nhóm trạng thái: ${parts}`,
+      part: (name: string, count: string, pct: number) =>
+        `${name} ${count} (${pct}%)`,
+    },
+    byStatus: {
+      title: "Phân bố theo trạng thái",
+      total: (n: string) => `${n} task`,
+      colStatus: "Trạng thái",
+      colGroup: "Nhóm",
+    },
+    byAssignee: {
+      title: "Việc theo người phụ trách",
+      colPerson: "Người phụ trách",
+      colOpen: "Đang mở",
+      colOverdue: "Trễ hạn",
+      colDone: "Đã xong",
+      unassigned: "Chưa giao",
+      formerMember: "Người đã rời dự án",
+      leftBadge: "Đã rời dự án",
+      empty: "Chưa có task nào.",
+    },
+    byPriority: {
+      title: "Theo ưu tiên",
+      colPriority: "Ưu tiên",
+    },
+    byType: {
+      title: "Theo loại task",
+      colType: "Loại",
+      milestone: "Mốc",
+    },
+    overdueList: {
+      title: "Task trễ hạn",
+      empty: "Không có task trễ hạn.",
+      days: (n: number) => `Trễ ${n} ngày`,
+      due: (date: string) => `Hạn ${date}`,
+      more: (shown: number, total: number) =>
+        `Đang hiện ${shown} / ${total} task trễ hạn, hạn sớm nhất trước.`,
+    },
+    empty: {
+      title: "Dự án chưa có task",
+      bodyCanCreate:
+        "Số liệu tiến độ sẽ hiện ở đây khi dự án có task. Hãy tạo task đầu tiên trên bảng của dự án.",
+      bodyReadOnly:
+        "Số liệu tiến độ sẽ hiện ở đây khi PM hoặc thành viên của dự án tạo task.",
+      action: "Mở bảng để tạo task",
+    },
+  },
   /** Story E2-5 (QLDA-46): ngăn chi tiết task (S05 v2). */
   taskDetail: {
     pageTitle: "Chi tiết task",
