@@ -746,6 +746,7 @@ export const en: Messages = {
     },
   },
   dashboard: {
+    open: "View dashboard",
     pageTitle: "Project overview",
     backToProjects: "Project list",
     eyebrow: (name: string, total: number) =>

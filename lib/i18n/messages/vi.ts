@@ -748,6 +748,7 @@ const viMessages = {
   },
   /** Dashboard tiến độ S06 (Story E5-1, QLDA-60). */
   dashboard: {
+    open: "Xem tổng quan",
     pageTitle: "Tổng quan dự án",
     backToProjects: "Danh sách dự án",
     eyebrow: (name: string, total: number) => `Dự án / ${name} · ${total} task`,

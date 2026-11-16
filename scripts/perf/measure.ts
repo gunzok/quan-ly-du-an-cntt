@@ -260,6 +260,11 @@ async function prepareEndpoints(
       path: `/api/v1/projects/${pid}`,
     },
     {
+      key: "project_dashboard",
+      label: "GET /projects/{id}/dashboard (project_dashboard 2.000 task)",
+      path: `/api/v1/projects/${pid}/dashboard`,
+    },
+    {
       key: "tasks_first_page",
       label: "GET /projects/{id}/tasks trang đầu",
       path: tasksPath,

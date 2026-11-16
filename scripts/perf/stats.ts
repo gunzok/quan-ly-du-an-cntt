@@ -14,6 +14,7 @@
 export const ENDPOINT_KEYS = [
   "projects_list",
   "project_detail",
+  "project_dashboard",
   "tasks_first_page",
   "tasks_middle_page",
   "tasks_search_accented",
@@ -28,6 +29,7 @@ export type EndpointKey = (typeof ENDPOINT_KEYS)[number];
 export const DEFAULT_P95_MS: Record<EndpointKey, number> = {
   projects_list: 500,
   project_detail: 500,
+  project_dashboard: 500,
   tasks_first_page: 500,
   tasks_middle_page: 500,
   tasks_search_accented: 500,
