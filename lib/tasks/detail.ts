@@ -1,6 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Task } from "./model";
-import { canCreateTask, canDeleteTask, canEditTask, type Actor } from "./policy";
+import {
+  canCreateTask,
+  canDeleteTask,
+  canEditTask,
+  type Actor,
+} from "./policy";
 
 /**
  * Phần mở rộng của GET /api/v1/tasks/{id} cho ngăn chi tiết task (Story E2-5, QLDA-46). Chỉ THÊM
@@ -66,8 +71,7 @@ export function taskPermissions(
     can_edit: canEdit,
     can_delete: canDeleteTask(actor, task),
     // Giao cho người khác: sau khi đổi, người gọi vẫn phải sửa được (giống kiểm "after" ở PATCH).
-    can_reassign:
-      canEdit && canEditTask(actor, { ...task, assignee_id: null }),
+    can_reassign: canEdit && canEditTask(actor, { ...task, assignee_id: null }),
     can_add_subtask:
       canCreateTask(actor) && canEdit && task.depth < TASK_MAX_DEPTH,
   };
@@ -75,7 +79,8 @@ export function taskPermissions(
 
 function compareSiblings(a: TaskSummary, b: TaskSummary): number {
   if (a.position !== b.position) return a.position - b.position;
-  if (a.created_at !== b.created_at) return a.created_at < b.created_at ? -1 : 1;
+  if (a.created_at !== b.created_at)
+    return a.created_at < b.created_at ? -1 : 1;
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 

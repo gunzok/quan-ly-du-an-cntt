@@ -116,7 +116,8 @@ export function openBlockers(
   categoryOf: (statusId: string | null) => StatusCategory | undefined,
 ): TaskRelationView[] {
   return relations.filter(
-    (r) => r.relation === "blocked_by" && categoryOf(r.task.status_id) !== "done",
+    (r) =>
+      r.relation === "blocked_by" && categoryOf(r.task.status_id) !== "done",
   );
 }
 

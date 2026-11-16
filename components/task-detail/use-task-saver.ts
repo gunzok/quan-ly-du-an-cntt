@@ -3,11 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TaskDetail } from "@/lib/tasks/detail";
 import { patchTask } from "@/lib/tasks/client-api";
-import {
-  isNoop,
-  undoPatch,
-  type DetailField,
-} from "@/lib/tasks/detail-view";
+import { isNoop, undoPatch, type DetailField } from "@/lib/tasks/detail-view";
 import type { TaskPatch } from "@/lib/tasks/validate";
 import { apiErrorText } from "@/lib/i18n/api-error";
 import { messageKeyOf } from "@/lib/i18n/message-key";
@@ -87,7 +83,11 @@ export function useTaskSaver(
         ...prev,
         [field]: apiErrorText(strings, result.error),
       }));
-      setState({ kind: "error", field, message: t.save.failed(t.fields[field]) });
+      setState({
+        kind: "error",
+        field,
+        message: t.save.failed(t.fields[field]),
+      });
       setResetKey((n) => n + 1);
       return false;
     },

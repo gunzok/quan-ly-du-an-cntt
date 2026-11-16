@@ -65,7 +65,10 @@ export function RelationsSection({
       ) : state.relations.length === 0 ? (
         <p className="m-0 text-sm text-text-muted">{t.empty}</p>
       ) : (
-        <ul aria-label={t.listLabel} className="m-0 flex list-none flex-col p-0">
+        <ul
+          aria-label={t.listLabel}
+          className="m-0 flex list-none flex-col p-0"
+        >
           {state.relations.map((r) => (
             <li
               key={r.id}

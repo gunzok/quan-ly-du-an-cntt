@@ -42,7 +42,7 @@ export interface PropertiesProps {
  * giá trị. `<dl>`: nhãn là `<dt>` (chứa `<label>` khi sửa được), giá trị là `<dd>`.
  */
 export function Properties(props: PropertiesProps) {
-  const { task, statuses, types, labels, assignees, fieldErrors, save } = props;
+  const { task, statuses, types, assignees, fieldErrors, save } = props;
   const strings = useStrings();
   const locale = useLocale();
   const t = strings.taskDetail;
@@ -65,9 +65,7 @@ export function Properties(props: PropertiesProps) {
         field="type_id"
         error={fieldErrors.type_id}
         editable={canEditField("type_id", p) && types.length > 0}
-        view={
-          <Badge tone="neutral">{type?.name ?? t.unknown}</Badge>
-        }
+        view={<Badge tone="neutral">{type?.name ?? t.unknown}</Badge>}
         control={(id, describedBy) => (
           <DraftSelect
             resetKey={props.resetKey}
@@ -141,7 +139,9 @@ export function Properties(props: PropertiesProps) {
                 disabled: !a.assignable,
               })),
             ]}
-            onValue={(v) => void save("assignee_id", { assignee_id: v || null })}
+            onValue={(v) =>
+              void save("assignee_id", { assignee_id: v || null })
+            }
           />
         )}
       />
@@ -161,7 +161,9 @@ export function Properties(props: PropertiesProps) {
               value,
               label: strings.ui.priority[value],
             }))}
-            onValue={(v) => void save("priority", { priority: v as TaskPriority })}
+            onValue={(v) =>
+              void save("priority", { priority: v as TaskPriority })
+            }
           />
         )}
       />
@@ -224,38 +226,41 @@ function Row({
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
   const name = strings.taskDetail.fields[field];
   return (
+    // dt, dd là con trực tiếp của div nhóm (con trực tiếp của dl) theo quy tắc của <dl>.
     <div
       data-field={field}
-      className="flex flex-col gap-1 border-0 border-t border-solid border-border py-2"
+      className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-0 border-t border-solid border-border py-2"
     >
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <dt className="label">
-          {editable ? <label htmlFor={id}>{name}</label> : name}
-        </dt>
-        <dd className="m-0 flex min-w-0 justify-end text-right text-sm sm:max-w-[60%]">
-          {editable ? (
-            <div className="w-full min-w-48 text-left sm:w-64">
-              {control(id, describedBy)}
-            </div>
-          ) : (
-            view
-          )}
-        </dd>
-      </div>
+      <dt className="label">
+        {editable ? <label htmlFor={id}>{name}</label> : name}
+      </dt>
+      <dd
+        className={
+          editable
+            ? "m-0 w-full min-w-0 text-sm sm:w-64"
+            : "m-0 flex min-w-0 justify-end text-right text-sm sm:max-w-[60%]"
+        }
+      >
+        {editable ? (
+          <div className="w-full text-left">{control(id, describedBy)}</div>
+        ) : (
+          view
+        )}
+      </dd>
       {hint ? (
-        <p id={hintId} className="text-xs text-text-muted">
+        <dd id={hintId} className="m-0 w-full text-xs text-text-muted">
           {hint}
-        </p>
+        </dd>
       ) : null}
       {error ? (
-        <p
+        <dd
           id={errorId}
           role="alert"
-          className="flex items-center gap-1.5 text-xs text-danger"
+          className="m-0 flex w-full items-center gap-1.5 text-xs text-danger"
         >
           <ErrorIcon className="size-3.5 shrink-0" />
           {error}
-        </p>
+        </dd>
       ) : null}
     </div>
   );
@@ -356,50 +361,55 @@ function LabelsRow({
   return (
     <div
       data-field="label_ids"
-      className="flex flex-col gap-2 border-0 border-t border-solid border-border py-2"
+      className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-0 border-t border-solid border-border py-2"
     >
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <dt className="label">{t.fields.label_ids}</dt>
-        <dd className="m-0 flex min-w-0 flex-wrap items-center justify-end gap-2 text-sm">
-          {chips}
-          {editable && labels.length > 0 ? (
-            <Button
-              variant="text"
-              aria-expanded={editing}
-              onClick={() => setEditing((v) => !v)}
-            >
-              {editing ? t.labels.done : t.labels.edit}
-            </Button>
-          ) : null}
-        </dd>
-      </div>
+      <dt className="label">{t.fields.label_ids}</dt>
+      <dd className="m-0 flex min-w-0 flex-wrap items-center justify-end gap-2 text-sm">
+        {chips}
+        {editable && labels.length > 0 ? (
+          <Button
+            variant="text"
+            aria-expanded={editing}
+            onClick={() => setEditing((v) => !v)}
+          >
+            {editing ? t.labels.done : t.labels.edit}
+          </Button>
+        ) : null}
+      </dd>
       {editable && labels.length === 0 ? (
-        <p className="text-xs text-text-muted">{t.labels.projectEmpty}</p>
+        <dd className="m-0 w-full text-xs text-text-muted">
+          {t.labels.projectEmpty}
+        </dd>
       ) : null}
       {editable && editing ? (
-        <fieldset
-          aria-labelledby={legendId}
-          aria-busy={savingField === "label_ids" || undefined}
-          className="m-0 flex flex-col gap-0.5 rounded-md border border-solid border-border px-3 py-2"
-        >
-          <legend id={legendId} className="sr-only">
-            {t.labels.legend}
-          </legend>
-          {labels.map((l) => (
-            <Checkbox
-              key={l.id}
-              label={l.name}
-              checked={checkedIds.includes(l.id)}
-              onChange={(e) => toggle(l.id, e.target.checked)}
-            />
-          ))}
-        </fieldset>
+        <dd className="m-0 w-full">
+          <fieldset
+            aria-labelledby={legendId}
+            aria-busy={savingField === "label_ids" || undefined}
+            className="m-0 flex flex-col gap-0.5 rounded-md border border-solid border-border px-3 py-2"
+          >
+            <legend id={legendId} className="sr-only">
+              {t.labels.legend}
+            </legend>
+            {labels.map((l) => (
+              <Checkbox
+                key={l.id}
+                label={l.name}
+                checked={checkedIds.includes(l.id)}
+                onChange={(e) => toggle(l.id, e.target.checked)}
+              />
+            ))}
+          </fieldset>
+        </dd>
       ) : null}
       {error ? (
-        <p role="alert" className="flex items-center gap-1.5 text-xs text-danger">
+        <dd
+          role="alert"
+          className="m-0 flex w-full items-center gap-1.5 text-xs text-danger"
+        >
           <ErrorIcon className="size-3.5 shrink-0" />
           {error}
-        </p>
+        </dd>
       ) : null}
     </div>
   );

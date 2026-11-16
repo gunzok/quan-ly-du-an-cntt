@@ -99,7 +99,10 @@ export function SubtasksSection({
               style={{ width: `${(done / total) * 100}%` }}
             />
           </div>
-          <ul aria-label={t.listLabel} className="m-0 flex list-none flex-col p-0">
+          <ul
+            aria-label={t.listLabel}
+            className="m-0 flex list-none flex-col p-0"
+          >
             {task.subtasks.map((s) => {
               const isDone = s.completed_at !== null;
               return (
@@ -107,7 +110,9 @@ export function SubtasksSection({
                   key={s.id}
                   data-subtask={s.id}
                   className="flex min-h-11 items-center gap-2.5 text-sm sm:min-h-8"
-                  style={{ paddingLeft: `${(s.depth - task.depth - 1) * 24}px` }}
+                  style={{
+                    paddingLeft: `${(s.depth - task.depth - 1) * 24}px`,
+                  }}
                 >
                   <span
                     aria-hidden="true"
@@ -151,11 +156,7 @@ export function SubtasksSection({
         <p className="m-0 text-sm text-text-muted">{t.empty}</p>
       )}
       {task.permissions.can_add_subtask ? (
-        <form
-          onSubmit={submit}
-          noValidate
-          className="flex flex-col gap-1.5"
-        >
+        <form onSubmit={submit} noValidate className="flex flex-col gap-1.5">
           <label htmlFor={inputId} className="sr-only">
             {t.addLabel}
           </label>

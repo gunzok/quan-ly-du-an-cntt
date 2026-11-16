@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ErrorIcon } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { normalizeDescription, type DetailField } from "@/lib/tasks/detail-view";
+import {
+  normalizeDescription,
+  type DetailField,
+} from "@/lib/tasks/detail-view";
 import { DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH } from "@/lib/tasks/validate";
 import type { TaskPatch } from "@/lib/tasks/validate";
 import { useStrings } from "@/lib/i18n/client";
