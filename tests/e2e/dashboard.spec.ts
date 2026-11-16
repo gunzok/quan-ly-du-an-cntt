@@ -13,6 +13,7 @@ import { e2ePassword } from "./env";
  *   - "rỗng": cùng thành viên, không task (AC2).
  *   - "khác": chỉ pm@; viewer@ là người ngoài => 404 (BR-10).
  * admin@ không thuộc dự án nào ở trên nhưng là Admin nên xem được.
+ * Mọi dòng task cùng tập cột (insert nhiều dòng của PostgREST điền null cho cột thiếu).
  * afterAll xóa các dự án tạm (xóa theo task, trạng thái, loại).
  */
 const t = strings.dashboard;
@@ -94,6 +95,7 @@ test.beforeAll(async () => {
       status_id: status("done"),
       assignee_id: pm,
       due_date: vnDate(-10),
+      priority: "medium",
     },
     {
       project_id: projectId,
@@ -110,6 +112,7 @@ test.beforeAll(async () => {
       created_by: pm,
       status_id: status("in_progress"),
       due_date: null,
+      priority: "low",
     },
   ]);
   if (tasks.error) throw tasks.error;
@@ -189,7 +192,7 @@ async function expectSeededNumbers(page: Page) {
   await expect(overdue).toContainText(t.overdueList.days(3));
 }
 
-test.describe("Dashboard tiến độ S06", () => {
+test.describe.serial("Dashboard tiến độ S06", () => {
   test("PM: vào từ thẻ dự án, số liệu khớp task (AC1), axe sáng", async ({
     page,
   }) => {
