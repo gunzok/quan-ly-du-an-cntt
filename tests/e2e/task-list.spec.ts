@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 
 /**
@@ -146,7 +146,16 @@ test.afterAll(async () => {
     await service.auth.admin.deleteUser(id);
 });
 
+type Cookies = Awaited<ReturnType<BrowserContext["cookies"]>>;
+/** Cookie phiên theo vai trò: mỗi vai trò chỉ đăng nhập MỘT lần cho cả tệp (giới hạn loginIp 50 lần/5 phút dùng chung cho mọi spec chạy từ cùng IP). */
+const sessions: Partial<Record<keyof typeof emails, Cookies>> = {};
+
 async function signInAs(page: Page, who: keyof typeof emails) {
+  const saved = sessions[who];
+  if (saved) {
+    await page.context().addCookies(saved);
+    return;
+  }
   await page.goto("/login");
   await page.getByLabel(strings.login.emailLabel).fill(emails[who]);
   await page.getByLabel(strings.login.passwordLabel).fill(password);
@@ -154,6 +163,7 @@ async function signInAs(page: Page, who: keyof typeof emails) {
     .getByRole("button", { name: strings.login.submit, exact: true })
     .click();
   await expect(page).toHaveURL("/");
+  sessions[who] = await page.context().cookies();
 }
 
 async function blockingViolations(page: Page) {
