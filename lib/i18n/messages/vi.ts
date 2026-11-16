@@ -829,6 +829,124 @@ const viMessages = {
       action: "Mở bảng để tạo task",
     },
   },
+  /** Story E2-5 (QLDA-46): ngăn chi tiết task (S05 v2). */
+  taskDetail: {
+    pageTitle: "Chi tiết task",
+    panelLabel: "Chi tiết task",
+    eyebrow: (typeName: string, projectName: string) =>
+      `${typeName} · ${projectName}`,
+    close: "Đóng chi tiết task",
+    backToBoard: "Về bảng dự án",
+    loading: "Đang tải chi tiết task",
+    loadError: "Không tải được chi tiết task.",
+    retry: "Thử lại",
+    readOnlyBadge: "Chỉ đọc",
+    readOnly: {
+      viewer: "Bạn là Người xem trong dự án này nên chỉ xem được task.",
+      notOwner:
+        "Bạn chỉ sửa được task mình phụ trách hoặc do mình tạo, nên các trường của task này đang khóa.",
+    },
+    reassignLocked:
+      "Chỉ người tạo task, PM hoặc Admin đổi được người phụ trách.",
+    propertiesLabel: "Thuộc tính task",
+    fields: {
+      title: "tiêu đề",
+      description: "mô tả",
+      type_id: "Loại",
+      status_id: "Trạng thái",
+      assignee_id: "Người phụ trách",
+      priority: "Ưu tiên",
+      start_date: "Ngày bắt đầu",
+      due_date: "Ngày kết thúc (hạn)",
+      label_ids: "Nhãn",
+    },
+    unassigned: "Chưa giao",
+    notSet: "Chưa đặt",
+    unknown: "Không rõ",
+    overdue: (date: string) => `Trễ · ${date}`,
+    notAssignable: (name: string) => `${name} (không còn giao được)`,
+    labels: {
+      none: "Chưa có nhãn",
+      projectEmpty: "Dự án chưa có nhãn nào.",
+      edit: "Sửa nhãn",
+      done: "Xong",
+      legend: "Chọn nhãn cho task",
+    },
+    title: {
+      edit: "Sửa tiêu đề",
+      label: "Tiêu đề task",
+      save: "Lưu tiêu đề",
+      cancel: "Hủy",
+      required: "Tiêu đề không được để trống.",
+      tooLong: "Tiêu đề tối đa 500 ký tự.",
+    },
+    description: {
+      heading: "Mô tả",
+      empty: "Chưa có mô tả.",
+      add: "Thêm mô tả",
+      edit: "Sửa mô tả",
+      label: "Mô tả task",
+      hint: "Văn bản thuần, giữ nguyên xuống dòng. Tối đa 10.000 ký tự.",
+      save: "Lưu mô tả",
+      cancel: "Hủy",
+      tooLong: "Mô tả tối đa 10.000 ký tự.",
+    },
+    subtasks: {
+      heading: "Việc con",
+      parent: "Task cha",
+      listLabel: "Danh sách việc con",
+      progressLabel: (done: number, total: number) =>
+        `Việc con hoàn thành ${done} trên ${total}`,
+      empty: "Chưa có việc con.",
+      addLabel: "Tên việc con mới",
+      add: "Thêm việc con",
+      required: "Nhập tên việc con.",
+      added: (title: string) => `Đã thêm việc con “${title}”.`,
+      maxDepth:
+        "Task này đã ở cấp 3 nên không thêm được việc con (tối đa 3 cấp).",
+      doneMark: "Đã xong",
+      truncated: "Chỉ hiện 200 việc con đầu tiên.",
+    },
+    relations: {
+      heading: "Quan hệ",
+      listLabel: "Quan hệ với task khác",
+      empty: "Chưa có quan hệ nào với task khác.",
+      loading: "Đang tải quan hệ",
+      loadError: "Không tải được quan hệ.",
+      kinds: {
+        relates: "Liên quan",
+        blocks: "Chặn",
+        blocked_by: "Bị chặn bởi",
+        precedes: "Đứng trước",
+        follows: "Đứng sau",
+        duplicates: "Trùng lặp",
+        duplicated_by: "Bị trùng bởi",
+      },
+    },
+    blocked: (titles: string) =>
+      `Task này bị chặn bởi ${titles} (chưa xong). Bạn vẫn có thể đánh dấu hoàn thành.`,
+    save: {
+      saving: (field: string) => `Đang lưu ${field}…`,
+      saved: (field: string) => `Đã lưu ${field}.`,
+      undo: "Hoàn tác",
+      undone: (field: string) => `Đã hoàn tác ${field}.`,
+      failed: (field: string) => `Chưa lưu được ${field}.`,
+      stale:
+        "Task vừa được người khác sửa. Ngăn đã tải lại bản mới nhất, hãy kiểm tra rồi sửa lại.",
+    },
+    delete: {
+      action: "Xóa task",
+      title: (title: string) => `Xóa task “${title}”?`,
+      body: "Task sẽ bị xóa vĩnh viễn, không hoàn tác được.",
+      bodyWithSubtasks: (count: number) =>
+        `Task và cả ${count} việc con của nó sẽ bị xóa vĩnh viễn, không hoàn tác được.`,
+      confirm: "Xóa vĩnh viễn",
+      failed: "Chưa xóa được task.",
+    },
+    errors: {
+      stale: "Task vừa được người khác sửa. Hãy tải lại rồi thử lại.",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */

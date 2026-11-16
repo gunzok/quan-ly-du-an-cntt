@@ -144,6 +144,7 @@ describe("E3-3: kết hợp", () => {
         status_ids: [A, B].sort(),
         priority: "high",
         label_id: B,
+        parent_id: null,
         q: "bao cao",
         due_after: "2026-01-01",
         due_before: "2026-12-31",

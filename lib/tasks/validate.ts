@@ -278,9 +278,14 @@ export interface TaskPatch {
   label_ids?: string[];
   /** Đổi task cha (E2-4); null: tách thành task gốc. Cả cây con đi theo. */
   parent_id?: string | null;
+  /**
+   * Chống ghi đè khi sửa đồng thời (E2-5): updated_at người gọi đã đọc. Có gửi mà task đã đổi kể từ
+   * đó: 409. Không gửi: ghi như cũ (người sửa sau thắng). Không phải cột để ghi.
+   */
+  expected_updated_at?: string;
 }
 
-const PATCH_FIELDS = CREATE_FIELDS;
+const PATCH_FIELDS = [...CREATE_FIELDS, "expected_updated_at"] as const;
 
 export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
   if (!isPlainObject(body)) {
@@ -317,8 +322,20 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
     set("label_ids", readLabelIds(body.label_ids, details));
   if ("parent_id" in body)
     set("parent_id", readNullableUuid("parent_id")(body.parent_id, details));
+  if ("expected_updated_at" in body) {
+    if (
+      typeof body.expected_updated_at === "string" &&
+      TIMESTAMP_PATTERN.test(body.expected_updated_at)
+    ) {
+      patch.expected_updated_at = body.expected_updated_at;
+    } else {
+      details.push({ field: "expected_updated_at", issue: "invalid_format" });
+    }
+  }
 
-  if (details.length === 0 && Object.keys(patch).length === 0) {
+  // Chỉ gửi expected_updated_at mà không đổi gì: thiếu nội dung như thân rỗng.
+  const changes = Object.keys(patch).filter((k) => k !== "expected_updated_at");
+  if (details.length === 0 && changes.length === 0) {
     details.push({ field: "body", issue: "required" });
   }
   return details.length > 0
@@ -328,7 +345,7 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/projects/{id}/tasks?limit=&cursor=&assignee_id=&status_id=&priority=
-// &label_id= (E2-3) &q=&due_after=&due_before= (E3-3, xem ./search.ts; status_id nhận nhiều id
+// &label_id= (E2-3) &parent_id= (E2-5) &q=&due_after=&due_before= (E3-3, xem ./search.ts; status_id nhận nhiều id
 // ngăn bằng dấu phẩy). Mọi bộ lọc kết hợp AND. Sắp xếp mặc định: mới tạo trước (created_at giảm
 // dần, id giảm dần); `sort` chưa làm.
 // ---------------------------------------------------------------------------
@@ -374,6 +391,8 @@ export interface TaskListQuery {
   status_ids: string[] | null;
   priority: TaskPriority | null;
   label_id: string | null;
+  /** Chỉ việc con trực tiếp của task này (E2-5). */
+  parent_id: string | null;
   /** Từ khóa đã cắt khoảng trắng (E3-3); null: không tìm. */
   q: string | null;
   /** Hạn chót trong khoảng [due_after, due_before], tính cả hai đầu (E3-3). */
@@ -391,6 +410,7 @@ const LIST_PARAMS = [
   "q",
   "due_after",
   "due_before",
+  "parent_id",
 ] as const;
 
 export function validateTaskListQuery(
@@ -409,6 +429,7 @@ export function validateTaskListQuery(
     status_ids: null,
     priority: null,
     label_id: null,
+    parent_id: null,
     q: null,
     due_after: null,
     due_before: null,
@@ -431,7 +452,7 @@ export function validateTaskListQuery(
       details.push({ field: "cursor", issue: "invalid_format" });
   }
 
-  for (const field of ["assignee_id", "label_id"] as const) {
+  for (const field of ["assignee_id", "label_id", "parent_id"] as const) {
     const raw = params.get(field);
     if (raw === null) continue;
     if (isUuid(raw)) {
