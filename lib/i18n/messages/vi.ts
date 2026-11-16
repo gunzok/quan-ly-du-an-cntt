@@ -1043,6 +1043,68 @@ const viMessages = {
       stale: "Task vừa được người khác sửa. Hãy tải lại rồi thử lại.",
     },
   },
+  /** Thêm, bỏ quan hệ giữa task trong ngăn chi tiết (Story E8-2, S05 v2). */
+  taskRelationsUi: {
+    add: "Thêm quan hệ",
+    locked:
+      "Bạn cần quyền sửa cả hai task để thêm hoặc bỏ quan hệ. Thành viên chỉ sửa được task mình phụ trách hoặc tạo.",
+    dialogTitle: "Thêm quan hệ",
+    dialogDescription: (title: string) =>
+      `Chọn kiểu quan hệ và task đích cho “${title}”.`,
+    kindLabel: "Kiểu quan hệ",
+    preview: {
+      relates: (a: string, b: string) => `“${a}” liên quan đến “${b}”.`,
+      blocks: (a: string, b: string) =>
+        `“${a}” chặn “${b}”: “${b}” phải chờ “${a}” xong.`,
+      blocked_by: (a: string, b: string) =>
+        `“${a}” bị chặn bởi “${b}”: “${a}” phải chờ “${b}” xong.`,
+      precedes: (a: string, b: string) =>
+        `“${a}” đứng trước “${b}” (dùng cho lịch, Gantt).`,
+      follows: (a: string, b: string) =>
+        `“${a}” đứng sau “${b}” (dùng cho lịch, Gantt).`,
+      duplicates: (a: string, b: string) => `“${a}” trùng lặp với “${b}”.`,
+    },
+    targetPlaceholder: "task đích",
+    lagLabel: "Độ trễ (ngày)",
+    lagHint: "Số ngày chờ giữa hai task, từ −365 đến 365. Để 0 nếu không cần.",
+    lagInvalid: "Nhập số nguyên từ −365 đến 365.",
+    targetLabel: "Task đích",
+    searchPlaceholder: "Tìm theo tiêu đề, gõ không dấu cũng được",
+    searchHint: "Dùng phím mũi tên lên, xuống để chọn, Enter để chốt task.",
+    resultsLabel: "Task trong dự án",
+    searching: "Đang tìm task…",
+    noResults: "Không có task nào khớp.",
+    searchError: "Không tìm được task.",
+    cannotEditTarget: "Bạn không sửa được task này",
+    selected: (title: string) => `Đã chọn: ${title}`,
+    targetRequired: "Hãy chọn task đích trong danh sách.",
+    submit: "Thêm quan hệ",
+    added: (label: string, title: string) =>
+      `Đã thêm quan hệ “${label}” với “${title}”.`,
+    addFailed: "Chưa thêm được quan hệ.",
+    lag: (days: number) =>
+      days > 0 ? `trễ ${days} ngày` : `sớm ${Math.abs(days)} ngày`,
+    removeLabel: (label: string, title: string) =>
+      `Bỏ quan hệ “${label}” với “${title}”`,
+    remove: "Bỏ",
+    removeTitle: "Bỏ quan hệ này?",
+    removeBody: (label: string, title: string) =>
+      `Bỏ quan hệ “${label}” với task “${title}”. Hai task vẫn giữ nguyên.`,
+    removeConfirm: "Bỏ quan hệ",
+    removed: "Đã bỏ quan hệ.",
+    removeFailed: "Chưa bỏ được quan hệ.",
+    errors: {
+      cycle:
+        "Quan hệ này tạo vòng: chuỗi chặn hoặc đứng trước sẽ quay lại chính task này. Hãy chọn task khác hoặc bỏ quan hệ cũ trước.",
+      duplicate: "Hai task đã có quan hệ này rồi.",
+      selfRelation: "Không thể đặt quan hệ giữa một task với chính nó.",
+      crossProject: "Chỉ đặt quan hệ được giữa hai task cùng dự án.",
+      forbidden:
+        "Bạn không đủ quyền: cần sửa được cả hai task (Thành viên chỉ sửa task mình phụ trách hoặc tạo).",
+      notFound:
+        "Task hoặc quan hệ không còn (có thể vừa bị xóa). Danh sách quan hệ đã được tải lại.",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */
