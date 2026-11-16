@@ -1090,7 +1090,7 @@ const viMessages = {
       expandAll: "Mở rộng tất cả",
       collapseAll: "Thu gọn tất cả",
       columns: "Chọn cột",
-      columnsCount: (n: number) => `Cột (${n})`,
+      columnsCount: (n: number) => `Chọn cột (${n})`,
     },
     groupBy: {
       status_id: "Trạng thái",
@@ -1106,8 +1106,7 @@ const viMessages = {
       priority: "Không có ưu tiên",
       label_ids: "Không nhãn",
     },
-    groupToggle: (name: string, count: number, expanded: boolean) =>
-      `${expanded ? "Thu gọn" : "Mở rộng"} nhóm ${name} (${count} task)`,
+    groupCount: (count: number) => `(${count} task)`,
     columns: {
       title: "Tên task",
       status_id: "Trạng thái",

@@ -559,11 +559,7 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
           >
             {t.toolbar.collapseAll}
           </Button>
-          <Button
-            variant="secondary"
-            aria-label={t.toolbar.columns}
-            onClick={() => setColumnsOpen(true)}
-          >
+          <Button variant="secondary" onClick={() => setColumnsOpen(true)}>
             {t.toolbar.columnsCount(view.columns.length)}
           </Button>
           <p

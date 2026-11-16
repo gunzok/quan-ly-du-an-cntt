@@ -291,7 +291,6 @@ const GroupRowView = memo(function GroupRowView({
         <button
           type="button"
           aria-expanded={!collapsed}
-          aria-label={t.groupToggle(name, count, !collapsed)}
           onClick={() => onToggle(value)}
           className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border-0 bg-transparent px-2 text-sm text-text hover:bg-bg-subtle sm:min-h-8"
         >
@@ -304,9 +303,13 @@ const GroupRowView = memo(function GroupRowView({
             />
           ) : null}
           <span>{name}</span>
-          <span className="font-mono text-label text-text-muted">
+          <span
+            aria-hidden="true"
+            className="font-mono text-label text-text-muted"
+          >
             {String(count).padStart(2, "0")}
           </span>
+          <span className="sr-only">{t.groupCount(count)}</span>
         </button>
       </th>
     </tr>

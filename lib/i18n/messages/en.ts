@@ -1087,7 +1087,7 @@ export const en: Messages = {
       expandAll: "Expand all",
       collapseAll: "Collapse all",
       columns: "Choose columns",
-      columnsCount: (n: number) => `Columns (${n})`,
+      columnsCount: (n: number) => `Choose columns (${n})`,
     },
     groupBy: {
       status_id: "Status",
@@ -1103,8 +1103,8 @@ export const en: Messages = {
       priority: "No priority",
       label_ids: "No label",
     },
-    groupToggle: (name: string, count: number, expanded: boolean) =>
-      `${expanded ? "Collapse" : "Expand"} group ${name} (${count} ${count === 1 ? "task" : "tasks"})`,
+    groupCount: (count: number) =>
+      `(${count} ${count === 1 ? "task" : "tasks"})`,
     columns: {
       title: "Task name",
       status_id: "Status",
