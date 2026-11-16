@@ -1,7 +1,13 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 
 /**
@@ -9,8 +15,10 @@ import { vi as strings } from "@/lib/i18n/messages/vi";
  * app; cài đặt email là E4-2).
  *
  * Tài khoản và dự án tạm tạo bằng khóa service của stack CỤC BỘ (make test-e2e đặt
- * SUPABASE_SERVICE_ROLE_KEY), mật khẩu ngẫu nhiên; afterAll xóa. PM giao việc bằng API thật (phiên
- * của PM trong một context riêng) nên thông báo có tên người giao như ngoài đời.
+ * SUPABASE_SERVICE_ROLE_KEY), mật khẩu ngẫu nhiên; afterAll xóa. PM giao việc bằng phiên của chính
+ * PM (supabase-js, qua RLS và trigger thật) nên thông báo có tên người giao như ngoài đời. Mỗi tài
+ * khoản chỉ đăng nhập qua /login một lần rồi dùng lại phiên: cả bộ e2e chạy từ một IP, giới hạn
+ * đăng nhập 50 lần/5 phút/IP (lib/api/rate-limit.ts).
  *
  * AC1: được giao → chuông có số chưa đọc, ngăn hiện thông báo. AC2: đánh dấu đã đọc → số giảm.
  * Thêm: bấm thông báo tới ngăn chi tiết task, đánh dấu tất cả, bộ lọc, trạng thái rỗng/lỗi, bàn
@@ -39,6 +47,11 @@ const titles = {
 const taskIds: Record<string, string> = {};
 
 let service: SupabaseClient | null = null;
+/** Phiên của PM (supabase-js, khóa anon): sửa task qua RLS, trigger ghi đúng người giao. */
+let pmClient: SupabaseClient | null = null;
+type StorageState = Awaited<ReturnType<BrowserContext["storageState"]>>;
+/** Phiên trình duyệt đã đăng nhập: mỗi tài khoản chỉ đăng nhập qua /login MỘT lần (giới hạn 50 lần/5 phút/IP). */
+const states: Partial<Record<"member" | "member2", StorageState>> = {};
 
 function serviceClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -53,7 +66,7 @@ function serviceClient(): SupabaseClient {
   });
 }
 
-test.beforeAll(async () => {
+test.beforeAll(async ({ browser, baseURL }) => {
   service = serviceClient();
   for (const [label, email] of Object.entries(emails)) {
     const { data, error } = await service.auth.admin.createUser({
@@ -85,6 +98,23 @@ test.beforeAll(async () => {
     if (error) throw error;
     taskIds[key] = data.id as string;
   }
+  pmClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+  const pmSignIn = await pmClient.auth.signInWithPassword({
+    email: emails.pm,
+    password,
+  });
+  if (pmSignIn.error) throw pmSignIn.error;
+  for (const who of ["member", "member2"] as const) {
+    const context = await browser.newContext({ baseURL, locale: "vi-VN" });
+    const page = await context.newPage();
+    await signInAs(page, who);
+    states[who] = await context.storageState();
+    await context.close();
+  }
 });
 
 test.afterAll(async () => {
@@ -104,24 +134,39 @@ async function signInAs(page: Page, who: keyof typeof emails) {
   await expect(page).toHaveURL("/");
 }
 
-/** PM giao task bằng API thật (phiên PM trong context riêng, header Origin như trình duyệt). */
+/** PM giao task bằng phiên của chính PM (RLS tasks_update và trigger thông báo chạy thật). */
 async function assignAsPm(
-  browser: Browser,
-  baseURL: string,
   keys: (keyof typeof titles)[],
   to: keyof typeof emails,
 ) {
-  const context = await browser.newContext({ baseURL });
-  const page = await context.newPage();
-  await signInAs(page, "pm");
   for (const key of keys) {
-    const res = await page.request.patch(`/api/v1/tasks/${taskIds[key]}`, {
-      data: { assignee_id: users[to] },
-      headers: { origin: baseURL },
-    });
-    expect(res.status(), key).toBe(200);
+    const { error } = await pmClient!
+      .from("tasks")
+      .update({ assignee_id: users[to] })
+      .eq("id", taskIds[key]);
+    expect(error, key).toBeNull();
   }
-  await context.close();
+}
+
+/** Trang đã đăng nhập sẵn (dùng lại phiên, không qua /login). */
+async function openAs(
+  browser: Browser,
+  baseURL: string,
+  who: "member" | "member2",
+  colorScheme: "light" | "dark" = "light",
+  viewport?: { width: number; height: number },
+) {
+  const context = await browser.newContext({
+    baseURL,
+    locale: "vi-VN",
+    colorScheme,
+    storageState: states[who],
+    ...(viewport ? { viewport } : {}),
+  });
+  const page = await context.newPage();
+  await page.goto("/");
+  await expect(bell(page)).toBeVisible();
+  return { page, close: () => context.close() };
 }
 
 async function blockingViolations(page: Page) {
@@ -149,18 +194,16 @@ const item = (page: Page, text: string) =>
 test.describe.configure({ mode: "serial" });
 
 test("AC1, AC2: được giao → chuông có số; đánh dấu đã đọc → số giảm; bấm tới task (sáng)", async ({
-  page,
   browser,
   baseURL,
 }) => {
-  await page.emulateMedia({ colorScheme: "light" });
-  await signInAs(page, "member");
+  const { page, close } = await openAs(browser, baseURL!, "member");
   await expect(bell(page)).toHaveAccessibleName(t.bellLabel);
   await expect(
     page.getByTestId("notification-badge").locator("visible=true"),
   ).toHaveCount(0);
 
-  await assignAsPm(browser, baseURL!, ["a", "b"], "member");
+  await assignAsPm(["a", "b"], "member");
   await page.reload();
   await expect(bell(page)).toHaveAccessibleName(t.bellLabelUnread(2));
   await expect(
@@ -207,15 +250,15 @@ test("AC1, AC2: được giao → chuông có số; đánh dấu đã đọc →
   await expect(
     panel(page).getByRole("button", { name: t.filterAll, exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  await close();
 });
 
 test("Bàn phím, đánh dấu tất cả, aria-live khi có thông báo mới", async ({
-  page,
   browser,
   baseURL,
 }) => {
-  await signInAs(page, "member");
-  await assignAsPm(browser, baseURL!, ["c"], "member");
+  const { page, close } = await openAs(browser, baseURL!, "member");
+  await assignAsPm(["c"], "member");
   // Tab hiện lại → hỏi số ngay (không chờ chu kỳ 60 giây) và đọc thông báo mới qua aria-live.
   await page.evaluate(() =>
     document.dispatchEvent(new Event("visibilitychange")),
@@ -234,7 +277,7 @@ test("Bàn phím, đánh dấu tất cả, aria-live khi có thông báo mới",
   await expect(panel(page)).toHaveCount(0);
   await expect(bell(page)).toBeFocused();
 
-  await assignAsPm(browser, baseURL!, ["e"], "member");
+  await assignAsPm(["e"], "member");
   await page.keyboard.press("Enter");
   await expect(panel(page).getByTestId("notification-item")).toHaveCount(2);
   await panel(page).getByRole("button", { name: t.markAllRead }).click();
@@ -244,10 +287,11 @@ test("Bàn phím, đánh dấu tất cả, aria-live khi có thông báo mới",
   await expect(
     panel(page).getByRole("button", { name: t.markAllRead }),
   ).toHaveAttribute("aria-disabled", "true");
+  await close();
 });
 
-test("Rỗng và lỗi tải (có Thử lại)", async ({ page }) => {
-  await signInAs(page, "member2");
+test("Rỗng và lỗi tải (có Thử lại)", async ({ browser, baseURL }) => {
+  const { page, close } = await openAs(browser, baseURL!, "member2");
   await bell(page).click();
   await expect(
     panel(page).getByRole("heading", { name: t.emptyUnreadTitle }),
@@ -271,17 +315,18 @@ test("Rỗng và lỗi tải (có Thử lại)", async ({ page }) => {
   await expect(
     panel(page).getByRole("heading", { name: t.emptyUnreadTitle }),
   ).toBeVisible();
+  await close();
 });
 
 test("360 px: không tràn ngang, vùng bấm 44 px, axe chế độ tối", async ({
-  page,
   browser,
   baseURL,
 }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
-  await page.setViewportSize({ width: 360, height: 740 });
-  await assignAsPm(browser, baseURL!, ["d"], "member2");
-  await signInAs(page, "member2");
+  await assignAsPm(["d"], "member2");
+  const { page, close } = await openAs(browser, baseURL!, "member2", "dark", {
+    width: 360,
+    height: 740,
+  });
   await expect(bell(page)).toHaveAccessibleName(t.bellLabelUnread(1));
   const bellBox = await bell(page).boundingBox();
   expect(bellBox!.width).toBeGreaterThanOrEqual(44);
@@ -305,4 +350,5 @@ test("360 px: không tràn ngang, vùng bấm 44 px, axe chế độ tối", asy
     expect(box!.height).toBeGreaterThanOrEqual(44);
   }
   expect(await blockingViolations(page)).toEqual([]);
+  await close();
 });
