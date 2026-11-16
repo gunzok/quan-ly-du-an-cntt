@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { E2E_EMAIL, e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /**
  * Luồng mẫu Story E0-3 (tiêu chí 2), luồng e2e số 1 trong test-strategy.md mục 4 (phần email):
@@ -33,6 +34,7 @@ test("đăng nhập bằng email, thấy trang chủ rồi đăng xuất", async
 
 test("sai mật khẩu thì ở lại /login và báo lỗi", async ({ page }) => {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(E2E_EMAIL);
   await page
     .getByLabel(strings.login.passwordLabel)
