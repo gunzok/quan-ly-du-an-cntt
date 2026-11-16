@@ -198,7 +198,9 @@ test.describe.serial("Dashboard tiến độ S06", () => {
   }) => {
     await page.emulateMedia({ colorScheme: "light" });
     await signInAs(page, "pm@example.com");
-    await page.getByRole("link", { name: `${t.open} ${projectName}` }).click();
+    await page
+      .getByRole("link", { name: `${t.open} ${projectName}`, exact: true })
+      .click();
     await expect(page).toHaveURL(`/projects/${projectId}/dashboard`);
     await expectSeededNumbers(page);
     expect(await blockingViolations(page)).toEqual([]);
