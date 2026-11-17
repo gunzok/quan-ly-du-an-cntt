@@ -148,24 +148,51 @@ async function assignAsPm(
   }
 }
 
-/** Trang đã đăng nhập sẵn (dùng lại phiên, không qua /login). */
+/**
+ * Đưa một người về trạng thái sạch (khóa service, không sinh thông báo): xóa thông báo của họ, bỏ
+ * giao các task của dự án đang giao cho họ. Mỗi test tự dọn nên chạy lặp (--repeat-each) vẫn đúng.
+ */
+async function resetUser(who: "member" | "member2") {
+  const del = await service!
+    .from("notifications")
+    .delete()
+    .eq("user_id", users[who]);
+  expect(del.error).toBeNull();
+  const unassign = await service!
+    .from("tasks")
+    .update({ assignee_id: null })
+    .eq("project_id", projectId)
+    .eq("assignee_id", users[who]);
+  expect(unassign.error).toBeNull();
+}
+
+/**
+ * Trang đã đăng nhập sẵn (dùng lại phiên, không qua /login). Chờ chuông có MỐC đếm đầu tiên
+ * (`data-count-ready`): chuông có sẵn trong HTML từ máy chủ trước khi hydrate, nếu chỉ chờ chuông
+ * hiện thì lần đếm đầu có thể về SAU khi test tạo thông báo mới, và số đó bị coi là mốc (không
+ * phải "mới") nên không có lời thông báo aria-live.
+ */
 async function openAs(
   browser: Browser,
   baseURL: string,
   who: "member" | "member2",
-  colorScheme: "light" | "dark" = "light",
-  viewport?: { width: number; height: number },
+  opts: {
+    colorScheme?: "light" | "dark";
+    viewport?: { width: number; height: number };
+    reset?: boolean;
+  } = {},
 ) {
+  if (opts.reset !== false) await resetUser(who);
   const context = await browser.newContext({
     baseURL,
     locale: "vi-VN",
-    colorScheme,
+    colorScheme: opts.colorScheme ?? "light",
     storageState: states[who],
-    ...(viewport ? { viewport } : {}),
+    ...(opts.viewport ? { viewport: opts.viewport } : {}),
   });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(bell(page)).toBeVisible();
+  await expect(bell(page)).toHaveAttribute("data-count-ready", "true");
   return { page, close: () => context.close() };
 }
 
@@ -264,6 +291,9 @@ test("Bàn phím, đánh dấu tất cả, aria-live khi có thông báo mới",
     document.dispatchEvent(new Event("visibilitychange")),
   );
   await expect(bell(page)).toHaveAccessibleName(t.bellLabelUnread(1));
+  const live = page.getByTestId("notification-live");
+  await expect(live).toHaveAttribute("aria-live", "polite");
+  await expect(live).toHaveText(t.announceNew(1));
   await expect(
     page.getByRole("status").filter({ hasText: t.announceNew(1) }),
   ).toHaveCount(1);
@@ -277,7 +307,17 @@ test("Bàn phím, đánh dấu tất cả, aria-live khi có thông báo mới",
   await expect(panel(page)).toHaveCount(0);
   await expect(bell(page)).toBeFocused();
 
+  // Lời thứ hai giống hệt lời trước ("1 thông báo mới"): nút chữ phải được THAY (trình đọc màn hình
+  // chỉ đọc khi nội dung vùng live đổi), không giữ nguyên nút cũ.
+  await live.locator("span").evaluate((el) => el.setAttribute("data-old", ""));
   await assignAsPm(["e"], "member");
+  await page.evaluate(() =>
+    document.dispatchEvent(new Event("visibilitychange")),
+  );
+  await expect(bell(page)).toHaveAccessibleName(t.bellLabelUnread(2));
+  await expect(live).toHaveText(t.announceNew(1));
+  await expect(live.locator("[data-old]")).toHaveCount(0);
+  await bell(page).focus();
   await page.keyboard.press("Enter");
   await expect(panel(page).getByTestId("notification-item")).toHaveCount(2);
   await panel(page).getByRole("button", { name: t.markAllRead }).click();
@@ -322,10 +362,12 @@ test("360 px: không tràn ngang, vùng bấm 44 px, axe chế độ tối", asy
   browser,
   baseURL,
 }) => {
+  await resetUser("member2");
   await assignAsPm(["d"], "member2");
-  const { page, close } = await openAs(browser, baseURL!, "member2", "dark", {
-    width: 360,
-    height: 740,
+  const { page, close } = await openAs(browser, baseURL!, "member2", {
+    colorScheme: "dark",
+    viewport: { width: 360, height: 740 },
+    reset: false,
   });
   await expect(bell(page)).toHaveAccessibleName(t.bellLabelUnread(1));
   const bellBox = await bell(page).boundingBox();

@@ -2,7 +2,7 @@
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CheckIcon, CloseIcon } from "@/components/ui/icons";
@@ -36,10 +36,13 @@ export function NotificationPanel({
   unreadCount,
   onCountChange,
   onNavigate,
+  announcer,
 }: {
   unreadCount: number;
   onCountChange: (count: number) => void;
   onNavigate: () => void;
+  /** Vùng aria-live đặt TRONG ngăn: khi modal mở, phần ngoài ngăn bị aria-hidden. */
+  announcer: ReactNode;
 }) {
   const strings = useStrings();
   const locale = useLocale();
@@ -156,6 +159,7 @@ export function NotificationPanel({
         data-testid="notification-panel"
         className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[500px] flex-col gap-4 overflow-y-auto border-0 border-l border-solid border-border bg-bg px-4 py-5 font-sans text-sm text-text shadow-pop data-[state=open]:animate-fade-in sm:px-6"
       >
+        {announcer}
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1.5">
             <span className="label flex items-center gap-2">
