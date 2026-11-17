@@ -97,6 +97,9 @@ async function AdminUsersGate() {
           >
             {strings.adminUsers.navUsers}
           </Link>
+          <Link href="/admin/report-templates" className={styles.navLink}>
+            {strings.reportTemplates.navLink}
+          </Link>
         </nav>
         <div className={styles.grow} />
         <div className={styles.me}>

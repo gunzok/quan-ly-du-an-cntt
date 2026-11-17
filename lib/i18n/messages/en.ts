@@ -1261,6 +1261,88 @@ export const en: Messages = {
       failed: "Could not create the task.",
     },
   },
+  reportTemplates: {
+    pageTitle: "Report templates",
+    navLink: "Report templates",
+    eyebrow: "Admin / Templates",
+    heading: "Report templates",
+    intro:
+      "Admins upload the company's Excel and Word templates. PMs use the active template when exporting progress reports.",
+    upload: {
+      action: "Upload report template",
+      dropTitle: "Drag and drop an .xlsx or .docx file here",
+      dropOr: "or",
+      choose: "Choose file",
+      inputLabel: "Choose a template file (.xlsx or .docx)",
+      hint: "Up to 4 MB. Files with macros (.xlsm, .docm) are not accepted.",
+      uploading: (file: string) => `Uploading ${file}…`,
+      uploaded: (name: string) => `Uploaded template “${name}”.`,
+      failed: "Could not upload the template.",
+      onlyOne: "Upload one file at a time.",
+    },
+    tableCaption: "Report templates",
+    columns: {
+      name: "Name",
+      format: "Format",
+      size: "Size",
+      uploadedBy: "Uploaded by",
+      date: "Date",
+      status: "Status",
+      actions: "Actions",
+    },
+    sizeKb: (kb: string) => `${kb} KB`,
+    status: {
+      active: "Active",
+      inactive: "Inactive",
+    },
+    unknownUploader: "Unknown",
+    actions: {
+      download: (name: string) => `Download ${name}`,
+      downloadShort: "Download",
+      activate: "Activate",
+      deactivate: "Deactivate",
+      activateLabel: (name: string) => `Activate ${name}`,
+      deactivateLabel: (name: string) => `Deactivate ${name}`,
+      delete: "Delete",
+      deleteLabel: (name: string) => `Delete ${name}`,
+    },
+    activated: (name: string) => `Activated “${name}”.`,
+    deactivated: (name: string) => `Deactivated “${name}”.`,
+    deleted: (name: string) => `Deleted “${name}”.`,
+    confirmDelete: {
+      title: (name: string) => `Delete template “${name}”?`,
+      description:
+        "The file is permanently removed from storage. To stop using it for now, choose “Deactivate” instead.",
+      confirm: "Delete template",
+    },
+    empty: {
+      title: "No report templates yet",
+      description:
+        "Upload the company's .xlsx or .docx template so PMs can export reports in the right format.",
+    },
+    loading: "Loading templates",
+    loadFailed: "Could not load the templates.",
+    retry: "Retry",
+    rules: {
+      title: "Rules",
+      body: "Only .xlsx or .docx files under 4 MB without macros. Users cannot change a template's structure in the app (BR-08). Each format has at most one active template; activating a new one deactivates the previous one of the same format.",
+    },
+    errors: {
+      tooLarge: "The file is larger than 4 MB.",
+      unsupportedType: "Only .xlsx or .docx files are accepted.",
+      mimeMismatch: "The file type does not match its extension.",
+      invalidFile:
+        "The file is not a valid Excel/Word document or its content does not match the extension.",
+      macro: "The file contains macros or ActiveX and is not accepted.",
+      zipBomb:
+        "The file expands too large or has too many parts and is not accepted.",
+      invalidName:
+        "Invalid file name (control characters, a path, or too long).",
+      activeConflict:
+        "Another template of the same format was just activated. Please try again.",
+      network: "Connection lost. Please try again.",
+    },
+  },
   savedViewsMenu: {
     regionLabel: "Saved views",
     toggle: (name: string) => `View: ${name}`,

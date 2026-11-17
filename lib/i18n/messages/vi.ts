@@ -1261,6 +1261,89 @@ const viMessages = {
       failed: "Chưa tạo được task.",
     },
   },
+  /** Template báo cáo do Admin tải lên (Story E5-2, S17 tab "Template báo cáo"). */
+  reportTemplates: {
+    pageTitle: "Template báo cáo",
+    navLink: "Template báo cáo",
+    eyebrow: "Quản trị / Template",
+    heading: "Template báo cáo",
+    intro:
+      "Admin tải lên template Excel và Word của công ty. PM dùng template đang bật khi xuất báo cáo tiến độ.",
+    upload: {
+      action: "Tải lên template báo cáo",
+      dropTitle: "Kéo thả tệp .xlsx hoặc .docx vào đây",
+      dropOr: "hoặc",
+      choose: "Chọn tệp",
+      inputLabel: "Chọn tệp template (.xlsx hoặc .docx)",
+      hint: "Tối đa 4 MB. Không nhận tệp có macro (.xlsm, .docm).",
+      uploading: (file: string) => `Đang tải lên ${file}…`,
+      uploaded: (name: string) => `Đã tải lên template “${name}”.`,
+      failed: "Chưa tải lên được template.",
+      onlyOne: "Mỗi lần chỉ tải lên một tệp.",
+    },
+    tableCaption: "Danh sách template báo cáo",
+    columns: {
+      name: "Tên",
+      format: "Định dạng",
+      size: "Dung lượng",
+      uploadedBy: "Tải lên bởi",
+      date: "Ngày",
+      status: "Trạng thái",
+      actions: "Thao tác",
+    },
+    sizeKb: (kb: string) => `${kb} KB`,
+    status: {
+      active: "Đang dùng",
+      inactive: "Không dùng",
+    },
+    unknownUploader: "Không rõ",
+    actions: {
+      download: (name: string) => `Tải xuống ${name}`,
+      downloadShort: "Tải xuống",
+      activate: "Bật dùng",
+      deactivate: "Ngừng dùng",
+      activateLabel: (name: string) => `Bật dùng ${name}`,
+      deactivateLabel: (name: string) => `Ngừng dùng ${name}`,
+      delete: "Xóa",
+      deleteLabel: (name: string) => `Xóa ${name}`,
+    },
+    activated: (name: string) => `Đã bật “${name}”.`,
+    deactivated: (name: string) => `Đã ngừng dùng “${name}”.`,
+    deleted: (name: string) => `Đã xóa “${name}”.`,
+    confirmDelete: {
+      title: (name: string) => `Xóa template “${name}”?`,
+      description:
+        "Tệp bị xóa vĩnh viễn khỏi kho lưu trữ. Nếu chỉ muốn tạm không dùng, hãy chọn “Ngừng dùng”.",
+      confirm: "Xóa template",
+    },
+    empty: {
+      title: "Chưa có template báo cáo",
+      description:
+        "Tải lên template .xlsx hoặc .docx của công ty để PM xuất báo cáo đúng mẫu.",
+    },
+    loading: "Đang tải danh sách template",
+    loadFailed: "Không tải được danh sách template.",
+    retry: "Thử lại",
+    rules: {
+      title: "Quy tắc",
+      body: "Chỉ tải lên tệp .xlsx hoặc .docx dưới 4 MB, không có macro. Người dùng không sửa được cấu trúc template trong ứng dụng (BR-08). Mỗi định dạng chỉ có một template đang dùng; bật template mới sẽ tự ngừng template cũ cùng định dạng.",
+    },
+    errors: {
+      tooLarge: "Tệp vượt quá 4 MB.",
+      unsupportedType: "Chỉ nhận tệp .xlsx hoặc .docx.",
+      mimeMismatch: "Loại tệp không khớp với đuôi tệp.",
+      invalidFile:
+        "Tệp không phải tài liệu Excel/Word hợp lệ hoặc nội dung không khớp đuôi tệp.",
+      macro: "Tệp có macro hoặc ActiveX, không được nhận.",
+      zipBomb:
+        "Tệp giải nén ra quá lớn hoặc có quá nhiều phần, không được nhận.",
+      invalidName:
+        "Tên tệp không hợp lệ (có ký tự điều khiển, đường dẫn hoặc quá dài).",
+      activeConflict:
+        "Template khác cùng định dạng vừa được bật. Vui lòng thử lại.",
+      network: "Mất kết nối. Vui lòng thử lại.",
+    },
+  },
   /** Story E13-2 (QLDA-54): menu chế độ xem S12 trên bảng phân cấp, 7 chế độ xem mặc định. */
   savedViewsMenu: {
     regionLabel: "Chế độ xem đã lưu",
