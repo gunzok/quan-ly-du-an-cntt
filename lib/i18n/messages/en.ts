@@ -1101,6 +1101,49 @@ export const en: Messages = {
         "The task or relation no longer exists (it may have just been deleted). The relation list has been reloaded.",
     },
   },
+  notifications: {
+    bellLabel: "Notifications",
+    bellLabelUnread: (count: number) => `Notifications, ${count} unread`,
+    badgeOverflow: "99+",
+    announceNew: (count: number) =>
+      count === 1
+        ? "You have 1 new notification."
+        : `You have ${count} new notifications.`,
+    panelLabel: "Notification inbox",
+    eyebrow: (count: number) =>
+      `Inbox / ${String(count).padStart(2, "0")} unread`,
+    heading: "Notifications",
+    filterLabel: "Filter notifications",
+    filterUnread: (count: number) => `Unread (${count})`,
+    filterAll: "All",
+    markAllRead: "Mark all as read",
+    markRead: "Mark as read",
+    markReadOf: (text: string) => `Mark as read: ${text}`,
+    unreadMark: "Unread",
+    loading: "Loading notifications",
+    loadMore: "Load more",
+    loadError: "Could not load notifications.",
+    retry: "Try again",
+    actionFailed: "Could not mark as read. Please try again.",
+    emptyUnreadTitle: "No unread notifications",
+    emptyUnreadBody:
+      "You're all caught up. Choose “All” to see older notifications.",
+    emptyAllTitle: "No notifications yet",
+    emptyAllBody:
+      "You'll be notified here when a task is assigned to you or your task changes status.",
+    someone: "Someone",
+    assigned: (actor: string, title: string) =>
+      `${actor} assigned you the task ${title}`,
+    assignedNoActor: (title: string) => `You were assigned the task ${title}`,
+    statusChanged: (actor: string, title: string, status: string) =>
+      `${actor} moved the task ${title} to ${status}`,
+    statusChangedNoActor: (title: string, status: string) =>
+      `The task ${title} moved to ${status}`,
+    hiddenAssigned: "You were assigned a task that you can no longer view.",
+    hiddenStatusChanged: "A task you can no longer view changed status.",
+    today: (time: string) => `Today ${time}`,
+    yesterday: (time: string) => `Yesterday ${time}`,
+  },
   taskList: {
     pageTitle: "Task list",
     navTab: "List",

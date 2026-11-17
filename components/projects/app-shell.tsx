@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Avatar } from "@/components/ui/avatar";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { signOut } from "@/lib/auth/actions";
@@ -42,7 +43,11 @@ export function AppShell({
             >
               {strings.app.logoLetters}
             </span>
-            <span className="text-sm font-semibold">{strings.app.name}</span>
+            <span className="flex-1 text-sm font-semibold">
+              {strings.app.name}
+            </span>
+            {/* Chuông thông báo trong app (E4-1). */}
+            <NotificationBell />
           </div>
           <nav aria-label={t.navLabel} className="flex flex-col gap-0.5">
             <Link
