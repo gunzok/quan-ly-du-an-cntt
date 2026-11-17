@@ -82,13 +82,11 @@ describe.skipIf(!enabled)("7 chế độ xem mặc định (Supabase cục bộ)
 
   async function newProject(owner: string): Promise<string> {
     const id = randomUUID();
-    const { error } = await service
-      .from("projects")
-      .insert({
-        id,
-        name: `IT E13-2 ${tag} ${projects.length}`,
-        created_by: owner,
-      });
+    const { error } = await service.from("projects").insert({
+      id,
+      name: `IT E13-2 ${tag} ${projects.length}`,
+      created_by: owner,
+    });
     if (error) throw error;
     projects.push(id);
     return id;
