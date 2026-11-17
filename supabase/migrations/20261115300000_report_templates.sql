@@ -151,47 +151,63 @@ grant execute on function public.set_report_template_active(uuid, boolean) to au
 -- ---------------------------------------------------------------------------
 -- 6. Storage: bucket riêng tư và chính sách
 -- ---------------------------------------------------------------------------
--- Giới hạn kích thước và kiểu MIME ở bucket là lớp chặn thứ hai (API kiểm trước, kỹ hơn). Cột
--- file_size_limit/allowed_mime_types do dịch vụ Storage thêm: chỉ đặt khi cột có.
-insert into storage.buckets (id, name, public)
-values ('report-templates', 'report-templates', false)
-on conflict (id) do update set public = false;
-
-do $$
+-- Viết bằng khối DO có kiểm bảng/cột: một số cột (public, file_size_limit, allowed_mime_types) do
+-- dịch vụ Storage thêm khi khởi động, nên stack bỏ storage-api (ví dụ workflow perf dùng
+-- `supabase start -x storage-api`) vẫn chạy được migration này. CI test-db/e2e giữ storage-api.
+-- Giới hạn kích thước và kiểu MIME ở bucket là lớp chặn thứ hai (API kiểm trước, kỹ hơn).
+do $storage$
+declare
+  has_col constant text := $q$
+    select exists (select 1 from information_schema.columns
+                   where table_schema = 'storage' and table_name = 'buckets' and column_name = %L)
+  $q$;
+  ok boolean;
 begin
-  if exists (
-    select 1 from information_schema.columns
-    where table_schema = 'storage' and table_name = 'buckets' and column_name = 'allowed_mime_types'
-  ) then
-    execute $sql$
-      update storage.buckets
-         set file_size_limit = 4194304,
-             allowed_mime_types = array[
-               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-               'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-             ]
-       where id = 'report-templates'
-    $sql$;
+  if to_regclass('storage.buckets') is null or to_regclass('storage.objects') is null then
+    raise notice 'Bỏ qua bucket report-templates: chưa có schema storage';
+    return;
   end if;
+
+  execute format(has_col, 'public') into ok;
+  if ok then
+    insert into storage.buckets (id, name, public)
+    values ('report-templates', 'report-templates', false)
+    on conflict (id) do update set public = false;
+  else
+    insert into storage.buckets (id, name)
+    values ('report-templates', 'report-templates')
+    on conflict (id) do nothing;
+  end if;
+
+  execute format(has_col, 'allowed_mime_types') into ok;
+  if ok then
+    update storage.buckets
+       set file_size_limit = 4194304,
+           allowed_mime_types = array[
+             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+           ]
+     where id = 'report-templates';
+  end if;
+
+  -- Đọc tệp: giống đọc siêu dữ liệu (Admin, PM).
+  create policy report_templates_objects_select on storage.objects
+    for select to authenticated
+    using (bucket_id = 'report-templates' and (select private.can_read_report_templates()));
+
+  -- Thêm tệp: chỉ Admin, chỉ đúng định dạng đường dẫn do máy chủ sinh (<kind>/<uuid>.<kind>).
+  create policy report_templates_objects_insert_admin on storage.objects
+    for insert to authenticated
+    with check (
+      bucket_id = 'report-templates'
+      and (select private.is_admin())
+      and name ~ '^(xlsx|docx)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(xlsx|docx)$'
+      and split_part(name, '/', 1) = substring(name from '\.([a-z]+)$')
+    );
+
+  -- Xóa tệp: chỉ Admin. Không có chính sách UPDATE: không ai ghi đè được tệp đã tải lên.
+  create policy report_templates_objects_delete_admin on storage.objects
+    for delete to authenticated
+    using (bucket_id = 'report-templates' and (select private.is_admin()));
 end;
-$$;
-
--- Đọc tệp: giống đọc siêu dữ liệu (Admin, PM).
-create policy report_templates_objects_select on storage.objects
-  for select to authenticated
-  using (bucket_id = 'report-templates' and (select private.can_read_report_templates()));
-
--- Thêm tệp: chỉ Admin, chỉ đúng định dạng đường dẫn do máy chủ sinh.
-create policy report_templates_objects_insert_admin on storage.objects
-  for insert to authenticated
-  with check (
-    bucket_id = 'report-templates'
-    and (select private.is_admin())
-    and name ~ '^(xlsx|docx)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(xlsx|docx)$'
-    and split_part(name, '/', 1) = substring(name from '\.([a-z]+)$')
-  );
-
--- Xóa tệp: chỉ Admin. Không có chính sách UPDATE: không ai ghi đè được tệp đã tải lên.
-create policy report_templates_objects_delete_admin on storage.objects
-  for delete to authenticated
-  using (bucket_id = 'report-templates' and (select private.is_admin()));
+$storage$;
