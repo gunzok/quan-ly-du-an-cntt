@@ -1459,6 +1459,24 @@ const viMessages = {
       deleteFailed: "Chưa xóa được chế độ xem. Thử lại sau.",
     },
   },
+  blockedTask: {
+    badge: "Bị chặn",
+    badgeTitle: (count: number) =>
+      count === 1
+        ? "Bị chặn bởi 1 task chưa xong"
+        : `Bị chặn bởi ${count} task chưa xong`,
+    bannerTitle: "Task này đang bị chặn",
+    bannerBody:
+      "Các task dưới đây chưa xong. Bạn vẫn có thể đánh dấu hoàn thành task này (chỉ cảnh báo).",
+    listLabel: "Task chặn chưa xong",
+    unknownTask: (index: number) => `Task chặn ${index}`,
+    more: (count: number) => `và ${count} task khác`,
+    toastTitle: (title: string) => `“${title}” đã hoàn thành dù còn bị chặn`,
+    toastBody: (titles: string) =>
+      `Còn task chặn chưa xong: ${titles}. Hãy kiểm tra lại thứ tự công việc.`,
+    toastBodyCount: (count: number) =>
+      `Còn ${count} task chặn chưa xong. Hãy kiểm tra lại thứ tự công việc.`,
+  },
   /** Story E6-2 (QLDA-72): xem và lọc nhật ký hoạt động (S15), nhật ký task trong chi tiết task. */
   activity: {
     pageTitle: "Nhật ký hoạt động",

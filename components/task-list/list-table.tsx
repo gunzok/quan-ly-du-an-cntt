@@ -23,6 +23,7 @@ import type {
 } from "@/lib/saved-views/model";
 import { SORTABLE_COLUMNS } from "@/lib/task-list/model";
 import { NONE_GROUP, type ListRow, type TaskRow } from "@/lib/task-list/tree";
+import { BlockedBadge } from "@/components/kanban/blocked-badge";
 import type { Task } from "@/lib/tasks/model";
 
 /** Chiều cao cố định một hàng (px): đủ vùng bấm 44 px, cho phép chỉ dựng hàng trong khung nhìn. */
@@ -431,6 +432,11 @@ function TitleCell({
           {row.context ? ` · ${t.contextHint}` : ""}
         </span>
       </Link>
+      {task.blocked ? (
+        <BlockedBadge
+          count={task.blocked_by_count ?? task.blocked_by?.length ?? 0}
+        />
+      ) : null}
       {childCount > 0 ? (
         <span
           aria-hidden="true"
