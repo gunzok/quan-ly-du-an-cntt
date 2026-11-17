@@ -17,7 +17,8 @@ Quy ước: REST `/api/v1/<tài-nguyên>` (số nhiều, kebab-case), JSON, UTF-
     "code": "validation_failed",
     "message": "Dữ liệu không hợp lệ",
     "details": [{ "field": "title", "issue": "required" }],
-    "request_id": "9f2c..."
+    "request_id": "9f2c...",
+    "message_key": "tasks.errors.invalid"
   }
 }
 ```
@@ -32,13 +33,15 @@ Quy ước: REST `/api/v1/<tài-nguyên>` (số nhiều, kebab-case), JSON, UTF-
 | 429 | `rate_limited` | Gọi quá nhiều |
 | 500 | `internal_error` | Lỗi hệ thống, chỉ trả `request_id` |
 
+`message` luôn tiếng Việt (không phá khách API). Từ E10-2, `error.message_key` (tùy chọn) là đường dẫn khóa trong từ điển giao diện (`lib/i18n/messages`), tự gắn một chỗ ở `apiErrorBody()` bằng cách tra ngược thông điệp; giao diện dịch theo `message_key`, rồi theo `message`, rồi theo `code`. `message_key` chỉ là khóa từ điển công khai, không chứa dữ liệu.
+
 ## 3. Danh sách endpoint
 Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** Người xem; P, M, V là vai trò **trong từng dự án** của người gọi (BR-01 sửa 2026-11-13). Quyền chỉ áp dụng trong dự án mà người đó là thành viên (Admin thấy tất cả).
 
 | Phương thức, đường dẫn | Mô tả | Quyền | FR |
 |---|---|---|---|
 | `GET /api/v1/me` | Hồ sơ người đang đăng nhập | A P M V | FR-01 |
-| `PATCH /api/v1/me` | Đổi tên, số điện thoại, ngôn ngữ, giao diện sáng/tối | A P M V | FR-17 |
+| `PATCH /api/v1/me` | Đổi tên, số điện thoại, ngôn ngữ, giao diện sáng/tối. **Đã làm một phần ở E10-2**: chỉ nhận `{locale: "vi"\|"en"}` (từ chối trường lạ; ghi bằng client phiên, RLS `profiles_update_self`); phản hồi `{data: {locale}}` kèm cookie `qlda_locale`. Họ tên, số điện thoại, giao diện sáng/tối để Story hồ sơ (E1-7) | A P M V | FR-17 |
 | `GET /api/v1/users` | Danh sách người dùng (`?department_id=`, `?q=`, phân trang cursor), có `department`, số dự án tham gia và `status` (`active`/`locked`/`invited`) | A (đầy đủ); P M V (trong dự án chung) | FR-02 |
 | `GET/POST /api/v1/departments`, `PATCH /api/v1/departments/{id}` | Danh mục phòng ban (`?include_archived=`; PATCH `{name?, position?, archived?}`; tên duy nhất không phân biệt hoa thường: trùng thì `409`; không có DELETE, chỉ lưu trữ). `GET /api/v1/users?department_id=<uuid>\|none` lọc theo phòng ban; gán phòng ban đã lưu trữ: `400` | đọc: tất cả; ghi: A | FR-02 |
 | `POST /api/v1/users/invitations` | Mời người dùng (`email`, `full_name?`, `department_id?`). Mời mới: `201` + `Location`; email đang chờ nhận lời mời: gửi lại, `200`; email đã có tài khoản dùng: `409` | A | FR-02 |
@@ -57,8 +60,8 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | `GET/POST /api/v1/projects/{id}/task-types`, `PATCH/DELETE /api/v1/task-types/{id}` | Loại task (`name`, `is_milestone`, `color`, `position`); xóa có `?replace_with=` như trạng thái (E2-3) | đọc: tất cả; ghi: A P | FR-23 |
 | `GET /api/v1/projects/{id}/tasks` | Danh sách, Kanban, tìm kiếm, lọc. Đã làm (E2-2, E2-3): phân trang cursor `(created_at, id)` mới nhất trước, lọc `assignee_id`, `status_id`, `priority`, `label_id`; tìm kiếm bỏ dấu `q`, `status_id` nhiều giá trị, `due_after`/`due_before` (E3-3, xem mục 1). Task trả `status_id`, `type_id`, `label_ids`, `parent_id`, `depth`; `POST/PATCH` nhận `status_id`, `type_id`, `label_ids` (thuộc dự án khác: `422`) và `parent_id` (E2-4: cha không thấy hoặc khác dự án `422`, vượt 3 cấp `422`, vòng `409`, không sửa được cha `403`, đóng cha khi con chưa xong `422` kèm `task_ids`). Chưa có lọc `parent_id` (E2-5 cần) | A P M V | FR-08, FR-09 |
 | `POST /api/v1/projects/{id}/tasks` | Tạo task hoặc subtask (`parent_id`) | A P M | FR-05, FR-07 |
-| `GET /api/v1/tasks/{id}` | Chi tiết task, subtask, phụ thuộc | A P M V | FR-05 |
-| `PATCH /api/v1/tasks/{id}` | Sửa, đổi trạng thái, kéo thả (`status_id`, `position`) | A P; M nếu phụ trách hoặc tạo (BR-03) | FR-05, FR-08 |
+| `GET /api/v1/tasks/{id}` | Chi tiết task (E2-5): thêm `parent {id,title}\|null`, `subtasks[]` (cây con tóm tắt theo thứ tự cây, tối đa 200, `subtasks_truncated`), `permissions {can_edit, can_delete, can_reassign, can_add_subtask}` của người gọi (chỉ để khóa giao diện; PATCH/DELETE/POST vẫn tự kiểm, RLS quyết định cuối). Quan hệ lấy qua `/tasks/{id}/relations` | A P M V | FR-05 |
+| `PATCH /api/v1/tasks/{id}` | Sửa, đổi trạng thái, kéo thả (`status_id`, `position`). `expected_updated_at` (tùy chọn, E2-5): lệch `updated_at` hiện tại thì `409` (`message_key` `taskDetail.errors.stale`), không ghi, kiểm nguyên tử trong câu UPDATE; không gửi thì người sửa sau thắng. Kanban (E3-1) chèn `position` vào điểm giữa hai thẻ hàng xóm, chỉ PATCH một task; hai hàng xóm trùng position thì dãn tối đa 20 thẻ có quyền sửa; đổi thứ tự trong cột không ghi nhật ký (position bị loại khỏi `activity_logs`), đổi cột thì có | A P; M nếu phụ trách hoặc tạo (BR-03) | FR-05, FR-08 |
 | `DELETE /api/v1/tasks/{id}` | Xóa vĩnh viễn | A P; M nếu mình tạo | FR-05 |
 | `GET /api/v1/tasks/{id}/relations` | Quan hệ cả hai chiều (E8-1). Mỗi phần tử: `id`, `kind`, `direction` (`outgoing`/`incoming`), `relation` (kiểu hiển thị: `relates`, `blocks`, `blocked_by`, `precedes`, `follows`, `duplicates`, `duplicated_by`), `lag_days`, `task` `{id, title, status_id}`, `created_by`, `created_at` | A P M V (thấy cả hai task) | FR-10 |
 | `GET /api/v1/tasks/{id}/relations/{relation_id}` | Một quan hệ (đích của `Location` khi tạo) | giống trên | FR-10 |
@@ -71,7 +74,7 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | `GET /api/v1/notifications` | Thông báo của tôi | A P M V | FR-11 |
 | `POST /api/v1/notifications/{id}/read` | Đánh dấu đã đọc | A P M V | FR-11 |
 | `GET/PUT /api/v1/me/notification-preferences` | Bật tắt email theo loại | A P M V | FR-12 |
-| `GET /api/v1/projects/{id}/dashboard` | Số liệu tiến độ | A P V (và M thuộc dự án) | FR-13 |
+| `GET /api/v1/projects/{id}/dashboard` | Số liệu tiến độ (E5-1, hàm SQL `public.project_dashboard(project, today)` SECURITY INVOKER, một lời gọi): tổng, đã xong, đang làm, trễ hạn (`due_date` < hôm nay giờ Việt Nam và chưa xong), không hạn, bị chặn, phần trăm hoàn thành (cùng công thức S02), phân bố theo trạng thái (kèm nhóm), loại, ưu tiên, người phụ trách (kể cả chưa giao và người đã bị gỡ), 10 task trễ hạn sớm nhất. Chưa có xu hướng theo tuần. Đo 2.000 task: P95 259 ms | A P M V thuộc dự án (người ngoài `404`) | FR-13 |
 | `POST /api/v1/projects/{id}/reports` | Xuất báo cáo (`format`: `xlsx`/`docx`, kỳ báo cáo) | A P | FR-14, FR-15 |
 | `GET /api/v1/projects/{id}/activity` | Nhật ký dự án | A P | FR-16 |
 | `GET /api/v1/tasks/{id}/activity` | Nhật ký một task | A P | FR-16 |
