@@ -166,7 +166,7 @@ export function TaskCard({
 
       <Link
         href={href}
-        className="font-medium text-text no-underline [overflow-wrap:anywhere] hover:text-primary hover:underline"
+        className="flex min-h-11 items-center font-medium text-text no-underline [overflow-wrap:anywhere] hover:text-primary hover:underline sm:block sm:min-h-0"
       >
         {task.title}
       </Link>
