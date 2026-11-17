@@ -1400,6 +1400,24 @@ const viMessages = {
       remove: (label: string) => `Bỏ bộ lọc “${label}”`,
     },
   },
+  blockedTask: {
+    badge: "Bị chặn",
+    badgeTitle: (count: number) =>
+      count === 1
+        ? "Bị chặn bởi 1 task chưa xong"
+        : `Bị chặn bởi ${count} task chưa xong`,
+    bannerTitle: "Task này đang bị chặn",
+    bannerBody:
+      "Các task dưới đây chưa xong. Bạn vẫn có thể đánh dấu hoàn thành task này (chỉ cảnh báo).",
+    listLabel: "Task chặn chưa xong",
+    unknownTask: (index: number) => `Task chặn ${index}`,
+    more: (count: number) => `và ${count} task khác`,
+    toastTitle: (title: string) => `“${title}” đã hoàn thành dù còn bị chặn`,
+    toastBody: (titles: string) =>
+      `Còn task chặn chưa xong: ${titles}. Hãy kiểm tra lại thứ tự công việc.`,
+    toastBodyCount: (count: number) =>
+      `Còn ${count} task chặn chưa xong. Hãy kiểm tra lại thứ tự công việc.`,
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */

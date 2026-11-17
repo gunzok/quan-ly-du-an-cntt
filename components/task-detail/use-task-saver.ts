@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TaskDetail } from "@/lib/tasks/detail";
+import { blockedWarningIds } from "@/lib/tasks/blocked-view";
 import { patchTask } from "@/lib/tasks/client-api";
 import { isNoop, undoPatch, type DetailField } from "@/lib/tasks/detail-view";
 import type { TaskPatch } from "@/lib/tasks/validate";
@@ -26,11 +27,13 @@ const STALE_KEY = "taskDetail.errors.stale";
  *   mới nhất (onStale) và báo, không ghi đè.
  * - Lỗi gắn vào trường (fieldErrors); ô nhập về lại giá trị đã lưu (resetKey tăng để remount).
  * - Lưu xong có "Hoàn tác": một PATCH ngược với giá trị cũ.
+ * - Phản hồi có cảnh báo bị chặn (BR-06, E8-3): đã lưu thành công, gọi onBlockedWarning để báo.
  */
 export function useTaskSaver(
   task: TaskDetail | null,
   setTask: (update: (prev: TaskDetail) => TaskDetail) => void,
   onStale: () => void,
+  onBlockedWarning?: (title: string, blockerIds: readonly string[]) => void,
 ) {
   const strings = useStrings();
   const t = strings.taskDetail;
@@ -69,6 +72,8 @@ export function useTaskSaver(
         setTask((prev) => ({ ...prev, ...result.data.data }));
         setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
         setState({ kind: "saved", field, undo });
+        const blockerIds = blockedWarningIds(result.data.warnings);
+        if (blockerIds.length > 0) onBlockedWarning?.(next.title, blockerIds);
         return true;
       }
       const key =
@@ -91,7 +96,7 @@ export function useTaskSaver(
       setResetKey((n) => n + 1);
       return false;
     },
-    [onStale, setTask, strings, t],
+    [onStale, onBlockedWarning, setTask, strings, t],
   );
 
   const save = useCallback(

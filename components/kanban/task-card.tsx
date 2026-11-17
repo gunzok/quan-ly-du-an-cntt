@@ -11,6 +11,7 @@ import { formatCalendarDate } from "@/lib/i18n/format";
 import { useLocale, useStrings } from "@/lib/i18n/client";
 import type { SubtaskCount } from "@/lib/kanban/board";
 import type { Task } from "@/lib/tasks/model";
+import { BlockedBadge } from "./blocked-badge";
 
 export interface CardLabel {
   id: string;
@@ -76,8 +77,8 @@ const iconButton =
 
 /**
  * Thẻ task trên bảng Kanban (mockup v3 bp-Kanban.dc.html): ưu tiên, tiêu đề (liên kết tới chi tiết
- * task), loại, nhãn, hạn hoặc trễ hạn, số việc con, người phụ trách. Kéo bằng tay nắm (chuột, chạm
- * giữ, hoặc bàn phím Space + mũi tên); menu "Chuyển đến cột" là lối thay thế không cần kéo (AC2).
+ * task), loại, nhãn, hạn hoặc trễ hạn, số việc con, người phụ trách, huy hiệu "Bị chặn" (E8-3).
+ * Kéo bằng tay nắm (chuột, chạm giữ, hoặc bàn phím Space + mũi tên); menu "Chuyển đến cột" là lối thay thế không cần kéo (AC2).
  */
 export function TaskCard({
   task,
@@ -127,6 +128,11 @@ export function TaskCard({
       <div className="flex items-start justify-between gap-1">
         <div className="flex min-w-0 flex-wrap items-center gap-1.5 pt-1">
           <PriorityBadge priority={task.priority} />
+          {task.blocked ? (
+            <BlockedBadge
+              count={task.blocked_by_count ?? task.blocked_by?.length ?? 0}
+            />
+          ) : null}
           {typeName ? (
             <span className="font-mono text-label text-text-muted uppercase [overflow-wrap:anywhere]">
               {typeName}

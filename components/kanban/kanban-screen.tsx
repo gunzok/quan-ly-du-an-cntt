@@ -59,6 +59,11 @@ import {
   type BoardFilters,
 } from "@/lib/kanban/board";
 import { fetchAllTasks, moveTask } from "@/lib/kanban/client-api";
+import {
+  applyCompletionChange,
+  blockedWarningIds,
+  completionChange,
+} from "@/lib/tasks/blocked-view";
 import { compareCards, fullIndexFor, planMove } from "@/lib/kanban/position";
 import { fetchConfig } from "@/lib/project-config/client-api";
 import { compareConfigItems } from "@/lib/project-config/model";
@@ -363,10 +368,37 @@ function Board({ projectId, projectName, actor }: KanbanScreenProps) {
           return;
         }
         const saved = result.data.data;
-        setTasks((prev) => prev.map((x) => (x.id === saved.id ? saved : x)));
+        // E8-3: task vừa xong/mở lại thì cập nhật cờ "Bị chặn" của các task nó chặn trên bảng.
+        const change = completionChange(task, saved);
+        setTasks(
+          (prev) =>
+            applyCompletionChange(
+              prev.map((x) => (x.id === saved.id ? saved : x)),
+              saved.id,
+              change,
+            ) as Task[],
+        );
+        const blockerIds = blockedWarningIds(result.data.warnings);
+        if (blockerIds.length > 0) {
+          // BR-06: thao tác vẫn thành công, chỉ cảnh báo (không hoàn tác thẻ).
+          const titles = blockerIds
+            .map((id) => tasksRef.current.find((x) => x.id === id)?.title)
+            .filter((x): x is string => !!x);
+          toast({
+            tone: "warning",
+            title: strings.blockedTask.toastTitle(task.title),
+            description:
+              titles.length === blockerIds.length
+                ? strings.blockedTask.toastBody(
+                    titles.map((x) => `“${x}”`).join(", "),
+                  )
+                : strings.blockedTask.toastBodyCount(blockerIds.length),
+            duration: 8000,
+          });
+        }
         if (!plan.exact) {
           toast({ tone: "warning", title: t.move.approximate });
-        } else if (announce) {
+        } else if (announce && blockerIds.length === 0) {
           toast({ title: t.move.moved(task.title, columnName) });
         }
         // Dãn hàng xóm (hiếm: chỉ khi position trùng nhau). Lỗi thì tải lại để khớp máy chủ.
@@ -386,7 +418,7 @@ function Board({ projectId, projectName, actor }: KanbanScreenProps) {
         });
       }
     },
-    [canMove, statuses, moveError, toast, t, reload],
+    [canMove, statuses, moveError, toast, t, strings, reload],
   );
 
   const moveToColumn = useCallback(
