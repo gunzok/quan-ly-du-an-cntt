@@ -1598,6 +1598,46 @@ const viMessages = {
       forbidden: "Chỉ PM của dự án và Admin xem được nhật ký.",
     },
   },
+  profile: {
+    pageTitle: "Hồ sơ cá nhân",
+    navLink: "Hồ sơ",
+    departmentLabel: "Phòng ban",
+    noDepartment: "Chưa có phòng ban",
+    systemRole: "Vai trò hệ thống",
+    formHeading: "Thông tin cá nhân",
+    fullName: "Tên hiển thị",
+    fullNameHint: "Từ 1 đến 100 ký tự, hiện cho người cùng dự án.",
+    email: "Email (không đổi được ở đây)",
+    phone: "Số điện thoại",
+    phoneHint:
+      "Tùy chọn. Hiển thị cho PM và Admin để liên hệ công việc, không hiển thị cho Người xem. Để trống để xóa.",
+    language: "Ngôn ngữ",
+    languageHint: "Lưu vào hồ sơ, giữ khi đăng nhập lại.",
+    theme: "Giao diện",
+    themeHint: "Lưu trên trình duyệt này.",
+    themes: {
+      system: "Theo hệ thống",
+      light: "Sáng",
+      dark: "Tối",
+    },
+    save: "Lưu thay đổi",
+    saving: "Đang lưu…",
+    saved: "Đã lưu hồ sơ.",
+    signOut: "Đăng xuất",
+    rolesHeading: "Vai trò của bạn trong từng dự án",
+    rolesHint:
+      "Chỉ xem. PM của dự án hoặc Admin đổi vai trò ở trang Thành viên.",
+    rolesEmpty: "Bạn chưa tham gia dự án nào.",
+    archived: "Đã lưu trữ",
+    errors: {
+      fullNameRequired: "Nhập tên hiển thị.",
+      fullNameTooLong: "Tên hiển thị tối đa 100 ký tự.",
+      fullNameInvalid: "Tên hiển thị có ký tự không hợp lệ.",
+      phoneInvalid:
+        "Số điện thoại không đúng định dạng (ví dụ 0900 000 000 hoặc +84 900 000 000).",
+      saveFailed: "Không lưu được hồ sơ. Thử lại.",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */
