@@ -15,6 +15,7 @@ import {
   VIEW_COLUMNS,
   VIEW_DISPLAYS,
   VIEW_FILTER_KEYS,
+  VIEW_FLAG_FILTERS,
   VIEW_GROUP_BY,
   VIEW_SORT_FIELDS,
   VIEW_SORT_MAX,
@@ -121,12 +122,16 @@ function readFilters(
     field,
     unknownFields(Object.keys(value), VIEW_FILTER_KEYS),
   );
-  // Kiểu: status_id là mảng uuid (không ghép chuỗi có dấu phẩy), còn lại là chuỗi.
+  // Kiểu: status_id là mảng uuid (không ghép chuỗi có dấu phẩy), open/overdue là JSON true, còn
+  // lại là chuỗi.
   const raw: Record<string, string | string[]> = {};
   for (const key of VIEW_FILTER_KEYS) {
     const v = value[key];
     if (v === undefined) continue;
-    if (key === "status_id") {
+    if ((VIEW_FLAG_FILTERS as readonly string[]).includes(key)) {
+      if (v === true) raw[key] = "true";
+      else own.push({ field: `${field}.${key}`, issue: "invalid_value" });
+    } else if (key === "status_id") {
       if (!Array.isArray(v) || v.length === 0 || !v.every(isUuid)) {
         own.push({ field: `${field}.${key}`, issue: "invalid_value" });
       } else {
@@ -156,6 +161,9 @@ function readFilters(
   if (p.label_id !== null) out.label_id = p.label_id;
   if (p.due_after !== null) out.due_after = p.due_after;
   if (p.due_before !== null) out.due_before = p.due_before;
+  if (p.created_by !== undefined) out.created_by = p.created_by;
+  if (p.open) out.open = true;
+  if (p.overdue) out.overdue = true;
   return out;
 }
 

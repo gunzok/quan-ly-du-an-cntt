@@ -615,7 +615,12 @@ describe.skipIf(!enabled)("API chế độ xem đã lưu (Supabase cục bộ)",
 
     const res = await list("viewer");
     const views = (await json<{ data: SavedView[] }>(res)).data;
-    expect(views[0]).toMatchObject({ id, is_default: true, can_edit: false });
+    // E13-2: còn 7 mặc định dùng chung (seed) nên tìm theo id thay vì vị trí.
+    expect(views.find((v) => v.id === id)).toMatchObject({
+      id,
+      is_default: true,
+      can_edit: false,
+    });
 
     for (const who of ["pm", "admin"]) {
       const e = await expectError(

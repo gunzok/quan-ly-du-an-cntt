@@ -97,7 +97,8 @@ describe("readViewQuery", () => {
       field: "query.filters.status_id",
       issue: "invalid_value",
     });
-    expect(issue({ assignee_id: "me" })).toContainEqual({
+    // E13-2: `me` hợp lệ (chế độ xem mặc định); viết khác hoa thường thì không.
+    expect(issue({ assignee_id: "Me" })).toContainEqual({
       field: "query.filters.assignee_id",
       issue: "invalid_format",
     });
