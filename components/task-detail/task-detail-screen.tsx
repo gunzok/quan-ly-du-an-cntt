@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
-import { AlertIcon, CloseIcon, ErrorIcon } from "@/components/ui/icons";
+import { CloseIcon, ErrorIcon } from "@/components/ui/icons";
 import { Skeleton, SkeletonGroup } from "@/components/ui/skeleton";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import type { ApiError } from "@/lib/api/errors";
@@ -21,17 +21,18 @@ import {
 import { fetchRelations } from "@/lib/task-relations/client-api";
 import type { TaskRelationView } from "@/lib/task-relations/model";
 import { relationAccess } from "@/lib/task-relations/relation-ui";
+import { blockerItems } from "@/lib/tasks/blocked-view";
 import { deleteTask, fetchTaskDetail } from "@/lib/tasks/client-api";
 import type { TaskDetail } from "@/lib/tasks/detail";
 import {
   assigneeOptions,
   canEditField,
-  openBlockers,
   readOnlyReason,
 } from "@/lib/tasks/detail-view";
 import { apiErrorText } from "@/lib/i18n/api-error";
 import { useStrings } from "@/lib/i18n/client";
 import { Properties } from "./properties";
+import { BlockedBanner } from "./blocked-banner";
 import { TaskActivitySection } from "@/components/activity/task-activity-section";
 import { RelationsSection, type RelationsState } from "./relations-section";
 import { SubtasksSection } from "./subtasks-section";
@@ -204,7 +205,29 @@ function Screen({
       ),
     [],
   );
-  const saver = useTaskSaver(task, setTask, reloadTask);
+  // BR-06 (E8-3): đổi trạng thái sang nhóm done khi còn bị chặn vẫn lưu, chỉ báo cảnh báo.
+  const relationList =
+    relations.status === "ready" ? relations.relations : null;
+  const onBlockedWarning = useCallback(
+    (title: string, ids: readonly string[]) => {
+      const titles = ids
+        .map((id) => relationList?.find((r) => r.task.id === id)?.task.title)
+        .filter((x): x is string => !!x);
+      toast({
+        tone: "warning",
+        title: strings.blockedTask.toastTitle(title),
+        description:
+          titles.length === ids.length
+            ? strings.blockedTask.toastBody(
+                titles.map((x) => `“${x}”`).join(", "),
+              )
+            : strings.blockedTask.toastBodyCount(ids.length),
+        duration: 8000,
+      });
+    },
+    [relationList, strings, toast],
+  );
+  const saver = useTaskSaver(task, setTask, reloadTask, onBlockedWarning);
 
   const config = configState?.status === "ready" ? configState.value : null;
   const assignees = useMemo(
@@ -240,13 +263,14 @@ function Screen({
   }
 
   const reason = task ? readOnlyReason(role, isAdmin, task.permissions) : null;
-  const blockers =
-    task && config
-      ? openBlockers(
-          relations.status === "ready" ? relations.relations : [],
-          (id) => config.statuses.find((s) => s.id === id)?.category,
-        )
-      : [];
+  // E8-3: task chặn chưa xong; quan hệ chưa tải được thì dùng blocked_by của API (chỉ id).
+  const blockers = task
+    ? blockerItems(
+        task,
+        relations.status === "ready" ? relations.relations : null,
+        (id) => config?.statuses.find((s) => s.id === id)?.category,
+      )
+    : [];
   const typeName =
     (task && config?.types.find((x) => x.id === task.type_id)?.name) ??
     t.pageTitle;
@@ -330,15 +354,7 @@ function Screen({
               </p>
             ) : null}
 
-            {blockers.length > 0 ? (
-              <p
-                role="note"
-                className="m-0 flex items-start gap-2 rounded-md border border-solid border-warning bg-bg-subtle px-3 py-2 text-sm"
-              >
-                <AlertIcon className="mt-0.5 size-4 shrink-0 text-warning" />
-                {t.blocked(blockers.map((b) => `“${b.task.title}”`).join(", "))}
-              </p>
-            ) : null}
+            <BlockedBanner projectId={projectId} items={blockers} />
 
             <SaveStatus saver={saver} />
 

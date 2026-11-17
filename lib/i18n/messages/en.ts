@@ -1457,6 +1457,25 @@ export const en: Messages = {
       deleteFailed: "Could not delete the view. Try again later.",
     },
   },
+  blockedTask: {
+    badge: "Blocked",
+    badgeTitle: (count: number) =>
+      count === 1
+        ? "Blocked by 1 unfinished task"
+        : `Blocked by ${count} unfinished tasks`,
+    bannerTitle: "This task is blocked",
+    bannerBody:
+      "The tasks below are not done yet. You can still mark this task as done (warning only).",
+    listLabel: "Unfinished blocking tasks",
+    unknownTask: (index: number) => `Blocking task ${index}`,
+    more: (count: number) => `and ${count} more`,
+    toastTitle: (title: string) =>
+      `“${title}” was completed while still blocked`,
+    toastBody: (titles: string) =>
+      `Blocking tasks not done yet: ${titles}. Please review the work order.`,
+    toastBodyCount: (count: number) =>
+      `${count} blocking tasks are not done yet. Please review the work order.`,
+  },
   /** Story E6-2 (QLDA-72): activity log view and filters (S15), task activity in task detail. */
   activity: {
     pageTitle: "Activity log",

@@ -1,5 +1,6 @@
 import { call } from "@/lib/admin/users/client-api";
 import type { TaskDetail } from "./detail";
+import type { BlockedWarning } from "./blocked";
 import type { Task } from "./model";
 import type { TaskPatch } from "./validate";
 
@@ -11,7 +12,8 @@ export function fetchTaskDetail(id: string, signal?: AbortSignal) {
 }
 
 export function patchTask(id: string, body: TaskPatch) {
-  return call<{ data: Task }>(taskUrl(id), {
+  // warnings: BR-06 (E8-3), hoàn thành task còn bị chặn vẫn thành công, kèm cảnh báo.
+  return call<{ data: Task; warnings?: BlockedWarning[] }>(taskUrl(id), {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
