@@ -314,10 +314,20 @@ describe("validateTaskListQuery", () => {
     });
   });
 
-  it("từ chối limit ngoài 1-100, tham số lạ, tham số lặp, giá trị sai", () => {
+  it("E3-4: nhận limit tới 500", () => {
+    for (const n of [1, 101, 500]) {
+      const r = validateTaskListQuery(new URLSearchParams(`limit=${n}`));
+      expect(r.ok && r.data.limit).toBe(n);
+    }
+  });
+
+  it("từ chối limit ngoài 1-500, tham số lạ, tham số lặp, giá trị sai", () => {
     for (const qs of [
       "limit=0",
-      "limit=101",
+      "limit=501",
+      "limit=1000",
+      "limit=-1",
+      "limit=1.5",
       "limit=abc",
       "sort=due_date",
       "priority=low&priority=high",

@@ -13,6 +13,11 @@
  * - API giới hạn 300 request/phút/người dùng (E0-5). Gặp 429 thì chờ Retry-After rồi đo lại; lần
  *   429 không tính vào mẫu và được ghi trong bảng.
  * - PERF_JSON_OUT=<tệp> ghi thêm kết quả dạng JSON.
+ * - Story E3-4 (QLDA-52): thêm "trang lớn" (GET .../tasks?limit=PERF_BOARD_LIMIT, mặc định 500) và
+ *   "tải cả bảng": đi hết next_cursor với cùng limit như Kanban/Danh sách (lib/kanban/client-api.ts),
+ *   mỗi mẫu là TỔNG thời gian các lượt tuần tự (không tính lúc chờ 429), kiểm đủ task, không trùng.
+ *   PERF_BOARD_ITERATIONS (mặc định 20) và PERF_BOARD_WARMUP (mặc định 2) riêng cho mục này vì mỗi
+ *   mẫu là nhiều request. PERF_BOARD_LIMIT=100 tái hiện cách tải cũ để so sánh.
  */
 import { spawn, type ChildProcess } from "node:child_process";
 import { writeFileSync } from "node:fs";
@@ -159,6 +164,8 @@ interface Endpoint {
   key: EndpointKey;
   label: string;
   path: string;
+  /** Có: mỗi mẫu đi hết danh sách theo next_cursor bắt đầu từ `path` (tải cả bảng). */
+  walk?: { expected: number; iterations: number; warmup: number };
   /** Kiểm phản hồi lần đầu (dữ liệu đúng như mong đợi), để không đo nhầm một trang rỗng. */
   check?: (body: unknown) => string | null;
 }
@@ -173,10 +180,44 @@ const nonEmptyList = (body: unknown) =>
     ? null
     : "danh sách rỗng";
 
+/**
+ * Đi hết danh sách theo next_cursor. Trả tổng thời gian các lượt (ms) và số task; báo lỗi nếu có
+ * id trùng (con trỏ hỏng) hoặc lượt nào khác 200.
+ */
+export async function walkAll(
+  get: (path: string) => Promise<{ ms: number; status: number; body: unknown }>,
+  firstPath: string,
+  maxPages = 1000,
+): Promise<{ ms: number; count: number; pages: number }> {
+  const seen = new Set<string>();
+  let ms = 0;
+  let path: string | null = firstPath;
+  let pages = 0;
+  while (path) {
+    if (pages >= maxPages)
+      throw new Error(`Quá ${maxPages} trang khi đi hết ${firstPath}`);
+    const r = await get(path);
+    if (r.status !== 200) throw new Error(`GET ${path} trả ${r.status}`);
+    ms += r.ms;
+    pages++;
+    const body = r.body as ListBody;
+    for (const t of body.data) {
+      if (seen.has(t.id))
+        throw new Error(`Task ${t.id} lặp lại khi đi hết ${firstPath}`);
+      seen.add(t.id);
+    }
+    path = body.next_cursor
+      ? `${firstPath}${firstPath.includes("?") ? "&" : "?"}cursor=${body.next_cursor}`
+      : null;
+  }
+  return { ms, count: seen.size, pages };
+}
+
 async function prepareEndpoints(
   http: Http,
   pid: string,
   taskCount: number,
+  board: { limit: number; iterations: number; warmup: number },
 ): Promise<Endpoint[]> {
   const tasksPath = `/api/v1/projects/${pid}/tasks`;
   // Dự án phải có đủ dữ liệu (đã chạy make perf-seed).
@@ -304,6 +345,22 @@ async function prepareEndpoints(
       path: `/api/v1/tasks/${taskIdValue}/relations`,
       check: nonEmptyList,
     },
+    {
+      key: "tasks_large_page",
+      label: `GET /projects/{id}/tasks?limit=${board.limit} (trang lớn, E3-4)`,
+      path: `${tasksPath}?limit=${board.limit}`,
+      check: nonEmptyList,
+    },
+    {
+      key: "board_load",
+      label: `Tải cả bảng: đi hết con trỏ, limit=${board.limit} (Kanban/Danh sách, E3-4)`,
+      path: `${tasksPath}?limit=${board.limit}`,
+      walk: {
+        expected: project.data.task_count,
+        iterations: board.iterations,
+        warmup: board.warmup,
+      },
+    },
   ];
 }
 
@@ -316,6 +373,27 @@ async function measure(
   const results: EndpointResult[] = [];
   for (const ep of endpoints) {
     const before = http.throttled;
+    if (ep.walk) {
+      const get = (path: string) => http.get(path);
+      const samples: number[] = [];
+      for (let i = 0; i < ep.walk.warmup + ep.walk.iterations; i++) {
+        const r = await walkAll(get, ep.path);
+        if (r.count !== ep.walk.expected) {
+          throw new Error(
+            `${ep.label}: tải được ${r.count} task, mong đợi ${ep.walk.expected}`,
+          );
+        }
+        if (i >= ep.walk.warmup) samples.push(r.ms);
+      }
+      results.push({
+        key: ep.key,
+        label: ep.label,
+        samples,
+        throttled: http.throttled - before,
+      });
+      process.stdout.write(".");
+      continue;
+    }
     const first = await http.get(ep.path);
     if (first.status !== 200) {
       throw new Error(
@@ -381,6 +459,11 @@ async function main(): Promise<number> {
   const warmup = readCount(env, "PERF_WARMUP", 10, 1);
   const iterations = readCount(env, "PERF_ITERATIONS", 100, 1);
   const taskCount = readTaskCount(env);
+  const board = {
+    limit: readCount(env, "PERF_BOARD_LIMIT", 500, 1),
+    iterations: readCount(env, "PERF_BOARD_ITERATIONS", 20, 1),
+    warmup: readCount(env, "PERF_BOARD_WARMUP", 2, 0),
+  };
   const password = readSeedPassword(env);
   const stack = readPerfStack();
   const pm = perfUsers({ dataset: 0, memberCount: 10 })[0];
@@ -397,7 +480,7 @@ async function main(): Promise<number> {
   try {
     const jar = await signIn(stack.apiUrl, stack.anonKey, pm.email, password);
     const http = new Http(base, jar);
-    const endpoints = await prepareEndpoints(http, pid, taskCount);
+    const endpoints = await prepareEndpoints(http, pid, taskCount, board);
     console.log(
       `Đo ${endpoints.length} API trên ${base} (dự án ${taskCount} task), khởi động ${warmup}, đo ${iterations} lần mỗi API, tuần tự...`,
     );
