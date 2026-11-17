@@ -32,7 +32,15 @@ export const VIEW_FILTER_KEYS = [
   "label_id",
   "due_after",
   "due_before",
+  // E13-2 (migration 20261115290000): chế độ xem mặc định.
+  "created_by",
+  "open",
+  "overdue",
 ] as const;
+/** Bộ lọc dạng cờ: chỉ nhận `true` (JSON boolean trong query, `true` trên URL). */
+export const VIEW_FLAG_FILTERS = ["open", "overdue"] as const;
+/** Giá trị người dùng đặc biệt: người đang mở chế độ xem. */
+export const VIEW_ME = "me";
 export type ViewFilterKey = (typeof VIEW_FILTER_KEYS)[number];
 
 export const VIEW_SORT_FIELDS = [
@@ -93,11 +101,18 @@ export interface SavedViewFilters {
   q?: string;
   /** Khớp một trong các trạng thái; uuid chữ thường, bỏ trùng, sắp xếp. */
   status_id?: string[];
+  /** uuid chữ thường hoặc `me` (E13-2). */
   assignee_id?: string;
   priority?: TaskPriority;
   label_id?: string;
   due_after?: string;
   due_before?: string;
+  /** uuid chữ thường hoặc `me` (E13-2). */
+  created_by?: string;
+  /** Chỉ task chưa hoàn thành (E13-2). */
+  open?: true;
+  /** Chỉ task quá hạn: chưa hoàn thành, hạn trước hôm nay giờ Việt Nam (E13-2). */
+  overdue?: true;
 }
 
 export interface SavedViewSort {
