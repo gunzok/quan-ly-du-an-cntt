@@ -92,8 +92,9 @@ jobs:
     timeout-minutes: 20
     env:
       # Bỏ các dịch vụ test không dùng; giữ db, gotrue (auth), kong, postgrest và mailpit
-      # (tests/integration/google-auth.test.ts đọc magic link từ Mailpit).
-      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      # (tests/integration/google-auth.test.ts đọc magic link từ Mailpit). Giữ storage-api: bucket
+      # và chính sách template báo cáo (E5-2) cần schema Storage đầy đủ, test tải tệp thật.
+      SUPABASE_START_ARGS: -x realtime,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -122,7 +123,8 @@ jobs:
     timeout-minutes: 25
     env:
       # Giữ mailpit: tests/e2e/accept-invite.spec.ts lấy link mời từ email (Story E1-7).
-      SUPABASE_START_ARGS: -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      # Giữ storage-api: tests/e2e/report-templates.spec.ts tải template lên Storage (E5-2).
+      SUPABASE_START_ARGS: -x realtime,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
