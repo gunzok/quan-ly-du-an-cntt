@@ -207,6 +207,14 @@ describe.skipIf(!enabled)(
           expect(pages.length).toBe(Math.ceil(expected.length / limit));
           expect(pages.every((n) => n > 0 && n <= limit)).toBe(true);
         }
+        // sort=created_at (E13-2, tăng dần): cùng tập, thứ tự ngược, vẫn không trùng.
+        const asc = await walk("pm", pid, {
+          limit: String(limit),
+          sort: "created_at",
+        });
+        expect(asc.ids, `sort=created_at limit=${limit}`).toEqual(
+          [...expected].reverse(),
+        );
       }
     });
 

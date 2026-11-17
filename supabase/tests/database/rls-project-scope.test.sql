@@ -1,5 +1,5 @@
 -- QLDA-52 (Story E3-4): chính sách SELECT viết lại bằng private.my_project_ids() /
--- private.my_pm_project_ids() (20261115280000_rls_project_scope.sql) TƯƠNG ĐƯƠNG điều kiện cũ.
+-- private.my_pm_project_ids() (20261115310000_rls_project_scope.sql) TƯƠNG ĐƯƠNG điều kiện cũ.
 --
 -- Cách chứng minh: với từng persona (Admin, PM, Thành viên, Người xem, người ngoài, người bị khóa,
 -- Admin bị khóa, PM ở dự án này đồng thời Người xem ở dự án khác), tính tập dòng "được thấy" bằng
