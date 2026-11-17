@@ -4,6 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E5-1 (QLDA-60): dashboard tiến độ S06.
@@ -128,6 +129,7 @@ test.afterAll(async () => {
 
 async function signInAs(page: Page, email: string) {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(email);
   await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
   await page

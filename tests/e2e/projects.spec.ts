@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E2-1 (QLDA-37): S02 Danh sách dự án ở trang chủ.
@@ -20,6 +21,7 @@ const tag = randomUUID().slice(0, 8);
 
 async function signInAs(page: Page, email: string) {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(email);
   await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
   await page

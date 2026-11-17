@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E1-7 (QLDA-80): nhận lời mời và đặt mật khẩu ở /auth/accept-invite.
@@ -10,14 +10,59 @@ import { e2ePassword } from "./env";
  * đặt mật khẩu → vào ứng dụng → đăng xuất, đăng nhập lại bằng mật khẩu mới. Link dùng lần hai và
  * link giả bị từ chối; axe không lỗi critical/serious; 360 px không tràn ngang.
  * Tài khoản tạm bị xóa sau test (khóa service_role của stack CỤC BỘ do `make test-e2e` đặt).
+ *
+ * Ổn định (QLDA-43): Admin là tài khoản TẠM (tạo bằng khóa service, mật khẩu ngẫu nhiên), không
+ * phụ thuộc persona seed và SEED_PASSWORD; mọi form chỉ được điền sau khi React hydrate xong
+ * (tests/e2e/hydration.ts) và kiểm giá trị đã vào ô trước khi bấm gửi.
  */
-const ADMIN_EMAIL = "admin@example.com";
+const ADMIN_EMAIL = `e2e-e1-7-admin-${randomUUID()}@example.com`;
+const ADMIN_PASSWORD = `E2e-${randomUUID()}`;
 const MAILPIT_URL = process.env.MAILPIT_URL ?? "http://127.0.0.1:54324";
 const BLOCKING_IMPACTS = new Set(["critical", "serious"]);
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const t = strings.acceptInvite;
 
 const createdIds: string[] = [];
+
+function serviceEnv() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
+    throw new Error(
+      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
+    );
+  }
+  return { url, key };
+}
+
+/** Admin tạm: tạo qua Auth Admin API rồi bật is_admin (khóa service, stack cục bộ). */
+async function createTempAdmin() {
+  const { url, key } = serviceEnv();
+  const headers = {
+    apikey: key,
+    authorization: `Bearer ${key}`,
+    "content-type": "application/json",
+  };
+  const res = await fetch(`${url}/auth/v1/admin/users`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+      email_confirm: true,
+      user_metadata: { full_name: "E2E Admin tạm" },
+    }),
+  });
+  if (!res.ok) throw new Error(`Tạo Admin tạm lỗi ${res.status}`);
+  const { id } = (await res.json()) as { id: string };
+  createdIds.push(id);
+  const update = await fetch(`${url}/rest/v1/profiles?id=eq.${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ is_admin: true }),
+  });
+  if (!update.ok) throw new Error(`Bật is_admin lỗi ${update.status}`);
+}
 
 test.afterAll(async () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,8 +94,13 @@ async function expectNoHorizontalScroll(page: Page) {
 
 async function signIn(page: Page, email: string, password: string) {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(email);
   await page.getByLabel(strings.login.passwordLabel).fill(password);
+  await expect(page.getByLabel(strings.login.emailLabel)).toHaveValue(email);
+  await expect(page.getByLabel(strings.login.passwordLabel)).toHaveValue(
+    password,
+  );
   await page
     .getByRole("button", { name: strings.login.submit, exact: true })
     .click();
@@ -82,9 +132,15 @@ async function inviteLinkFromMailpit(email: string, baseURL: string) {
   throw new Error(`Không thấy email mời gửi tới ${email} ở Mailpit`);
 }
 
+/** Điền và gửi form đặt mật khẩu; chỉ bấm khi form đã hydrate và hai ô đúng giá trị. */
 async function fillAndSubmit(page: Page, password: string, confirm = password) {
-  await page.getByLabel(t.passwordLabel).fill(password);
-  await page.getByLabel(t.confirmLabel).fill(confirm);
+  await waitForHydration(page);
+  const passwordInput = page.getByLabel(t.passwordLabel);
+  const confirmInput = page.getByLabel(t.confirmLabel);
+  await passwordInput.fill(password);
+  await confirmInput.fill(confirm);
+  await expect(passwordInput).toHaveValue(password);
+  await expect(confirmInput).toHaveValue(confirm);
   await page.getByRole("button", { name: t.submit }).click();
 }
 
@@ -98,7 +154,8 @@ test("mời → link từ Mailpit → đặt mật khẩu → vào ứng dụng 
   // Admin mời qua API thật (cùng origin, cookie phiên của Admin).
   const adminContext = await browser.newContext();
   const adminPage = await adminContext.newPage();
-  await signIn(adminPage, ADMIN_EMAIL, e2ePassword());
+  await createTempAdmin();
+  await signIn(adminPage, ADMIN_EMAIL, ADMIN_PASSWORD);
   const invited = await adminPage.request.post("/api/v1/users/invitations", {
     data: { email },
     headers: { origin: baseURL ?? "" },

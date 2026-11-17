@@ -1,6 +1,7 @@
 import { expect, test, type ConsoleMessage } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { E2E_EMAIL, e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E0-5 (QLDA-44) tiêu chí 1: trang có CSP chặt và header an toàn; CSP không làm hỏng trang.
@@ -64,6 +65,7 @@ test("đăng nhập và trang chủ chạy dưới CSP, không có lỗi CSP", a
   });
 
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(E2E_EMAIL);
   await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
   await page
