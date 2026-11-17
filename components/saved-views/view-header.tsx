@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CloseIcon } from "@/components/ui/icons";
@@ -12,19 +13,21 @@ import {
 
 /**
  * Đầu khu bảng khi đang dùng một chế độ xem (Story E13-2; mockup bp-ListViews): "Chế độ xem / Mặc
- * định · Chỉ đọc", tên, ghi chú; báo đã đổi so với chế độ xem kèm nút Đặt lại. Lưu thành chế độ xem
- * mới là E13-3.
+ * định · Chỉ đọc", tên, ghi chú; báo đã đổi so với chế độ xem kèm nút Đặt lại. `actions`: nút quản
+ * lý chế độ xem (E13-3, ./view-manager.tsx).
  */
 export function ViewHeader({
   view,
   name,
   modified,
   onReset,
+  actions,
 }: {
   view: SavedView;
   name: string;
   modified: boolean;
   onReset: () => void;
+  actions?: ReactNode;
 }) {
   const strings = useStrings();
   const t = strings.savedViewsMenu;
@@ -50,14 +53,17 @@ export function ViewHeader({
               : t.privateNote}
         </p>
       </div>
-      {modified ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="warning">{t.modified}</Badge>
-          <Button variant="secondary" onClick={onReset}>
-            {t.reset}
-          </Button>
-        </div>
-      ) : null}
+      <div className="flex min-w-0 flex-col items-stretch gap-2 sm:items-end">
+        {modified ? (
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <Badge tone="warning">{t.modified}</Badge>
+            <Button variant="secondary" onClick={onReset}>
+              {t.reset}
+            </Button>
+          </div>
+        ) : null}
+        {actions}
+      </div>
     </div>
   );
 }
