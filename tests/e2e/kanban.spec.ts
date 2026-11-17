@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E3-1 (QLDA-47): bảng Kanban (S03), Kanban trên điện thoại (S09), chế độ tối (S10).
@@ -142,6 +143,7 @@ test.afterAll(async () => {
 
 async function signInAs(page: Page, who: keyof typeof emails) {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(emails[who]);
   await page.getByLabel(strings.login.passwordLabel).fill(password);
   await page

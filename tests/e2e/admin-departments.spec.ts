@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E1-5 (QLDA-39): bộ lọc Phòng ban và hộp thoại danh mục phòng ban ở S08 (/admin/users).
@@ -18,6 +19,7 @@ const t = strings.adminUsers;
 
 async function signInAsAdmin(page: Page) {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(ADMIN_EMAIL);
   await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
   await page

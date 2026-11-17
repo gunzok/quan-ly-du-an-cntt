@@ -4,6 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { en } from "@/lib/i18n/messages/en";
 import { vi } from "@/lib/i18n/messages/vi";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E10-2 (QLDA-65) tiêu chí 1: chọn English thì giao diện đổi và được nhớ ở lần sau.
@@ -133,6 +134,7 @@ test("người đăng nhập chọn English: lưu vào hồ sơ, còn nguyên sa
   browser,
 }) => {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(vi.login.emailLabel).fill(user.email);
   await page.getByLabel(vi.login.passwordLabel).fill(user.password);
   await page

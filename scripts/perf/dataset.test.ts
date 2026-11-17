@@ -237,3 +237,72 @@ describe("định danh và tài khoản giả", () => {
     expect([a.next(), a.next()]).toEqual([b.next(), b.next()]);
   });
 });
+
+describe("generateDataset: quan hệ đủ 4 kiểu với mọi hạt giống (QLDA-43)", () => {
+  // Trước QLDA-43 kiểu quan hệ rút ngẫu nhiên hoàn toàn: bộ 60 task (18 quan hệ) đôi khi chỉ có
+  // 3 kiểu, làm tests/integration/perf-seed.test.ts đỏ chập chờn.
+  const SEEDS = 256;
+  const cases = Array.from({ length: SEEDS }, (_, i) => ({
+    dataset: 1 + (((i * 2654435761) >>> 0) % 0xfffe),
+    seed: (20261115 + i * 7919) >>> 0,
+  }));
+
+  it(`${SEEDS} hạt giống, 60 task: đủ số lượng, đủ 4 kiểu, không vòng, không trùng, hợp lệ`, () => {
+    const missing: string[] = [];
+    for (const { dataset, seed } of cases) {
+      const ds = generateDataset(
+        defaultConfig({ anchor, taskCount: 60, dataset, seed }),
+      );
+      const label = `dataset=${dataset} seed=${seed}`;
+      expect(ds.relations, label).toHaveLength(ds.config.relationCount);
+      const kinds = new Set(ds.relations.map((r) => r.kind));
+      if (kinds.size !== 4) missing.push(`${label}: ${[...kinds].join(",")}`);
+      const edges = ds.relations.map((r) => ({
+        from: ds.tasks[r.from].id,
+        to: ds.tasks[r.to].id,
+        kind: r.kind,
+      }));
+      expect(hasDependencyCycle(edges), label).toBe(false);
+      const keys = ds.relations.map((r) =>
+        r.kind === "relates"
+          ? `r:${r.from}:${r.to}`
+          : `${r.kind}:${r.from}:${r.to}`,
+      );
+      expect(new Set(keys).size, label).toBe(keys.length);
+      expect(() => assertDatasetValid(ds), label).not.toThrow();
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it("đúng 4 quan hệ thì mỗi kiểu một; ít hơn 4 thì các kiểu khác nhau; 0 thì rỗng", () => {
+    for (const { dataset, seed } of cases.slice(0, 50)) {
+      for (const relationCount of [0, 1, 2, 3, 4, 5]) {
+        const ds = generateDataset(
+          defaultConfig({
+            anchor,
+            taskCount: 60,
+            dataset,
+            seed,
+            relationCount,
+          }),
+        );
+        expect(ds.relations).toHaveLength(relationCount);
+        expect(new Set(ds.relations.map((r) => r.kind)).size).toBe(
+          Math.min(relationCount, 4),
+        );
+      }
+    }
+  });
+
+  it("bộ chính (2.000 task) chỉ đổi kiểu của tối đa 4 quan hệ đầu: cặp task và lag giữ nguyên", () => {
+    // Bất biến: cùng cấu hình thì cùng dữ liệu (chạy lại make perf-seed không nhân đôi).
+    const again = generateDataset(defaultConfig({ anchor }));
+    expect(again.relations).toEqual(big.relations);
+    expect(big.relations.slice(0, 4).map((r) => r.kind)).toEqual([
+      "blocks",
+      "precedes",
+      "relates",
+      "duplicates",
+    ]);
+  });
+});

@@ -129,6 +129,7 @@ test-e2e: check-pnpm check-supabase
 	unset NODE_ENV; \
 	export NEXT_PUBLIC_SUPABASE_URL="$$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$$ANON_KEY" E2E_PORT="$(E2E_PORT)"; \
 	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="e2e-$$(date +%s)-$$$$"; \
+	export E2E_RELAXED_LOGIN_RATE_LIMIT=1; \
 	pnpm build && pnpm exec playwright test
 
 # ---------------------------------------------------------------------------

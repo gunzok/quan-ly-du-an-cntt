@@ -1,10 +1,12 @@
 import { expect, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { E2E_EMAIL, e2ePassword } from "./env";
+import { waitForHydration } from "./hydration";
 
 /** Đăng nhập bằng tài khoản thử qua /login, chờ về trang chủ. */
 export async function signIn(page: Page): Promise<void> {
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(E2E_EMAIL);
   await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
   await page

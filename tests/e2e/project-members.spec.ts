@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
+import { waitForHydration } from "./hydration";
 
 /**
  * Story E1-6 (QLDA-33): tab Thành viên ở màn cấu hình dự án.
@@ -106,6 +107,7 @@ test.afterAll(async () => {
 async function signInAs(page: Page, user: { email: string; password: string }) {
   const { email, password } = user;
   await page.goto("/login");
+  await waitForHydration(page);
   await page.getByLabel(strings.login.emailLabel).fill(email);
   await page.getByLabel(strings.login.passwordLabel).fill(password);
   await page
