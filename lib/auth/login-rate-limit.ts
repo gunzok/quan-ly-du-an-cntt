@@ -5,6 +5,10 @@ import {
   type RateLimitCheck,
   type RateLimitOutcome,
 } from "@/lib/api/rate-limit";
+import {
+  E2E_LOGIN_IP_RULE,
+  isE2eRelaxedLoginRateLimit,
+} from "@/lib/api/e2e-rate-limit";
 import { strings } from "@/lib/strings";
 import { EMAIL_MAX_LENGTH } from "./validate";
 
@@ -37,10 +41,17 @@ export function normalizeLoginEmail(email: unknown): string | null {
   return value;
 }
 
-export function loginRateLimitChecks(attempt: LoginAttempt): RateLimitCheck[] {
-  const checks: RateLimitCheck[] = [
-    { name: "loginIp", identifier: `ip:${attempt.ip ?? "unknown"}` },
-  ];
+export function loginRateLimitChecks(
+  attempt: LoginAttempt,
+  env: Record<string, string | undefined> = process.env,
+): RateLimitCheck[] {
+  const ipCheck: RateLimitCheck = {
+    name: "loginIp",
+    identifier: `ip:${attempt.ip ?? "unknown"}`,
+  };
+  // Chỉ e2e trên stack cục bộ, không bao giờ trên Vercel (xem lib/api/e2e-rate-limit.ts).
+  if (isE2eRelaxedLoginRateLimit(env)) ipCheck.rule = E2E_LOGIN_IP_RULE;
+  const checks: RateLimitCheck[] = [ipCheck];
   const email = normalizeLoginEmail(attempt.email);
   if (email) {
     checks.push({ name: "loginEmail", identifier: `email:${email}` });

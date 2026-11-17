@@ -195,6 +195,8 @@ export function clientIp(
 export interface RateLimitCheck {
   name: RateLimitName;
   identifier: string;
+  /** Ngưỡng thay cho RATE_LIMITS[name]; chỉ dùng cho e2e cục bộ (lib/api/e2e-rate-limit.ts). */
+  rule?: RateLimitRule;
 }
 
 export type RateLimitOutcome =
@@ -216,7 +218,7 @@ export async function consumeRateLimits(
       checks.map((c) =>
         store.hit(
           rateLimitKey(c.name, c.identifier, secret),
-          RATE_LIMITS[c.name],
+          c.rule ?? RATE_LIMITS[c.name],
         ),
       ),
     );

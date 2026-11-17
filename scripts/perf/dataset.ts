@@ -20,6 +20,14 @@ export type StatusCategory = "todo" | "in_progress" | "done";
 export type Priority = "low" | "medium" | "high" | "urgent";
 export type RelationKind = "blocks" | "precedes" | "relates" | "duplicates";
 
+/** Đủ 4 kiểu quan hệ (enum public.task_relation_kind). */
+export const RELATION_KINDS: readonly RelationKind[] = [
+  "blocks",
+  "precedes",
+  "relates",
+  "duplicates",
+];
+
 /** Danh sách trạng thái mặc định E2-3 (tên phải khớp private.seed_project_defaults). */
 export const DEFAULT_STATUSES: readonly {
   name: string;
@@ -517,6 +525,9 @@ export function generateDataset(config: PerfDatasetConfig): PerfDataset {
   }
 
   // Quan hệ: from < to (theo chỉ số) cho mọi kiểu có hướng, nên blocks + precedes không vòng.
+  // QLDA-43: relationCount ≥ 4 thì luôn đủ 4 kiểu: quan hệ thứ k < 4 lấy kiểu RELATION_KINDS[k]
+  // (phân bổ xác định), phần còn lại ngẫu nhiên. Vẫn rút rng.pick(kinds) ở mọi lượt để chuỗi số
+  // ngẫu nhiên (cặp task, lag) giữ nguyên như trước; chỉ kiểu của tối đa 4 quan hệ đầu đổi.
   const relations: PerfRelation[] = [];
   const seen = new Set<string>();
   const kinds: RelationKind[] = [
@@ -540,7 +551,11 @@ export function generateDataset(config: PerfDatasetConfig): PerfDataset {
     if (b >= c.taskCount || a === b) continue;
     const from = Math.min(a, b);
     const to = Math.max(a, b);
-    const kind = rng.pick(kinds);
+    const randomKind = rng.pick(kinds);
+    const kind =
+      relations.length < RELATION_KINDS.length
+        ? RELATION_KINDS[relations.length]
+        : randomKind;
     // relates: một cặp không thứ tự; kiểu khác: (from, to, kind) duy nhất.
     const key =
       kind === "relates" ? `r:${from}:${to}` : `${kind}:${from}:${to}`;
