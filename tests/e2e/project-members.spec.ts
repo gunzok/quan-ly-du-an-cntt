@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { waitForHydration } from "./hydration";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
+import { signInWithPassword } from "./login";
 
 /**
  * Story E1-6 (QLDA-33): tab Thành viên ở màn cấu hình dự án.
@@ -32,34 +33,17 @@ const tempUsers: string[] = [];
 
 let service: SupabaseClient | null = null;
 
-function serviceClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
-    );
-  }
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
 async function createTempUser(
   client: SupabaseClient,
   email: string,
   fullName: string,
   password: string,
 ) {
-  const { data, error } = await client.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: fullName },
+  const created = await createTempUsers(client, {
+    user: { email, password, fullName },
   });
-  if (error) throw error;
-  tempUsers.push(data.user.id);
-  return data.user.id;
+  tempUsers.push(created.user);
+  return created.user;
 }
 
 test.beforeAll(async () => {
@@ -99,21 +83,14 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (!service) return;
-  await service.from("projects").delete().eq("id", projectId);
-  for (const id of tempUsers) await service.auth.admin.deleteUser(id);
+  await cleanupTempData(service, {
+    projectIds: [projectId],
+    userIds: tempUsers,
+  });
 });
 
 async function signInAs(page: Page, user: { email: string; password: string }) {
-  const { email, password } = user;
-  await page.goto("/login");
-  await waitForHydration(page);
-  await page.getByLabel(strings.login.emailLabel).fill(email);
-  await page.getByLabel(strings.login.passwordLabel).fill(password);
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signInWithPassword(page, user.email, user.password);
 }
 
 async function blockingViolations(page: Page, include?: string) {

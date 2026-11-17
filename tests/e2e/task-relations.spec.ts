@@ -1,9 +1,15 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { waitForHydration } from "./hydration";
+import {
+  cleanupTempData,
+  createTempUsers,
+  serviceClient,
+  type TempUserSpec,
+} from "./temp-data";
+import { signInWithPassword } from "./login";
 
 /**
  * Story E8-2 (QLDA-57): thêm, bỏ quan hệ trong ngăn chi tiết task (S05 v2).
@@ -46,31 +52,18 @@ const titles = {
 
 let service: SupabaseClient | null = null;
 
-function serviceClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
-    );
-  }
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
 test.beforeAll(async () => {
   service = serviceClient();
-  for (const who of Object.keys(emails) as Who[]) {
-    const { data, error } = await service.auth.admin.createUser({
-      email: emails[who],
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: `${who} ${tag}` },
-    });
-    if (error) throw error;
-    users[who] = data.user.id;
-  }
+  await createTempUsers(
+    service,
+    Object.fromEntries(
+      (Object.keys(emails) as Who[]).map((who) => [
+        who,
+        { email: emails[who], password, fullName: `${who} ${tag}` },
+      ]),
+    ) as Record<Who, TempUserSpec>,
+    users,
+  );
   const project = await service.from("projects").insert({
     id: projectId,
     name: `E2E ${tag} Quan hệ`,
@@ -120,22 +113,14 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (!service) return;
-  await service.from("projects").delete().eq("id", projectId);
-  for (const id of Object.values(users)) {
-    if (id) await service.auth.admin.deleteUser(id);
-  }
+  await cleanupTempData(service, {
+    projectIds: [projectId],
+    userIds: Object.values(users),
+  });
 });
 
 async function signInAs(page: Page, who: Who) {
-  await page.goto("/login");
-  await waitForHydration(page);
-  await page.getByLabel(strings.login.emailLabel).fill(emails[who]);
-  await page.getByLabel(strings.login.passwordLabel).fill(password);
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signInWithPassword(page, emails[who], password);
 }
 
 async function blockingViolations(page: Page) {

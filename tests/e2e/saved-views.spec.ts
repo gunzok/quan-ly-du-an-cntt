@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { DEFAULT_VIEWS, type DefaultViewKey } from "@/lib/saved-views/defaults";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
+import { signInWithPassword } from "./login";
 
 /**
  * Story E13-2 (QLDA-54): menu chế độ xem S12 trên bảng phân cấp, 7 chế độ xem mặc định.
@@ -37,31 +39,18 @@ let service: SupabaseClient | null = null;
 const viewId = (key: DefaultViewKey) =>
   DEFAULT_VIEWS.find((d) => d.key === key)!.id;
 
-function serviceClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
-    );
-  }
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
 test.beforeAll(async () => {
   service = serviceClient();
-  for (const [label, email] of Object.entries(emails)) {
-    const { data, error } = await service.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: `E2E ${label} ${tag}` },
-    });
-    if (error) throw error;
-    users[label] = data.user.id;
-  }
+  await createTempUsers(
+    service,
+    Object.fromEntries(
+      Object.entries(emails).map(([label, email]) => [
+        label,
+        { email, password, fullName: `E2E ${label} ${tag}` },
+      ]),
+    ),
+    users,
+  );
   const project = await service
     .from("projects")
     .insert({ id: projectId, name: projectName, created_by: users.pm });
@@ -106,10 +95,10 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (!service) return;
-  await service.from("projects").delete().eq("id", projectId);
-  for (const id of Object.values(users))
-    await service.auth.admin.deleteUser(id);
+  await cleanupTempData(service, {
+    projectIds: [projectId],
+    userIds: Object.values(users),
+  });
 });
 
 type Cookies = Awaited<ReturnType<BrowserContext["cookies"]>>;
@@ -122,13 +111,7 @@ async function signInAs(page: Page, who: keyof typeof emails) {
     await page.context().addCookies(saved);
     return;
   }
-  await page.goto("/login");
-  await page.getByLabel(strings.login.emailLabel).fill(emails[who]);
-  await page.getByLabel(strings.login.passwordLabel).fill(password);
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signInWithPassword(page, emails[who], password);
   sessions[who] = await page.context().cookies();
 }
 
@@ -233,7 +216,15 @@ test.describe.serial("Chế độ xem đã lưu (S12)", () => {
     const star = menu(page)
       .getByRole("button", { name: t.favoriteAdd(t.names.overdue) })
       .first();
+    // Giao diện cập nhật lạc quan: chờ PATCH lưu xong rồi mới tải lại, nếu không (máy bận) điều
+    // hướng sẽ đến trước khi yêu thích được ghi.
+    const saved = page.waitForResponse(
+      (r) =>
+        r.request().method() === "PATCH" &&
+        r.url().includes("/api/v1/views/"),
+    );
     await star.click();
+    expect((await saved).ok()).toBe(true);
     const favorites = section(page, t.sections.favorites);
     await expect(
       favorites.getByRole("button", { name: t.names.overdue, exact: true }),

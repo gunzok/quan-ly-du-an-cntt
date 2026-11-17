@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { waitForHydration } from "./hydration";
+import { cleanupTempData, serviceClient } from "./temp-data";
 
 /**
  * Story E1-7 (QLDA-80): nhận lời mời và đặt mật khẩu ở /auth/accept-invite.
@@ -65,14 +66,8 @@ async function createTempAdmin() {
 }
 
 test.afterAll(async () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return;
-  for (const id of createdIds) {
-    await fetch(`${url}/auth/v1/admin/users/${id}`, {
-      method: "DELETE",
-      headers: { apikey: key, authorization: `Bearer ${key}` },
-    });
+  if (createdIds.length > 0) {
+    await cleanupTempData(serviceClient(), { userIds: createdIds });
   }
 });
 

@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { en } from "@/lib/i18n/messages/en";
 import { vi } from "@/lib/i18n/messages/vi";
 import { waitForHydration } from "./hydration";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
 
 /**
  * Story E10-2 (QLDA-65) tiêu chí 1: chọn English thì giao diện đổi và được nhớ ở lần sau.
@@ -24,33 +25,16 @@ const user = {
 let service: SupabaseClient | null = null;
 let userId: string | null = null;
 
-function serviceClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
-    );
-  }
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
 test.beforeAll(async () => {
   service = serviceClient();
-  const { data, error } = await service.auth.admin.createUser({
-    email: user.email,
-    password: user.password,
-    email_confirm: true,
-    user_metadata: { full_name: `E2E Ngôn ngữ ${tag}` },
+  const created = await createTempUsers(service, {
+    user: { ...user, fullName: `E2E Ngôn ngữ ${tag}` },
   });
-  if (error) throw error;
-  userId = data.user.id;
+  userId = created.user;
 });
 
 test.afterAll(async () => {
-  if (service && userId) await service.auth.admin.deleteUser(userId);
+  await cleanupTempData(service, { userIds: [userId] });
 });
 
 async function blockingViolations(page: Page) {
