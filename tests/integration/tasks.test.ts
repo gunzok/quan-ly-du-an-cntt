@@ -602,7 +602,7 @@ describe.skipIf(!enabled)("API task (Supabase cục bộ)", () => {
 
     // Sai tham số
     await expectError(
-      await list("outsider", projectB, "?limit=500"),
+      await list("outsider", projectB, "?limit=501"),
       400,
       "validation_failed",
     );
