@@ -267,8 +267,10 @@ test.describe.serial("Template báo cáo", () => {
       .getByRole("button", { name: t.confirmDelete.confirm })
       .click();
     await expect(row(page, names.picked)).toHaveCount(0);
+    await expect(page.getByText(t.deleted(names.picked))).toBeVisible();
 
     await dismissToasts(page);
+    await expect(page.getByText(t.deleted(names.picked))).toHaveCount(0);
     expect(await blockingViolations(page)).toEqual([]);
     await page.emulateMedia({ colorScheme: "dark" });
     expect(await blockingViolations(page)).toEqual([]);
