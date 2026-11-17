@@ -220,8 +220,7 @@ test.describe.serial("Chế độ xem đã lưu (S12)", () => {
     // hướng sẽ đến trước khi yêu thích được ghi.
     const saved = page.waitForResponse(
       (r) =>
-        r.request().method() === "PATCH" &&
-        r.url().includes("/api/v1/views/"),
+        r.request().method() === "PATCH" && r.url().includes("/api/v1/views/"),
     );
     await star.click();
     expect((await saved).ok()).toBe(true);
