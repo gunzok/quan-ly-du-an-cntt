@@ -773,6 +773,12 @@ test("PM: mọi màn dự án, hộp thoại và menu", async ({ page }) => {
     );
   });
 
+  await test.step("Hồ sơ cá nhân", async () => {
+    await open(page, "/profile");
+    await audit(page, "PM · Hồ sơ cá nhân");
+    await checkFocus(page, "PM · Hồ sơ cá nhân");
+  });
+
   await test.step("Dashboard, nhật ký", async () => {
     await open(page, p("/dashboard"));
     await audit(page, "PM · Dashboard");
