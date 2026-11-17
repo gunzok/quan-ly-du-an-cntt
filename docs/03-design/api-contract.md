@@ -6,7 +6,7 @@ Quy ước: REST `/api/v1/<tài-nguyên>` (số nhiều, kebab-case), JSON, UTF-
 ## 1. Quy ước chung
 - **Thành công**: `200` (đọc, sửa), `201` (tạo, kèm `Location`), `204` (xóa).
 - **Phân trang**: `?limit=50&cursor=<mã>`; phản hồi `{ "data": [...], "next_cursor": "..." | null }`. `limit` tối đa 100.
-- **Sắp xếp, lọc**: `?sort=due_date`, `?status_id=...&assignee_id=...&priority=...&label_id=...&due_after=...&due_before=...&q=<từ khóa>`. `status_id` nhận nhiều id ngăn bằng dấu phẩy (tối đa 20); `due_after`, `due_before` (`YYYY-MM-DD`) tính cả hai đầu, loại task không có hạn, `due_after` > `due_before` là `400`; `q` tối đa 200 ký tự, bỏ dấu, không phân biệt hoa thường, mọi từ phải có, rỗng thì bỏ qua (E3-3). `sort` chưa làm.
+- **Sắp xếp, lọc**: `?sort=due_date`, `?status_id=...&assignee_id=...&priority=...&label_id=...&due_after=...&due_before=...&q=<từ khóa>`. `status_id` nhận nhiều id ngăn bằng dấu phẩy (tối đa 20); `due_after`, `due_before` (`YYYY-MM-DD`) tính cả hai đầu, loại task không có hạn, `due_after` > `due_before` là `400`; `q` tối đa 200 ký tự, bỏ dấu, không phân biệt hoa thường, mọi từ phải có, rỗng thì bỏ qua (E3-3). `sort` chưa làm. Đã làm ở E13-2 (PR 47): `sort=created_at|-created_at|updated_at|-updated_at` (con trỏ ghi trường sắp xếp, dùng sai trường thì `400`; thay cho `sort=due_date` ở trên), `assignee_id=me`, `created_by=<uuid|me>`, `open=true` (chưa hoàn thành), `overdue=true` (trễ hạn theo giờ Asia/Ho_Chi_Minh, hạn hôm nay chưa trễ). E3-4 (PR 49): `limit` tối đa 500 (mặc định 50). E8-3 (PR 52): task trả `blocked`, `blocked_by` (tối đa 5 id), `blocked_by_count`; `PATCH` đưa task chưa xong sang nhóm done khi còn task chặn mở vẫn `200` kèm `warnings: [{code: "blocked_by_open_task", task_ids}]`.
 - **Thời gian**: ISO 8601 UTC; ngày: `YYYY-MM-DD`.
 - **Phiên bản**: tiền tố `/api/v1`; thay đổi phá vỡ tương thích thì lên `/api/v2`.
 
@@ -71,15 +71,17 @@ Vai trò: **A** Admin (toàn hệ thống), **P** PM, **M** Thành viên, **V** 
 | `GET/POST /api/v1/projects/{id}/views`, `GET /api/v1/views/{id}` | Chế độ xem đã lưu (E13-1). `POST {name, query, visibility?}` → `201` + `Location`; trùng tên (không phân biệt hoa thường, theo chủ sở hữu) `409`. Mỗi chế độ xem trả `is_favorite` (của người gọi) và `can_edit`. `query` v1 = `{version: 1, filters, sort, group_by, columns, display}`, `filters` dùng đúng tham số của `GET /tasks` (`status_id` dạng mảng); khóa lạ `400` | đọc: A P M V (riêng tư chỉ chủ sở hữu); ghi: mọi vai trò cho chế độ xem riêng; PM, Admin cho công khai | FR-19 |
 | `PATCH/DELETE /api/v1/views/{id}` | Sửa (`{name?, query?, visibility?, is_favorite?}`), xóa chế độ xem; không áp dụng cho chế độ xem mặc định. Body chỉ có `is_favorite` thì chỉ cần quyền đọc. Chỉ chủ sở hữu được đổi công khai về riêng tư | chủ sở hữu; PM, Admin với chế độ xem công khai | FR-19 |
 | `GET /api/v1/task-types` | Loại task của dự án (`?project_id=`); đã làm ở E2-3 | A P M V | FR-23 |
-| `GET /api/v1/notifications` | Thông báo của tôi | A P M V | FR-11 |
+| `GET /api/v1/notifications` | Thông báo của tôi (E4-1, PR 43): `?limit=1..50`, `?cursor=`, `?unread=true|false`; phản hồi `{data, next_cursor, unread_count}`, mỗi thông báo có `task_visible` (false thì `title`, `status_name`, `actor` là null, chống lộ khi mất quyền). Loại: `task_assigned`, `task_status_changed`. Không ai tự tạo, chỉ trigger | A P M V | FR-11 |
+| `GET /api/v1/notifications/unread-count` | Số chưa đọc (nhẹ, chuông poll 60 giây) | A P M V | FR-11 |
+| `POST /api/v1/notifications/read-all` | Đánh dấu tất cả đã đọc | A P M V | FR-11 |
 | `POST /api/v1/notifications/{id}/read` | Đánh dấu đã đọc | A P M V | FR-11 |
 | `GET/PUT /api/v1/me/notification-preferences` | Bật tắt email theo loại | A P M V | FR-12 |
 | `GET /api/v1/projects/{id}/dashboard` | Số liệu tiến độ (E5-1, hàm SQL `public.project_dashboard(project, today)` SECURITY INVOKER, một lời gọi): tổng, đã xong, đang làm, trễ hạn (`due_date` < hôm nay giờ Việt Nam và chưa xong), không hạn, bị chặn, phần trăm hoàn thành (cùng công thức S02), phân bố theo trạng thái (kèm nhóm), loại, ưu tiên, người phụ trách (kể cả chưa giao và người đã bị gỡ), 10 task trễ hạn sớm nhất. Chưa có xu hướng theo tuần. Đo 2.000 task: P95 259 ms | A P M V thuộc dự án (người ngoài `404`) | FR-13 |
 | `POST /api/v1/projects/{id}/reports` | Xuất báo cáo (`format`: `xlsx`/`docx`, kỳ báo cáo) | A P | FR-14, FR-15 |
-| `GET /api/v1/projects/{id}/activity` | Nhật ký dự án | A P | FR-16 |
-| `GET /api/v1/tasks/{id}/activity` | Nhật ký một task | A P | FR-16 |
+| `GET /api/v1/projects/{id}/activity` | Nhật ký dự án (E6-2, PR 51): mới nhất trước, con trỏ `[created_at, id]`; lọc `actor_id`, `from`/`to` (`YYYY-MM-DD` giờ Việt Nam, tính cả hai đầu), `entity_type`, `action`, `limit` 1..100; `changes` chỉ trường trong danh sách cho phép, mô tả chỉ báo "đã sửa", id đổi thành `{id, name}` (đã xóa thì `name: null`); email chỉ cho Admin hoặc thành viên hiện tại | A P (Thành viên, Người xem `403`; người ngoài `404`) | FR-16 |
+| `GET /api/v1/tasks/{id}/activity` | Nhật ký một task (E6-2): chỉ `limit`, `cursor` | A P | FR-16 |
 | `GET/POST /api/v1/project-templates` | Template dự án | đọc: A P; ghi: A P | FR-04 |
-| `GET/POST /api/v1/report-templates` | Template báo cáo (tải lên) | đọc: A P; ghi: A | BR-08 |
+| `GET/POST /api/v1/report-templates`, `PATCH/DELETE /api/v1/report-templates/{id}`, `GET /api/v1/report-templates/{id}/file` | Template báo cáo (E5-2, PR 48): `POST` multipart `file`, `name?`; kiểm phía máy chủ đuôi, MIME, chữ ký OOXML, macro, ZIP bomb (giải nén thật có trần), tên tệp do máy chủ sinh UUID; giới hạn 4 MiB (Vercel chặn thân 4,5 MB); `413 payload_too_large`, `422` sai loại/chữ ký/macro; mỗi định dạng tối đa một template đang dùng; `DELETE` xóa thật (dòng và tệp); tải tệp qua API (không URL ký) | đọc: A P; ghi: A | BR-08 |
 
 Ghi chú: đăng nhập, đăng xuất, đăng nhập Google do Supabase Auth xử lý, không viết endpoint riêng ngoài trang gọi lại (`/auth/callback`).
 
