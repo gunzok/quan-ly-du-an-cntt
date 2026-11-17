@@ -27,7 +27,7 @@ Chỉ màn có trạng thái "Đã duyệt" trong [review-log.md](review-log.md)
 
 | S17 | Quản lý template dự án và báo cáo | Admin tải lên và bật template báo cáo; danh sách template dự án | BR-08, FR-04, E5, E7 | Admin, PM | `mockups/v3/Templates.dc.html`. Đã code tab Template báo cáo ở E5-2 (PR 48): `/admin/report-templates` (Admin), tải lên bằng nút, bàn phím và kéo thả, giới hạn 4 MB (không phải 5 MB vì Vercel chặn thân 4,5 MB); tab Template dự án chờ E7-1 |
 
-| S18 | Hồ sơ cá nhân (v2) | Tên, số điện thoại, ngôn ngữ, giao diện, vai trò trong từng dự án | FR-17, E1 | Mọi vai trò | `mockups/v3/Profile-v2.dc.html` (v1 giữ ở `Profile.dc.html`, đã có sửa nên xem v2) |
+| S18 | Hồ sơ cá nhân (v2) | Tên, số điện thoại, ngôn ngữ, giao diện, vai trò trong từng dự án | FR-17, E1 | Mọi vai trò | `mockups/v3/Profile-v2.dc.html` (v1 giữ ở `Profile.dc.html`, đã có sửa nên xem v2). Đã code ở E1-7 (PR 55): `/profile` (liên kết "Hồ sơ" trong khung ứng dụng), một nút Lưu thay đổi; khác mockup: không có nút Đăng xuất trong thân trang (khung ứng dụng đã có); giao diện sáng/tối lưu cookie `qlda_theme`, áp dụng khi bấm Lưu |
 | S19 | Cấu hình dự án | Trạng thái, loại task, nhãn | FR-06, E2 (Story E2-7) | PM, Admin | `mockups/v3/ProjectSettings.dc.html`. Đã code ở E2-3 (PR 30): `/projects/{id}/settings`, lối vào là link "Cấu hình" trên thẻ dự án; còn thiếu AC "cột mới hiện ở Kanban" (chờ S03) |
 | S20 | Nhận lời mời | Người được mời đặt mật khẩu và vào ứng dụng | FR-02, E1-8 | Người được mời | Đã code ở E1-8 (PR 26): `/auth/accept-invite`, dựng từ `components/ui` theo design system; chưa có mockup riêng |
 
