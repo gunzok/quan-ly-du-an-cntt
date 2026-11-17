@@ -93,7 +93,7 @@ export function AppShell({
               <div className="flex min-w-0 flex-1 flex-col">
                 {/* Chưa có họ tên: email đã hiện ở dòng "Đang đăng nhập" bên dưới, không lặp lại. */}
                 {userName ? (
-                  <span className="truncate text-sm font-medium">
+                  <span className="text-sm font-medium [overflow-wrap:anywhere]">
                     {userName}
                   </span>
                 ) : null}

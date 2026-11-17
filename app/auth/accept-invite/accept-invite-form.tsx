@@ -52,7 +52,7 @@ export function InvalidInvite() {
       <p className="m-0 text-sm text-text-muted">{t.invalidHintSignedUp}</p>
       <Link
         href={LOGIN_PATH}
-        className="self-start text-sm font-medium text-primary underline underline-offset-2"
+        className="inline-flex min-h-11 items-center self-start text-sm font-medium text-primary underline underline-offset-2 sm:min-h-0"
       >
         {t.backToLogin}
       </Link>
