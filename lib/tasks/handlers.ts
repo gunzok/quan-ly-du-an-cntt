@@ -25,6 +25,12 @@ import {
 import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
 import { loadTaskDetail } from "./detail";
 import {
+  attachBlocked,
+  blockedCompletionWarning,
+  loadOpenBlockers,
+  withBlocked,
+} from "./blocked";
+import {
   DEFAULT_TASK_LIST_SORT,
   ME,
   TASK_BODY_MAX_BYTES,
@@ -321,7 +327,8 @@ export async function handleListTasks(
     const page = rows.slice(0, limit);
     const last = page[page.length - 1];
     const body: TaskListResponse = {
-      data: page,
+      // E8-3: cờ bị chặn cho cả trang bằng một truy vấn tập hợp (không N+1).
+      data: await attachBlocked(deps.session, page),
       next_cursor:
         rows.length > limit && last
           ? encodeTaskCursor(
@@ -418,6 +425,8 @@ export async function handleCreateTask(
       }
       task = (await loadTask(deps.session, task.id)) ?? task;
     }
+    // Task mới chưa có quan hệ nào nên không thể bị chặn.
+    task = { ...task, blocked: false, blocked_by: [], blocked_by_count: 0 };
     return jsonResponse({ data: task }, 201, {
       location: `/api/v1/tasks/${task.id}`,
     });
@@ -439,12 +448,12 @@ export async function handleGetTask(
     const c = await taskContext(request, rawId, deps, ctx, false);
     if (!c.ok) return c.response;
     // E2-5: kèm task cha, việc con tóm tắt, quyền của người gọi (chỉ thêm trường).
-    const detail = await loadTaskDetail(
-      deps.session,
-      c.value.task,
-      c.value.actor,
-    );
-    return jsonResponse({ data: detail });
+    const [detail, blockers] = await Promise.all([
+      loadTaskDetail(deps.session, c.value.task, c.value.actor),
+      loadOpenBlockers(deps.session, [c.value.task.id]),
+    ]);
+    // E8-3: cờ bị chặn (chỉ thêm trường).
+    return jsonResponse({ data: withBlocked(detail, blockers) });
   } catch (error) {
     return internal(ctx, "get", error);
   }
@@ -569,7 +578,17 @@ export async function handlePatchTask(
     }
     const updated = await loadTask(deps.session, task.id);
     if (!updated) return fail(apiError("not_found"), ctx);
-    return jsonResponse({ data: updated });
+    // E8-3, BR-06: hoàn thành task còn bị chặn vẫn thành công (200), chỉ kèm cảnh báo.
+    const blockers = await loadOpenBlockers(deps.session, [updated.id]);
+    const warning = blockedCompletionWarning(
+      task,
+      updated,
+      blockers.get(updated.id),
+    );
+    return jsonResponse({
+      data: withBlocked(updated, blockers),
+      ...(warning ? { warnings: [warning] } : {}),
+    });
   } catch (error) {
     return internal(ctx, "update", error);
   }

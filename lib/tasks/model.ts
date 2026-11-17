@@ -1,6 +1,7 @@
 /**
  * Dạng dữ liệu task trả qua API (api-contract.md mục 4). Trùng tên cột bảng public.tasks.
- * Chưa có `blocked` (quan hệ chặn, Story E2-5) và danh sách subtask lồng trong chi tiết task.
+ * `blocked`, `blocked_by`: Story E8-3 (lib/tasks/blocked.ts), có ở GET danh sách, GET chi tiết,
+ * POST và PATCH.
  * status_id, type_id, label_ids: Story E2-3 (trạng thái, loại, nhãn của chính dự án). parent_id,
  * depth (1-3, trigger đặt): Story E2-4.
  */
@@ -33,6 +34,15 @@ export interface Task {
   updated_at: string;
   /** Nhãn đang gắn (Story E2-3), sắp theo id. */
   label_ids: string[];
+  /**
+   * Task chưa xong và còn task chặn mở (quan hệ `blocks`, BR-06, Story E8-3). Tùy chọn trong kiểu vì
+   * toTask() (đọc thô từ CSDL) chưa tính; API luôn gửi.
+   */
+  blocked?: boolean;
+  /** Tối đa 5 id task chặn còn mở; rỗng khi không bị chặn. */
+  blocked_by?: string[];
+  /** Tổng số task chặn còn mở (0 khi không bị chặn); lớn hơn độ dài blocked_by khi bị cắt. */
+  blocked_by_count?: number;
 }
 
 /** Cột chọn khi đọc task: liệt kê tường minh, không dùng `*`, để thêm cột mới không lộ ra API. */

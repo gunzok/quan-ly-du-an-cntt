@@ -1,4 +1,5 @@
 import { call, type ApiResult } from "@/lib/admin/users/client-api";
+import type { BlockedWarning } from "@/lib/tasks/blocked";
 import type { Task, TaskListResponse } from "@/lib/tasks/model";
 import { LIST_LIMIT_MAX } from "@/lib/tasks/validate";
 
@@ -46,9 +47,12 @@ export function moveTask(
   id: string,
   body: { status_id?: string; position: number },
 ) {
-  return call<{ data: Task }>(`/api/v1/tasks/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  return call<{ data: Task; warnings?: BlockedWarning[] }>(
+    `/api/v1/tasks/${encodeURIComponent(id)}`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    },
+  );
 }
