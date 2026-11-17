@@ -132,6 +132,6 @@ Biểu tượng: bộ Lucide nét 1,5px, cỡ 16px trong bảng, 20px ở điề
 ## 6. Đặt tên và triển khai
 - Token là biến CSS `--color-*`, `--font-*`, `--space-*`, `--radius-*`, `--shadow-*`, khai báo trong [app/globals.css](../../app/globals.css); phông nạp trong [app/layout.tsx](../../app/layout.tsx).
 - Component PascalCase, file kebab-case (`task-card.tsx`).
-- Chuỗi giao diện chỉ qua file ngôn ngữ vi, en (NFR-11), không gõ cứng trong component.
+- Chuỗi giao diện chỉ qua từ điển `lib/i18n/messages/{vi,en}.ts` (NFR-11, E10-2), cùng khóa; thêm khóa mới ở cuối file; không gõ cứng trong component (ESLint `local/no-hardcoded-ui-strings` làm `make lint` đỏ); `lib/strings.ts` chỉ còn re-export bản vi cho mã máy chủ/API.
 - Thư viện UI (ADR-005, E10-1 đã cài): Tailwind CSS 4.3.5 (không nạp preflight để trang CSS Modules cũ không đổi), `@theme inline reference` ánh xạ 1:1 token `--color-*` (tên utility như `bg-primary`, `text-text-muted`, `border-border-strong`), Radix Dialog và Tabs, còn lại phần tử HTML gốc hoặc tự viết; component ở `components/ui/`; trang xem thử `/dev/ui` chỉ có ở `next dev` (production trả 404 từ proxy). Hover/nhấn nút nguy hiểm tính bằng `color-mix(danger 85%, text)` (chưa có token riêng). Lucide chưa cài, đang dùng vài SVG tự vẽ (**[CẦN XÁC NHẬN]** biểu tượng).
 - Mockup tham chiếu: 19 màn `bp-*.dc.html` trong [mockups/v3](ui-ux/mockups/v3/) (cùng nội dung với canvas UI/UX) và trang style guide [blueprint-preview.html](ui-ux/mockups/v3/blueprint-preview.html).

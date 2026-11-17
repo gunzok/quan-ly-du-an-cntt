@@ -59,7 +59,7 @@ flowchart TB
 | `activity` | Nhật ký thay đổi | E6 |
 | `templates` | Template dự án | E7 |
 | `dependencies` | Phụ thuộc giữa task, cảnh báo task bị chặn | E8 |
-| `i18n`, `ui` | Việt/English, responsive, design system | E10 |
+| `i18n`, `ui` | Việt/English, responsive, design system. i18n tự viết nhẹ ở `lib/i18n` (E10-2, không next-intl, không tiền tố URL): từ điển có kiểu `messages/vi.ts` (gốc) và `en.ts` cùng khóa (thiếu khóa là lỗi biên dịch), `getStrings()` ở Server Component, `useStrings()` ở Client Component; thứ tự chọn ngôn ngữ hồ sơ > cookie `qlda_locale` > Accept-Language > vi; ngày giờ, số theo Intl (vi `05/11/2026`, en `05 Nov 2026`). Quy tắc ESLint `local/no-hardcoded-ui-strings` chặn chuỗi gõ cứng trong `app/**` và `components/**` | E10 |
 
 Quy tắc: logic nghiệp vụ nằm ở lớp `lib/` thuần TypeScript (dễ kiểm thử); Route Handler chỉ kiểm tra đầu vào, gọi lớp nghiệp vụ, trả kết quả.
 

@@ -40,6 +40,8 @@ Liên quan: NFR-01, NFR-02, NFR-03, NFR-06, NFR-08, NFR-13. Các ngưỡng đán
 8. Xem dashboard; xuất xlsx và docx theo template.
 9. Đổi ngôn ngữ Việt/English; kiểm tra màn 360 px.
 
+Quy ước viết e2e (E2-6, PR 45): chờ hydrate (`tests/e2e/hydration.ts`) trước khi điền form đăng nhập; ưu tiên tài khoản tạm tạo bằng khóa service thay persona seed; ma trận quyền task ở `supabase/tests/database/task-permissions-matrix.test.sql` (12 persona × 19 thao tác) và `tests/integration/task-permissions.test.ts`. Giới hạn đăng nhập theo IP (50 lần/5 phút) bị nới CHỈ khi chạy `make test-e2e` (biến `E2E_RELAXED_LOGIN_RATE_LIMIT=1`, từ chối nếu có dấu hiệu Vercel hoặc Supabase không cục bộ; `lib/api/e2e-rate-limit.ts` có test); không đổi ngưỡng ở production.
+
 ## 5. Môi trường
 | Môi trường | Dùng cho |
 |---|---|
