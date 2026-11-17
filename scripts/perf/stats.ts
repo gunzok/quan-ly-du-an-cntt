@@ -6,6 +6,9 @@
  *     ("P95 dưới 500 ms với dự án 2.000 task"). NFR-16 (lọc dưới 1 giây) lỏng hơn nên 500 bao luôn.
  *   - Danh sách dự án, chi tiết dự án (project_stats đếm trên 2.000 task): 500, cũng là "thao tác
  *     thường gặp" của NFR-02.
+ *   - Trang lớn (limit=500, E3-4): 500, cùng NFR-02 như trang thường.
+ *   - Tải cả bảng (E3-4: đi hết con trỏ như Kanban/Danh sách, tổng các lượt tuần tự): 1500, mục tiêu
+ *     "mở bảng 2.000 task dưới 1,5 giây ở cục bộ" của story (phần mạng/dựng giao diện không tính).
  *   - Chi tiết task, quan hệ của task: 300. Đọc theo khóa chính và chỉ mục, không quét dự án; đặt
  *     chặt hơn NFR-02 để sớm bắt hồi quy (đề xuất, sếp chỉnh được).
  * Ghi đè: PERF_P95_MS=<ms> cho mọi API, PERF_THRESHOLDS="tasks_first_page=400,task_detail=250".
@@ -22,6 +25,8 @@ export const ENDPOINT_KEYS = [
   "tasks_filter_combined",
   "task_detail",
   "task_relations",
+  "tasks_large_page",
+  "board_load",
 ] as const;
 
 export type EndpointKey = (typeof ENDPOINT_KEYS)[number];
@@ -37,6 +42,8 @@ export const DEFAULT_P95_MS: Record<EndpointKey, number> = {
   tasks_filter_combined: 500,
   task_detail: 300,
   task_relations: 300,
+  tasks_large_page: 500,
+  board_load: 1500,
 };
 
 /** Phân vị theo hạng gần nhất (nearest-rank): giá trị nhỏ nhất mà ít nhất p% mẫu không vượt. */
