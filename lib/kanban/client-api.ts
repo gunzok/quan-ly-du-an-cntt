@@ -7,11 +7,12 @@ import { LIST_LIMIT_MAX } from "@/lib/tasks/validate";
  * GET /api/v1/projects/{id}/tasks (con trỏ) và PATCH /api/v1/tasks/{id}.
  */
 
-/** Giới hạn an toàn số trang một lần tải (100 task/trang → 10.000 task). */
-const MAX_PAGES = 100;
+/** Giới hạn an toàn số trang một lần tải (500 task/trang → 20.000 task). */
+const MAX_PAGES = 40;
 
 /**
- * Tải HẾT task khớp tham số, lần theo next_cursor (mỗi trang 100). Bảng cần đủ task của một cột để
+ * Tải HẾT task khớp tham số, lần theo next_cursor (mỗi trang
+ * LIST_LIMIT_MAX = 500 từ E3-4: 2.000 task là 4 lượt thay vì 20). Bảng cần đủ task của một cột để
  * sắp theo position (API chỉ sắp theo created_at) và để đếm việc con.
  */
 export async function fetchAllTasks(

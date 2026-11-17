@@ -25,7 +25,11 @@ export const POSITION_MAX_ABS = 1e12;
 /** Giới hạn thân request JSON (byte): mô tả 10.000 ký tự, mỗi ký tự tối đa 4 byte, cộng phần khác. */
 export const TASK_BODY_MAX_BYTES = 48 * 1024;
 export const LIST_LIMIT_DEFAULT = 50;
-export const LIST_LIMIT_MAX = 100;
+/**
+ * limit tối đa của GET .../tasks. E3-4 (QLDA-52) nâng 100 → 500 để Kanban/Danh sách tải 2.000 task
+ * trong 4 lượt thay vì 20 (đo trên dự án perf: trang 500 task vẫn dưới ngưỡng NFR-02).
+ */
+export const LIST_LIMIT_MAX = 500;
 /** Số nhãn tối đa trên một task (khớp public.set_task_labels). */
 export const TASK_LABELS_MAX = 20;
 const CURSOR_MAX_LENGTH = 256;
