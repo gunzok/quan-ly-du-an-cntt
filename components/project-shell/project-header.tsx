@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useActivityAccess } from "@/components/activity/use-activity-access";
 import { cn } from "@/lib/cn";
 import { HOME_PATH } from "@/lib/auth/routes";
 import { useStrings } from "@/lib/i18n/client";
 
-export type ProjectView = "board" | "list" | "dashboard" | "settings";
+export type ProjectView =
+  "board" | "list" | "dashboard" | "activity" | "settings";
 
 /** Đường dẫn của từng chế độ xem dự án (quy ước liên kết giữa các story E3-1, E5-1, E2-3). */
 export function projectViewHref(projectId: string, view: ProjectView): string {
@@ -19,6 +21,7 @@ const VIEWS: readonly ProjectView[] = [
   "board",
   "list",
   "dashboard",
+  "activity",
   "settings",
 ];
 
@@ -27,6 +30,8 @@ const VIEWS: readonly ProjectView[] = [
  * thanh điều hướng con Bảng / Danh sách / Tổng quan / Cấu hình (Story E3-1 sở hữu; Danh sách thuộc
  * E3-2, Tổng quan thuộc E5-1).
  * `meta` hiện cạnh nhãn mục (ví dụ "Chỉ xem"), `actions` ở góc phải.
+ * Tab Nhật ký (E6-2) chỉ hiện cho PM của dự án và Admin: `canViewActivity` do màn truyền nếu đã
+ * biết quyền; không truyền thì hỏi API nhật ký (components/activity/use-activity-access.ts).
  */
 export function ProjectHeader({
   projectId,
@@ -34,15 +39,20 @@ export function ProjectHeader({
   active,
   meta,
   actions,
+  canViewActivity,
 }: {
   projectId: string;
   projectName: string;
   active: ProjectView;
   meta?: ReactNode;
   actions?: ReactNode;
+  canViewActivity?: boolean;
 }) {
   const strings = useStrings();
   const t = strings.projectNav;
+  const probed = useActivityAccess(projectId, canViewActivity === undefined);
+  const showActivity = canViewActivity ?? probed;
+  const views = VIEWS.filter((view) => view !== "activity" || showActivity);
   return (
     <div className="flex flex-col gap-3 border-0 border-b border-solid border-border px-4 pt-5 sm:px-7">
       <Link
@@ -72,7 +82,7 @@ export function ProjectHeader({
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
       </div>
       <nav aria-label={t.navLabel} className="flex flex-wrap gap-x-6">
-        {VIEWS.map((view, i) => {
+        {views.map((view, i) => {
           const current = view === active;
           return (
             <Link
@@ -89,7 +99,11 @@ export function ProjectHeader({
               <span aria-hidden="true" className="font-mono text-label">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              {view === "list" ? strings.taskList.navTab : t[view]}
+              {view === "list"
+                ? strings.taskList.navTab
+                : view === "activity"
+                  ? strings.activity.navTab
+                  : t[view]}
             </Link>
           );
         })}
