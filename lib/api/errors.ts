@@ -10,6 +10,8 @@ export type ApiErrorCode =
   | "not_found"
   | "conflict"
   | "business_rule_violated"
+  /** Tệp tải lên vượt giới hạn kích thước (Story E5-2). */
+  | "payload_too_large"
   | "rate_limited"
   | "internal_error";
 
@@ -52,6 +54,7 @@ export const API_ERROR_STATUS: Record<ApiErrorCode, number> = {
   not_found: 404,
   conflict: 409,
   business_rule_violated: 422,
+  payload_too_large: 413,
   rate_limited: 429,
   internal_error: 500,
 };
