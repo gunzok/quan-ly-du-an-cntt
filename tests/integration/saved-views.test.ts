@@ -796,4 +796,60 @@ describe.skipIf(!enabled)("API chế độ xem đã lưu (Supabase cục bộ)",
       .eq("view_id", view.id);
     expect(favs.data).toEqual([]);
   });
+  it("E13-3: Người xem quản lý chế độ xem RIÊNG của mình; PM công khai thì người khác thấy, về riêng tư thì mất", async () => {
+    // Người xem: tạo, đổi tên, lưu cách xem, xóa chế độ xem riêng (ma trận E13-1).
+    const own = await createOk("viewer", {
+      name: "Người xem E13-3",
+      query: {},
+    });
+    const renamed = await patch("viewer", own.id, {
+      name: "Người xem E13-3 (đổi)",
+      query: { filters: { priority: "high" }, group_by: "status_id" },
+    });
+    expect(renamed.status).toBe(200);
+    const after = (await json<{ data: SavedView }>(renamed)).data;
+    expect(after.name).toBe("Người xem E13-3 (đổi)");
+    expect(after.query.filters).toEqual({ priority: "high" });
+    expect(after.can_edit).toBe(true);
+    // Người xem không công khai được: 403, chế độ xem vẫn riêng tư.
+    const e = await expectError(
+      await patch("viewer", own.id, { visibility: "public" }),
+      403,
+      "forbidden",
+    );
+    expect(e.message).toBe(t.publicForbidden);
+    expect(await names("member")).not.toContain("Người xem E13-3 (đổi)");
+    expect((await remove("viewer", own.id)).status).toBe(204);
+
+    // AC1: PM công khai chế độ xem riêng → Thành viên, Người xem thấy (chỉ đọc).
+    const pmView = await createOk("pm", { name: "PM E13-3", query: {} });
+    expect(await names("member")).not.toContain("PM E13-3");
+    expect(
+      (await patch("pm", pmView.id, { visibility: "public" })).status,
+    ).toBe(200);
+    for (const who of ["member", "viewer"]) {
+      const res = await list(who, projectA);
+      const seen = (await json<{ data: SavedView[] }>(res)).data.find(
+        (v) => v.id === pmView.id,
+      );
+      expect(seen?.visibility).toBe("public");
+      expect(seen?.can_edit).toBe(false);
+    }
+    // AC2: Thành viên sửa tên, lưu cách xem, xóa chế độ xem công khai của PM: 403, không đổi gì.
+    for (const body of [{ name: "Thành viên đổi" }, { query: {} }]) {
+      await expectError(
+        await patch("member", pmView.id, body),
+        403,
+        "forbidden",
+      );
+    }
+    await expectError(await remove("member", pmView.id), 403, "forbidden");
+    expect(await names("member")).toContain("PM E13-3");
+    // Chủ sở hữu chuyển về riêng tư: người khác không còn thấy (404 khi mở).
+    expect(
+      (await patch("pm", pmView.id, { visibility: "private" })).status,
+    ).toBe(200);
+    expect(await names("member")).not.toContain("PM E13-3");
+    await expectError(await getView("member", pmView.id), 404, "not_found");
+  });
 });
