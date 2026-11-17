@@ -50,11 +50,13 @@ export const VIEW_SORT_FIELDS = [
 export type ViewSortField = (typeof VIEW_SORT_FIELDS)[number];
 export const VIEW_SORT_MAX = 3;
 
+/** `label_ids` (E3-2, migration 20261115260000): task nhiều nhãn hiện ở mỗi nhóm nhãn của nó. */
 export const VIEW_GROUP_BY = [
   "status_id",
   "type_id",
   "assignee_id",
   "priority",
+  "label_ids",
 ] as const;
 export type ViewGroupBy = (typeof VIEW_GROUP_BY)[number];
 
