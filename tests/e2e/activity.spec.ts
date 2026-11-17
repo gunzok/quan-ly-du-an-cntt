@@ -4,6 +4,13 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { waitForHydration } from "./hydration";
+import { signInWithPassword } from "./login";
+import {
+  cleanupTempData,
+  createTempUsers,
+  serviceClient,
+  type TempUserSpec,
+} from "./temp-data";
 
 /**
  * Story E6-2 (QLDA-72): nhật ký hoạt động S15 và mục nhật ký trong chi tiết task.
@@ -74,20 +81,17 @@ async function actorClient(who: Who): Promise<SupabaseClient> {
 }
 
 test.beforeAll(async () => {
-  const { url, key } = env();
-  service = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  for (const who of Object.keys(emails) as Who[]) {
-    const { data, error } = await service.auth.admin.createUser({
-      email: emails[who],
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: names[who] },
-    });
-    if (error) throw error;
-    users[who] = data.user.id;
-  }
+  service = serviceClient();
+  await createTempUsers(
+    service,
+    Object.fromEntries(
+      (Object.keys(emails) as Who[]).map((who) => [
+        who,
+        { email: emails[who], password, fullName: names[who] },
+      ]),
+    ) as Record<Who, TempUserSpec>,
+    users,
+  );
   const project = await service
     .from("projects")
     .insert({ id: projectId, name: projectName, created_by: users.pm });
@@ -142,10 +146,10 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (!service) return;
-  await service.from("projects").delete().eq("id", projectId);
-  for (const id of Object.values(users))
-    await service.auth.admin.deleteUser(id);
+  await cleanupTempData(service, {
+    projectIds: [projectId],
+    userIds: Object.values(users),
+  });
 });
 
 type Cookies = Awaited<ReturnType<BrowserContext["cookies"]>>;
@@ -157,14 +161,7 @@ async function signInAs(page: Page, who: Who) {
     await page.context().addCookies(saved);
     return;
   }
-  await page.goto("/login");
-  await waitForHydration(page);
-  await page.getByLabel(strings.login.emailLabel).fill(emails[who]);
-  await page.getByLabel(strings.login.passwordLabel).fill(password);
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signInWithPassword(page, emails[who], password);
   sessions[who] = await page.context().cookies();
 }
 

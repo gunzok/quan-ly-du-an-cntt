@@ -1,10 +1,9 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { e2ePassword } from "./env";
-import { waitForHydration } from "./hydration";
+import { signIn } from "./login";
+import { serviceClient, TEMP_PROJECT_PREFIX } from "./temp-data";
 
 /**
  * Story E2-1 (QLDA-37): S02 Danh sách dự án ở trang chủ.
@@ -20,14 +19,7 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const tag = randomUUID().slice(0, 8);
 
 async function signInAs(page: Page, email: string) {
-  await page.goto("/login");
-  await waitForHydration(page);
-  await page.getByLabel(strings.login.emailLabel).fill(email);
-  await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signIn(page, email);
   await expect(
     page.getByRole("heading", { level: 1, name: t.pageTitle }),
   ).toBeVisible();
@@ -61,15 +53,12 @@ const card = (page: Page, name: string) =>
     });
 
 test.afterAll(async () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    return;
-  }
-  const service = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  await service.from("projects").delete().like("name", `%E2E ${tag}%`);
+  // Dự án tạo qua giao diện nên không biết id trước: xóa theo tên (tiền tố E2E + tag của lần chạy).
+  const { error } = await serviceClient()
+    .from("projects")
+    .delete()
+    .like("name", `${TEMP_PROJECT_PREFIX}${tag}%`);
+  if (error) console.warn(`[e2e] Chưa dọn được dự án E2E ${tag}:`, error);
 });
 
 test.describe.serial("PM tạo, sửa, lưu trữ; Admin xóa vĩnh viễn", () => {

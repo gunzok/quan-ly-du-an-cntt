@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { e2ePassword } from "./env";
-import { waitForHydration } from "./hydration";
+import { cleanupTempData, serviceClient } from "./temp-data";
+import { signIn } from "./login";
 
 /**
  * Story E2-3 (QLDA-41): màn cấu hình dự án (trạng thái, loại task, nhãn).
@@ -20,19 +20,6 @@ const projectName = `E2E ${tag} Cấu hình`;
 const projectId = randomUUID();
 
 let service: SupabaseClient | null = null;
-
-function serviceClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
-    );
-  }
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
 
 async function userId(client: SupabaseClient, email: string) {
   const { data, error } = await client
@@ -74,18 +61,11 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (service) await service.from("projects").delete().eq("id", projectId);
+  await cleanupTempData(service, { projectIds: [projectId] });
 });
 
 async function signInAs(page: Page, email: string) {
-  await page.goto("/login");
-  await waitForHydration(page);
-  await page.getByLabel(strings.login.emailLabel).fill(email);
-  await page.getByLabel(strings.login.passwordLabel).fill(e2ePassword());
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signIn(page, email);
 }
 
 async function blockingViolations(page: Page, include?: string) {

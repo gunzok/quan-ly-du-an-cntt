@@ -9,6 +9,8 @@ import {
   type Page,
 } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
+import { signInWithPassword } from "./login";
 
 /**
  * Story E4-1 (QLDA-59): chuông thông báo trong khung ứng dụng và ngăn thông báo (S16, phần trong
@@ -53,31 +55,18 @@ type StorageState = Awaited<ReturnType<BrowserContext["storageState"]>>;
 /** Phiên trình duyệt đã đăng nhập: mỗi tài khoản chỉ đăng nhập qua /login MỘT lần (giới hạn 50 lần/5 phút/IP). */
 const states: Partial<Record<"member" | "member2", StorageState>> = {};
 
-function serviceClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
-    throw new Error(
-      "Cần NEXT_PUBLIC_SUPABASE_URL (localhost) và SUPABASE_SERVICE_ROLE_KEY (make test-e2e).",
-    );
-  }
-  return createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
 test.beforeAll(async ({ browser, baseURL }) => {
   service = serviceClient();
-  for (const [label, email] of Object.entries(emails)) {
-    const { data, error } = await service.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: `E2E ${label} ${tag}` },
-    });
-    if (error) throw error;
-    users[label] = data.user.id;
-  }
+  await createTempUsers(
+    service,
+    Object.fromEntries(
+      Object.entries(emails).map(([label, email]) => [
+        label,
+        { email, password, fullName: `E2E ${label} ${tag}` },
+      ]),
+    ),
+    users,
+  );
   const project = await service.from("projects").insert({
     id: projectId,
     name: `E2E ${tag} Thông báo`,
@@ -118,20 +107,14 @@ test.beforeAll(async ({ browser, baseURL }) => {
 });
 
 test.afterAll(async () => {
-  if (!service) return;
-  await service.from("projects").delete().eq("id", projectId);
-  for (const id of Object.values(users))
-    await service.auth.admin.deleteUser(id);
+  await cleanupTempData(service, {
+    projectIds: [projectId],
+    userIds: Object.values(users),
+  });
 });
 
 async function signInAs(page: Page, who: keyof typeof emails) {
-  await page.goto("/login");
-  await page.getByLabel(strings.login.emailLabel).fill(emails[who]);
-  await page.getByLabel(strings.login.passwordLabel).fill(password);
-  await page
-    .getByRole("button", { name: strings.login.submit, exact: true })
-    .click();
-  await expect(page).toHaveURL("/");
+  await signInWithPassword(page, emails[who], password);
 }
 
 /** PM giao task bằng phiên của chính PM (RLS tasks_update và trigger thông báo chạy thật). */
