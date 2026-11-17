@@ -7,6 +7,7 @@ import {
   ViewFilterChips,
   ViewHeader,
 } from "@/components/saved-views/view-header";
+import { ViewManager } from "@/components/saved-views/view-manager";
 import { ViewMenu, type ViewsState } from "@/components/saved-views/view-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ import { fetchConfig } from "@/lib/project-config/client-api";
 import { fetchMembers } from "@/lib/project-members/client-api";
 import { fetchViews, setViewFavorite } from "@/lib/saved-views/client-api";
 import { defaultViewKey } from "@/lib/saved-views/defaults";
+import { removeView, upsertView } from "@/lib/saved-views/manage";
 import { isSameViewState, resolveViewParam } from "@/lib/saved-views/menu";
 import {
   VIEW_GROUP_BY,
@@ -45,6 +47,7 @@ import {
   normalizeColumns,
   saveListPrefs,
   SORTABLE_COLUMNS,
+  toSavedViewQuery,
   type TaskListState,
 } from "@/lib/task-list/model";
 import {
@@ -223,6 +226,39 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
         patchViews(!next);
         toast({ title: tv.favoriteFailed, tone: "error" });
       });
+  };
+
+  // ---- Quản lý chế độ xem (E13-3): lưu mới, lưu thay đổi, đổi tên, công khai, xóa ----
+  const updateViews = (fn: (views: SavedView[]) => SavedView[]) =>
+    setViewsLoaded((prev) =>
+      prev.state.kind === "ready"
+        ? { ...prev, state: { kind: "ready", views: fn(prev.state.views) } }
+        : prev,
+    );
+  const onViewCreated = (v: SavedView) => {
+    updateViews((views) => upsertView(views, v));
+    selectView(v);
+  };
+  const onViewUpdated = (v: SavedView) =>
+    updateViews((views) => upsertView(views, v));
+  const onViewDeleted = (v: SavedView) => {
+    updateViews((views) => removeView(views, v.id));
+    if (selectedId !== v.id) return;
+    // Đang xem chế độ xem bị xóa: về cách xem tự chỉnh, bỏ ?view khỏi URL.
+    setSelectedId(null);
+    setView(loadListPrefs(projectId));
+    setQInput("");
+    setCollapsedGroups(new Set());
+    setAppliedParam(null);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("view");
+    const rest = params.toString();
+    router.replace(rest ? `${pathname}?${rest}` : pathname, { scroll: false });
+  };
+  const onViewsStale = () => {
+    // Tải lại rồi xét lại ?view (đã bị xóa hay mất quyền thì báo trung tính như link hỏng).
+    setAppliedParam(undefined);
+    setViewsKey((k) => k + 1);
   };
 
   useEffect(() => {
@@ -505,6 +541,21 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
       },
     );
 
+  const viewManager = (current: SavedView | null) => (
+    <ViewManager
+      projectId={projectId}
+      actor={actor}
+      view={current}
+      label={viewLabel}
+      currentQuery={() => toSavedViewQuery({ ...view, filters })}
+      modified={viewModified}
+      onCreated={onViewCreated}
+      onUpdated={onViewUpdated}
+      onDeleted={onViewDeleted}
+      onStale={onViewsStale}
+    />
+  );
+
   return (
     <>
       {header}
@@ -535,7 +586,10 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
               name={viewLabel(selectedView)}
               modified={viewModified}
               onReset={() => applyView(selectedView)}
+              actions={viewManager(selectedView)}
             />
+          ) : viewsState.kind === "ready" ? (
+            <div className="flex justify-end">{viewManager(null)}</div>
           ) : null}
           <div
             role="search"
