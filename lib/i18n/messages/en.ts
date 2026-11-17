@@ -1398,4 +1398,63 @@ export const en: Messages = {
       remove: (label: string) => `Remove filter “${label}”`,
     },
   },
+  savedViewsManage: {
+    actionsLabel: "View actions",
+    saveNew: "Save as new view",
+    saveChanges: "Save changes",
+    rename: "Rename",
+    publish: "Make public",
+    privatize: "Make private",
+    delete: "Delete",
+    dialog: {
+      createTitle: "Save view",
+      createDescription:
+        "Save the current filters, sort, grouping and columns to reuse later. A view does not store a task list.",
+      renameTitle: "Rename view",
+      renameDescription: "The new name appears in the views menu.",
+      name: "View name",
+      nameHint: (max: number) => `Up to ${max} characters.`,
+      nameRequired: "Enter a view name.",
+      nameTooLong: (max: number) =>
+        `The name can be at most ${max} characters.`,
+      visibility: "Who can see this view",
+      private: "Private",
+      privateHint: "Only you can see and use it.",
+      public: "Public",
+      publicHint:
+        "Everyone in the project can see it; each person only sees tasks they have access to.",
+      privateOnly:
+        "The view will be private, visible only to you. Only the project's PM and Admins can create public views.",
+      save: "Save",
+      saving: "Saving…",
+      copySuffix: "(copy)",
+    },
+    deleteTitle: (name: string) => `Delete view “${name}”?`,
+    deleteDescription:
+      "The view is deleted permanently, including for people who marked it as a favorite. Tasks are not affected.",
+    deleteConfirm: "Delete view",
+    readOnly: {
+      default:
+        "Default views cannot be edited. Change the filters, then choose “Save as new view” to get your own copy.",
+      public:
+        "Only the project's PM and Admins can edit public views. You can save it as a new view of your own.",
+      other: "You cannot edit this view.",
+    },
+    unsavedHint: "There are changes not saved to the view.",
+    toast: {
+      created: (name: string) => `Saved view “${name}”.`,
+      saved: "Saved changes to the view.",
+      renamed: "Renamed the view.",
+      published: "Made public: everyone in the project can see this view.",
+      privatized: "Made the view private.",
+      deleted: (name: string) => `Deleted view “${name}”.`,
+    },
+    errors: {
+      notFound:
+        "The view no longer exists (it may have just been deleted). Reloaded the list.",
+      forbiddenReloaded: "Reloaded the list of views.",
+      failed: "Could not save the view. Try again later.",
+      deleteFailed: "Could not delete the view. Try again later.",
+    },
+  },
 };

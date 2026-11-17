@@ -1400,6 +1400,65 @@ const viMessages = {
       remove: (label: string) => `Bỏ bộ lọc “${label}”`,
     },
   },
+  /** Story E13-3 (QLDA-63): lưu, đổi tên, công khai, xóa chế độ xem trên bảng phân cấp. */
+  savedViewsManage: {
+    actionsLabel: "Thao tác với chế độ xem",
+    saveNew: "Lưu thành chế độ xem mới",
+    saveChanges: "Lưu thay đổi",
+    rename: "Đổi tên",
+    publish: "Công khai",
+    privatize: "Chuyển về riêng tư",
+    delete: "Xóa",
+    dialog: {
+      createTitle: "Lưu chế độ xem",
+      createDescription:
+        "Lưu bộ lọc, sắp xếp, nhóm và cột đang bật để dùng lại. Chế độ xem không lưu danh sách task.",
+      renameTitle: "Đổi tên chế độ xem",
+      renameDescription: "Tên mới hiện trong menu chế độ xem.",
+      name: "Tên chế độ xem",
+      nameHint: (max: number) => `Tối đa ${max} ký tự.`,
+      nameRequired: "Nhập tên chế độ xem.",
+      nameTooLong: (max: number) => `Tên tối đa ${max} ký tự.`,
+      visibility: "Ai thấy chế độ xem này",
+      private: "Riêng tư",
+      privateHint: "Chỉ bạn thấy và dùng được.",
+      public: "Công khai",
+      publicHint:
+        "Mọi người trong dự án thấy được; mỗi người chỉ thấy task họ đủ quyền.",
+      privateOnly:
+        "Chế độ xem sẽ ở chế độ riêng tư, chỉ bạn thấy. Chỉ PM của dự án và Admin tạo được chế độ xem công khai.",
+      save: "Lưu",
+      saving: "Đang lưu…",
+      copySuffix: "(bản sao)",
+    },
+    deleteTitle: (name: string) => `Xóa chế độ xem “${name}”?`,
+    deleteDescription:
+      "Chế độ xem bị xóa vĩnh viễn, kể cả với người đã đánh dấu yêu thích. Task không bị ảnh hưởng.",
+    deleteConfirm: "Xóa chế độ xem",
+    readOnly: {
+      default:
+        "Chế độ xem mặc định không sửa được. Đổi bộ lọc rồi bấm “Lưu thành chế độ xem mới” để có bản của riêng bạn.",
+      public:
+        "Chỉ PM của dự án và Admin sửa được chế độ xem công khai. Bạn có thể lưu thành chế độ xem mới của riêng mình.",
+      other: "Bạn không sửa được chế độ xem này.",
+    },
+    unsavedHint: "Có thay đổi chưa lưu vào chế độ xem.",
+    toast: {
+      created: (name: string) => `Đã lưu chế độ xem “${name}”.`,
+      saved: "Đã lưu thay đổi vào chế độ xem.",
+      renamed: "Đã đổi tên chế độ xem.",
+      published: "Đã công khai: mọi người trong dự án thấy chế độ xem này.",
+      privatized: "Đã chuyển chế độ xem về riêng tư.",
+      deleted: (name: string) => `Đã xóa chế độ xem “${name}”.`,
+    },
+    errors: {
+      notFound:
+        "Chế độ xem không còn (có thể vừa bị xóa). Đã tải lại danh sách.",
+      forbiddenReloaded: "Đã tải lại danh sách chế độ xem.",
+      failed: "Chưa lưu được chế độ xem. Thử lại sau.",
+      deleteFailed: "Chưa xóa được chế độ xem. Thử lại sau.",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */
