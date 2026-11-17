@@ -351,17 +351,45 @@ export function validateTaskPatch(body: unknown): Validation<TaskPatch> {
 // GET /api/v1/projects/{id}/tasks?limit=&cursor=&assignee_id=&status_id=&priority=
 // &label_id= (E2-3) &parent_id= (E2-5) &q=&due_after=&due_before= (E3-3, xem ./search.ts; status_id nhận nhiều id
 // ngăn bằng dấu phẩy). Mọi bộ lọc kết hợp AND. Sắp xếp mặc định: mới tạo trước (created_at giảm
-// dần, id giảm dần); `sort` chưa làm.
+// dần, id giảm dần).
+//
+// E13-2 (chế độ xem mặc định), mở rộng tương thích ngược:
+//   - assignee_id, created_by: uuid hoặc `me` (người gọi).
+//   - open=true: chưa hoàn thành (completed_at null ⇔ trạng thái không thuộc nhóm done).
+//   - overdue=true: chưa hoàn thành và due_date < hôm nay theo Asia/Ho_Chi_Minh.
+//   - sort: `created_at` | `-created_at` (mặc định) | `updated_at` | `-updated_at` (`-` là giảm
+//     dần; tiêu chí phụ luôn là id cùng chiều). Con trỏ chỉ dùng được với đúng `sort` đã sinh ra nó
+//     (con trỏ ghi tên trường; khác trường thì 400).
 // ---------------------------------------------------------------------------
+/** Giá trị `me`: người gọi API (assignee_id, created_by). */
+export const ME = "me";
+
+export const TASK_LIST_SORTS = [
+  "-created_at",
+  "created_at",
+  "-updated_at",
+  "updated_at",
+] as const;
+export type TaskListSort = (typeof TASK_LIST_SORTS)[number];
+export const DEFAULT_TASK_LIST_SORT: TaskListSort = "-created_at";
+
+export function sortField(sort: TaskListSort): "created_at" | "updated_at" {
+  return sort.endsWith("updated_at") ? "updated_at" : "created_at";
+}
+
 export interface TaskCursor {
+  /** Giá trị của trường sắp xếp (created_at hoặc updated_at) ở task cuối trang. */
   created_at: string;
   id: string;
+  /** Trường sắp xếp; thiếu = created_at (con trỏ cũ trước E13-2). */
+  field?: "updated_at";
 }
 
 export function encodeTaskCursor(cursor: TaskCursor): string {
-  return Buffer.from(JSON.stringify([cursor.created_at, cursor.id])).toString(
-    "base64url",
-  );
+  const value = cursor.field
+    ? [cursor.created_at, cursor.id, cursor.field]
+    : [cursor.created_at, cursor.id];
+  return Buffer.from(JSON.stringify(value)).toString("base64url");
 }
 
 export function decodeTaskCursor(raw: string): TaskCursor | null {
@@ -374,12 +402,19 @@ export function decodeTaskCursor(raw: string): TaskCursor | null {
     );
     if (
       Array.isArray(value) &&
-      value.length === 2 &&
+      (value.length === 2 ||
+        (value.length === 3 && value[2] === "updated_at")) &&
       typeof value[0] === "string" &&
       TIMESTAMP_PATTERN.test(value[0]) &&
       isUuid(value[1])
     ) {
-      return { created_at: value[0], id: value[1].toLowerCase() };
+      return value.length === 3
+        ? {
+            created_at: value[0],
+            id: value[1].toLowerCase(),
+            field: "updated_at",
+          }
+        : { created_at: value[0], id: value[1].toLowerCase() };
     }
   } catch {
     // rơi xuống null
@@ -402,6 +437,14 @@ export interface TaskListQuery {
   /** Hạn chót trong khoảng [due_after, due_before], tính cả hai đầu (E3-3). */
   due_after: string | null;
   due_before: string | null;
+  // E13-2: chỉ có mặt khi được gửi (giữ nguyên dạng kết quả cũ cho nơi gọi trước đây).
+  /** uuid chữ thường hoặc `me`. */
+  created_by?: string;
+  /** Chỉ task chưa hoàn thành. */
+  open?: true;
+  /** Chỉ task quá hạn (chưa hoàn thành, hạn trước hôm nay). */
+  overdue?: true;
+  sort?: TaskListSort;
 }
 
 const LIST_PARAMS = [
@@ -415,7 +458,23 @@ const LIST_PARAMS = [
   "due_after",
   "due_before",
   "parent_id",
+  "created_by",
+  "open",
+  "overdue",
+  "sort",
 ] as const;
+
+/** uuid chữ thường hoặc `me`. */
+function readPerson(
+  field: string,
+  raw: string,
+  details: ApiErrorDetail[],
+): string | null {
+  if (raw === ME) return ME;
+  if (isUuid(raw)) return raw.toLowerCase();
+  details.push({ field, issue: "invalid_format" });
+  return null;
+}
 
 export function validateTaskListQuery(
   params: URLSearchParams,
@@ -456,7 +515,39 @@ export function validateTaskListQuery(
       details.push({ field: "cursor", issue: "invalid_format" });
   }
 
-  for (const field of ["assignee_id", "label_id", "parent_id"] as const) {
+  const rawAssignee = params.get("assignee_id");
+  if (rawAssignee !== null) {
+    query.assignee_id = readPerson("assignee_id", rawAssignee, details);
+  }
+  const rawCreatedBy = params.get("created_by");
+  if (rawCreatedBy !== null) {
+    const v = readPerson("created_by", rawCreatedBy, details);
+    if (v) query.created_by = v;
+  }
+  for (const field of ["open", "overdue"] as const) {
+    const raw = params.get(field);
+    if (raw === null) continue;
+    // Chỉ nhận `true`: không lọc thì bỏ tham số (một cách viết duy nhất, khớp CHECK của query v1).
+    if (raw === "true") query[field] = true;
+    else details.push({ field, issue: "invalid_value" });
+  }
+  const rawSort = params.get("sort");
+  if (rawSort !== null) {
+    if ((TASK_LIST_SORTS as readonly string[]).includes(rawSort)) {
+      query.sort = rawSort as TaskListSort;
+    } else {
+      details.push({ field: "sort", issue: "invalid_value" });
+    }
+  }
+  if (
+    query.cursor &&
+    (query.cursor.field ?? "created_at") !==
+      sortField(query.sort ?? DEFAULT_TASK_LIST_SORT)
+  ) {
+    details.push({ field: "cursor", issue: "invalid_value" });
+  }
+
+  for (const field of ["label_id", "parent_id"] as const) {
     const raw = params.get(field);
     if (raw === null) continue;
     if (isUuid(raw)) {

@@ -1,7 +1,13 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProjectHeader } from "@/components/project-shell/project-header";
+import {
+  ViewFilterChips,
+  ViewHeader,
+} from "@/components/saved-views/view-header";
+import { ViewMenu, type ViewsState } from "@/components/saved-views/view-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -19,17 +25,24 @@ import {
 } from "@/lib/project-config/model";
 import { fetchConfig } from "@/lib/project-config/client-api";
 import { fetchMembers } from "@/lib/project-members/client-api";
+import { fetchViews, setViewFavorite } from "@/lib/saved-views/client-api";
+import { defaultViewKey } from "@/lib/saved-views/defaults";
+import { isSameViewState, resolveViewParam } from "@/lib/saved-views/menu";
 import {
   VIEW_GROUP_BY,
+  VIEW_ME,
+  type SavedView,
   type SavedViewFilters,
   type ViewColumn,
   type ViewGroupBy,
 } from "@/lib/saved-views/model";
 import {
   DEFAULT_TASK_LIST_STATE,
+  fromSavedViewQuery,
   hasActiveListFilters,
   loadListPrefs,
   nextSort,
+  normalizeColumns,
   saveListPrefs,
   SORTABLE_COLUMNS,
   type TaskListState,
@@ -129,9 +142,115 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
 
+  // ---- Chế độ xem đã lưu (E13-2, S12): ?view={id} giữ khi chia sẻ link ----
+  const tv = strings.savedViewsMenu;
+  const router = useRouter();
+  const pathname = usePathname();
+  const viewParam = useSearchParams().get("view");
+  const [viewsKey, setViewsKey] = useState(0);
+  const [viewsLoaded, setViewsLoaded] = useState<{
+    key: number;
+    state: ViewsState;
+  }>({ key: -1, state: { kind: "loading" } });
+  const viewsState: ViewsState =
+    viewsLoaded.key === viewsKey ? viewsLoaded.state : { kind: "loading" };
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Tham số ?view đã áp (undefined: chưa áp lần nào). So trong lúc render để theo cả nút lùi/tiến.
+  const [appliedParam, setAppliedParam] = useState<string | null | undefined>(
+    undefined,
+  );
+  const [missingView, setMissingView] = useState(false);
+  const viewLabel = useCallback(
+    (v: SavedView) => {
+      const key = v.is_default ? defaultViewKey(v.id) : null;
+      return key ? tv.names[key] : v.name;
+    },
+    [tv],
+  );
+
+  const applyView = (v: SavedView) => {
+    setView(fromSavedViewQuery(v.query));
+    setQInput(v.query.filters.q ?? "");
+    setCollapsedGroups(new Set());
+    setSelectedId(v.id);
+    setMissingView(false);
+  };
+
+  if (viewsState.kind === "ready" && appliedParam !== viewParam) {
+    setAppliedParam(viewParam);
+    const r = resolveViewParam(viewParam, viewsState.views, projectId);
+    if (r.kind === "found") {
+      if (r.view.id !== selectedId) applyView(r.view);
+    } else {
+      setSelectedId(null);
+      setMissingView(r.kind === "missing");
+    }
+  }
+
+  const selectView = (v: SavedView) => {
+    applyView(v);
+    setAppliedParam(v.id);
+    const params = new URLSearchParams(window.location.search);
+    params.set("view", v.id);
+    router.replace(`${pathname}?${params}`, { scroll: false });
+  };
+
+  const toggleFavorite = (v: SavedView) => {
+    const next = !v.is_favorite;
+    const patchViews = (value: boolean) =>
+      setViewsLoaded((prev) =>
+        prev.state.kind === "ready"
+          ? {
+              ...prev,
+              state: {
+                kind: "ready",
+                views: prev.state.views.map((x) =>
+                  x.id === v.id ? { ...x, is_favorite: value } : x,
+                ),
+              },
+            }
+          : prev,
+      );
+    patchViews(next);
+    setViewFavorite(v.id, next)
+      .then((result) => {
+        if (!result.ok) {
+          patchViews(!next);
+          toast({ title: tv.favoriteFailed, tone: "error" });
+        }
+      })
+      .catch(() => {
+        patchViews(!next);
+        toast({ title: tv.favoriteFailed, tone: "error" });
+      });
+  };
+
   useEffect(() => {
+    const controller = new AbortController();
+    const key = viewsKey;
+    fetchViews(projectId, controller.signal)
+      .then((result) => {
+        if (controller.signal.aborted) return;
+        setViewsLoaded({
+          key,
+          state: result.ok
+            ? { kind: "ready", views: result.data.data }
+            : { kind: "error" },
+        });
+      })
+      .catch((error: unknown) => {
+        if ((error as { name?: string }).name !== "AbortError") {
+          setViewsLoaded({ key, state: { kind: "error" } });
+        }
+      });
+    return () => controller.abort();
+  }, [projectId, viewsKey]);
+
+  // Cách xem tự chỉnh (không chọn chế độ xem) mới ghi nhớ ở trình duyệt.
+  useEffect(() => {
+    if (selectedId) return;
     saveListPrefs(projectId, view);
-  }, [projectId, view.columns, view.sort, view.group_by]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projectId, selectedId, view.columns, view.sort, view.group_by]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- Tải dữ liệu ----
   useEffect(() => {
@@ -221,6 +340,8 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
   }, [view.filters, q, dueOrderOk]);
   const filtering = hasActiveListFilters(filters);
   const matchIds = search === "done" ? searchResult.ids : null;
+  const today = useMemo(() => todayIso(), []);
+  const me = actor.userId;
 
   const matched = useMemo(() => {
     if (!filtering) return null;
@@ -228,10 +349,12 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
     void _q;
     return new Set(
       tasks
-        .filter((task) => matchesListFilters(task, rest, matchIds))
+        .filter((task) =>
+          matchesListFilters(task, rest, matchIds, { me, today }),
+        )
         .map((task) => task.id),
     );
-  }, [filtering, filters, tasks, matchIds]);
+  }, [filtering, filters, tasks, matchIds, me, today]);
 
   const ctx: ListContext = useMemo(
     () => ({
@@ -267,7 +390,6 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
     }),
     [data, tasks],
   );
-  const today = useMemo(() => todayIso(), []);
 
   const toggleTask = useCallback((id: string) => {
     setCollapsed((prev) => {
@@ -317,7 +439,12 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
     />
   );
 
-  if (load.kind === "loading" || (load.kind === "ready" && !data)) {
+  if (
+    load.kind === "loading" ||
+    (load.kind === "ready" && !data) ||
+    // Link có ?view: chờ danh sách chế độ xem để bảng không nháy cách xem cũ rồi mới đổi.
+    (viewParam && viewsState.kind === "loading")
+  ) {
     return (
       <>
         {header}
@@ -364,254 +491,306 @@ function TaskList({ projectId, projectName, actor }: TaskListScreenProps) {
   const memberOptions = [...data.members.entries()]
     .sort((a, b) => a[1].localeCompare(b[1], "vi"))
     .map(([value, label]) => ({ value, label }));
+  const selectedView =
+    selectedId && viewsState.kind === "ready"
+      ? (viewsState.views.find((v) => v.id === selectedId) ?? null)
+      : null;
+  const viewModified =
+    selectedView !== null &&
+    !isSameViewState(
+      { ...view, filters, columns: normalizeColumns(view.columns) },
+      {
+        ...fromSavedViewQuery(selectedView.query),
+        filters: selectedView.query.filters,
+      },
+    );
 
   return (
     <>
       {header}
-      <div className="flex min-w-0 flex-col gap-4 px-4 py-4 sm:px-7">
-        <div
-          role="search"
-          aria-label={t.filters.regionLabel}
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          <Field
-            label={t.filters.search}
-            hint={
-              search === "searching"
-                ? t.filters.searching
-                : search === "error"
-                  ? t.filters.searchError
-                  : undefined
-            }
-          >
-            {(control) => (
-              <Input
-                {...control}
-                type="search"
-                value={qInput}
-                placeholder={t.filters.searchPlaceholder}
-                maxLength={200}
-                onChange={(e) => setQInput(e.target.value)}
-              />
-            )}
-          </Field>
-          <Field label={t.filters.status}>
-            {(control) => (
-              <Select
-                {...control}
-                value={statusValue}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v === STATUS_CUSTOM) return;
-                  setFilter({
-                    status_id:
-                      v === ""
-                        ? undefined
-                        : v === STATUS_OPEN
-                          ? nonEmpty(openStatusIds(data.statuses))
-                          : [v],
-                  });
-                }}
-                options={[
-                  { value: "", label: t.filters.statusAll },
-                  { value: STATUS_OPEN, label: t.filters.statusOpen },
-                  ...data.statuses.map((s) => ({ value: s.id, label: s.name })),
-                  ...(statusValue === STATUS_CUSTOM
-                    ? [
-                        {
-                          value: STATUS_CUSTOM,
-                          label: t.filters.statusCustom(
-                            view.filters.status_id?.length ?? 0,
-                          ),
-                        },
-                      ]
-                    : []),
-                ]}
-              />
-            )}
-          </Field>
-          <Field label={t.filters.assignee}>
-            {(control) => (
-              <Select
-                {...control}
-                value={view.filters.assignee_id ?? ""}
-                onChange={(e) =>
-                  setFilter({ assignee_id: e.target.value || undefined })
-                }
-                options={[
-                  { value: "", label: t.filters.assigneeAll },
-                  ...memberOptions,
-                ]}
-              />
-            )}
-          </Field>
-          <Field label={t.filters.priority}>
-            {(control) => (
-              <Select
-                {...control}
-                value={view.filters.priority ?? ""}
-                onChange={(e) =>
-                  setFilter({
-                    priority: (e.target.value || undefined) as
-                      TaskPriority | undefined,
-                  })
-                }
-                options={[
-                  { value: "", label: t.filters.priorityAll },
-                  ...[...TASK_PRIORITIES].reverse().map((p) => ({
-                    value: p,
-                    label: strings.ui.priority[p],
-                  })),
-                ]}
-              />
-            )}
-          </Field>
-          <Field label={t.filters.label}>
-            {(control) => (
-              <Select
-                {...control}
-                value={view.filters.label_id ?? ""}
-                onChange={(e) =>
-                  setFilter({ label_id: e.target.value || undefined })
-                }
-                options={[
-                  { value: "", label: t.filters.labelAll },
-                  ...data.labels.map((l) => ({ value: l.id, label: l.name })),
-                ]}
-              />
-            )}
-          </Field>
-          <Field label={t.filters.dueAfter}>
-            {(control) => (
-              <Input
-                {...control}
-                type="date"
-                value={view.filters.due_after ?? ""}
-                onChange={(e) =>
-                  setFilter({ due_after: e.target.value || undefined })
-                }
-              />
-            )}
-          </Field>
-          <Field
-            label={t.filters.dueBefore}
-            error={dueOrderOk ? undefined : t.filters.dueOrder}
-          >
-            {(control) => (
-              <Input
-                {...control}
-                type="date"
-                value={view.filters.due_before ?? ""}
-                onChange={(e) =>
-                  setFilter({ due_before: e.target.value || undefined })
-                }
-              />
-            )}
-          </Field>
-          <div className="flex items-end">
-            {filtering || hasActiveListFilters(view.filters) ? (
-              <Button variant="text" onClick={clearFilters}>
-                {t.clearFilters}
+      <div className="flex min-w-0 flex-col lg:flex-row">
+        <ViewMenu
+          state={viewsState}
+          selectedId={selectedId}
+          label={viewLabel}
+          onSelect={selectView}
+          onToggleFavorite={toggleFavorite}
+          onRetry={() => setViewsKey((k) => k + 1)}
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-7">
+          {missingView ? (
+            <div
+              role="status"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-solid border-border bg-bg-subtle px-3 py-2 text-sm"
+            >
+              <span>{tv.missing}</span>
+              <Button variant="text" onClick={() => setMissingView(false)}>
+                {tv.dismiss}
               </Button>
-            ) : null}
-          </div>
-        </div>
-
-        <div
-          role="group"
-          aria-label={t.toolbar.label}
-          className="flex flex-wrap items-end gap-2"
-        >
-          <Field label={t.toolbar.groupBy} className="w-full sm:w-56">
-            {(control) => (
-              <Select
-                {...control}
-                value={view.group_by ?? ""}
-                onChange={(e) => {
-                  setCollapsedGroups(new Set());
-                  setView((prev) => ({
-                    ...prev,
-                    group_by: (e.target.value || null) as ViewGroupBy | null,
-                  }));
-                }}
-                options={[
-                  { value: "", label: t.toolbar.groupNone },
-                  ...VIEW_GROUP_BY.map((g) => ({
-                    value: g,
-                    label: t.groupBy[g],
-                  })),
-                ]}
-              />
-            )}
-          </Field>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setCollapsed(new Set());
-              setCollapsedGroups(new Set());
-            }}
+            </div>
+          ) : null}
+          {selectedView ? (
+            <ViewHeader
+              view={selectedView}
+              name={viewLabel(selectedView)}
+              modified={viewModified}
+              onReset={() => applyView(selectedView)}
+            />
+          ) : null}
+          <div
+            role="search"
+            aria-label={t.filters.regionLabel}
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
           >
-            {t.toolbar.expandAll}
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => setCollapsed(parentIds(tasks))}
-          >
-            {t.toolbar.collapseAll}
-          </Button>
-          <Button variant="secondary" onClick={() => setColumnsOpen(true)}>
-            {t.toolbar.columnsCount(view.columns.length)}
-          </Button>
-          <p
-            role="status"
-            className="m-0 ml-auto self-center font-mono text-label text-text-muted"
-          >
-            {t.resultCount(matchCount)}
-          </p>
-        </div>
-
-        {readOnly ? (
-          <p className="m-0 text-sm text-text-muted">{t.readOnlyNote}</p>
-        ) : null}
-
-        {tasks.length === 0 ? (
-          <EmptyState
-            title={t.emptyTitle}
-            description={t.emptyBody}
-            headingLevel={2}
-            action={
-              canCreate ? (
-                <Button onClick={() => setCreateOpen(true)}>
-                  {t.emptyAction}
+            <Field
+              label={t.filters.search}
+              hint={
+                search === "searching"
+                  ? t.filters.searching
+                  : search === "error"
+                    ? t.filters.searchError
+                    : undefined
+              }
+            >
+              {(control) => (
+                <Input
+                  {...control}
+                  type="search"
+                  value={qInput}
+                  placeholder={t.filters.searchPlaceholder}
+                  maxLength={200}
+                  onChange={(e) => setQInput(e.target.value)}
+                />
+              )}
+            </Field>
+            <Field label={t.filters.status}>
+              {(control) => (
+                <Select
+                  {...control}
+                  value={statusValue}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === STATUS_CUSTOM) return;
+                    setFilter({
+                      status_id:
+                        v === ""
+                          ? undefined
+                          : v === STATUS_OPEN
+                            ? nonEmpty(openStatusIds(data.statuses))
+                            : [v],
+                    });
+                  }}
+                  options={[
+                    { value: "", label: t.filters.statusAll },
+                    { value: STATUS_OPEN, label: t.filters.statusOpen },
+                    ...data.statuses.map((s) => ({
+                      value: s.id,
+                      label: s.name,
+                    })),
+                    ...(statusValue === STATUS_CUSTOM
+                      ? [
+                          {
+                            value: STATUS_CUSTOM,
+                            label: t.filters.statusCustom(
+                              view.filters.status_id?.length ?? 0,
+                            ),
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+              )}
+            </Field>
+            <Field label={t.filters.assignee}>
+              {(control) => (
+                <Select
+                  {...control}
+                  value={view.filters.assignee_id ?? ""}
+                  onChange={(e) =>
+                    setFilter({ assignee_id: e.target.value || undefined })
+                  }
+                  options={[
+                    { value: "", label: t.filters.assigneeAll },
+                    { value: VIEW_ME, label: tv.assigneeMe },
+                    ...memberOptions,
+                  ]}
+                />
+              )}
+            </Field>
+            <Field label={t.filters.priority}>
+              {(control) => (
+                <Select
+                  {...control}
+                  value={view.filters.priority ?? ""}
+                  onChange={(e) =>
+                    setFilter({
+                      priority: (e.target.value || undefined) as
+                        TaskPriority | undefined,
+                    })
+                  }
+                  options={[
+                    { value: "", label: t.filters.priorityAll },
+                    ...[...TASK_PRIORITIES].reverse().map((p) => ({
+                      value: p,
+                      label: strings.ui.priority[p],
+                    })),
+                  ]}
+                />
+              )}
+            </Field>
+            <Field label={t.filters.label}>
+              {(control) => (
+                <Select
+                  {...control}
+                  value={view.filters.label_id ?? ""}
+                  onChange={(e) =>
+                    setFilter({ label_id: e.target.value || undefined })
+                  }
+                  options={[
+                    { value: "", label: t.filters.labelAll },
+                    ...data.labels.map((l) => ({ value: l.id, label: l.name })),
+                  ]}
+                />
+              )}
+            </Field>
+            <Field label={t.filters.dueAfter}>
+              {(control) => (
+                <Input
+                  {...control}
+                  type="date"
+                  value={view.filters.due_after ?? ""}
+                  onChange={(e) =>
+                    setFilter({ due_after: e.target.value || undefined })
+                  }
+                />
+              )}
+            </Field>
+            <Field
+              label={t.filters.dueBefore}
+              error={dueOrderOk ? undefined : t.filters.dueOrder}
+            >
+              {(control) => (
+                <Input
+                  {...control}
+                  type="date"
+                  value={view.filters.due_before ?? ""}
+                  onChange={(e) =>
+                    setFilter({ due_before: e.target.value || undefined })
+                  }
+                />
+              )}
+            </Field>
+            <div className="flex items-end">
+              {filtering || hasActiveListFilters(view.filters) ? (
+                <Button variant="text" onClick={clearFilters}>
+                  {t.clearFilters}
                 </Button>
-              ) : undefined
-            }
+              ) : null}
+            </div>
+          </div>
+
+          <div
+            role="group"
+            aria-label={t.toolbar.label}
+            className="flex flex-wrap items-end gap-2"
+          >
+            <Field label={t.toolbar.groupBy} className="w-full sm:w-56">
+              {(control) => (
+                <Select
+                  {...control}
+                  value={view.group_by ?? ""}
+                  onChange={(e) => {
+                    setCollapsedGroups(new Set());
+                    setView((prev) => ({
+                      ...prev,
+                      group_by: (e.target.value || null) as ViewGroupBy | null,
+                    }));
+                  }}
+                  options={[
+                    { value: "", label: t.toolbar.groupNone },
+                    ...VIEW_GROUP_BY.map((g) => ({
+                      value: g,
+                      label: t.groupBy[g],
+                    })),
+                  ]}
+                />
+              )}
+            </Field>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setCollapsed(new Set());
+                setCollapsedGroups(new Set());
+              }}
+            >
+              {t.toolbar.expandAll}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setCollapsed(parentIds(tasks))}
+            >
+              {t.toolbar.collapseAll}
+            </Button>
+            <Button variant="secondary" onClick={() => setColumnsOpen(true)}>
+              {t.toolbar.columnsCount(view.columns.length)}
+            </Button>
+            <p
+              role="status"
+              className="m-0 ml-auto self-center font-mono text-label text-text-muted"
+            >
+              {t.resultCount(matchCount)}
+            </p>
+          </div>
+
+          <ViewFilterChips
+            filters={view.filters}
+            memberName={(id) => data.members.get(id)}
+            onRemove={(key) => setFilter({ [key]: undefined })}
           />
-        ) : noMatch ? (
-          <EmptyState
-            title={t.noMatchTitle}
-            description={t.noMatchBody}
-            headingLevel={2}
-            action={
-              <Button variant="secondary" onClick={clearFilters}>
-                {t.clearFilters}
-              </Button>
-            }
-          />
-        ) : (
-          <ListTable
-            projectId={projectId}
-            rows={rows}
-            columns={view.columns}
-            sort={view.sort}
-            groupBy={view.group_by}
-            lookups={lookups}
-            today={today}
-            onSort={onSort}
-            onToggleTask={toggleTask}
-            onToggleGroup={toggleGroup}
-          />
-        )}
+
+          {readOnly ? (
+            <p className="m-0 text-sm text-text-muted">{t.readOnlyNote}</p>
+          ) : null}
+
+          {tasks.length === 0 ? (
+            <EmptyState
+              title={t.emptyTitle}
+              description={t.emptyBody}
+              headingLevel={2}
+              action={
+                canCreate ? (
+                  <Button onClick={() => setCreateOpen(true)}>
+                    {t.emptyAction}
+                  </Button>
+                ) : undefined
+              }
+            />
+          ) : noMatch ? (
+            <EmptyState
+              title={t.noMatchTitle}
+              description={t.noMatchBody}
+              headingLevel={2}
+              action={
+                <Button variant="secondary" onClick={clearFilters}>
+                  {t.clearFilters}
+                </Button>
+              }
+            />
+          ) : (
+            <ListTable
+              projectId={projectId}
+              rows={rows}
+              columns={view.columns}
+              sort={view.sort}
+              groupBy={view.group_by}
+              lookups={lookups}
+              today={today}
+              onSort={onSort}
+              onToggleTask={toggleTask}
+              onToggleGroup={toggleGroup}
+            />
+          )}
+        </div>
       </div>
       <ColumnDialog
         open={columnsOpen}

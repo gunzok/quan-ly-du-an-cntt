@@ -1,8 +1,9 @@
-import type {
-  SavedViewFilters,
-  SavedViewSort,
-  ViewGroupBy,
-  ViewSortField,
+import {
+  VIEW_ME,
+  type SavedViewFilters,
+  type SavedViewSort,
+  type ViewGroupBy,
+  type ViewSortField,
 } from "@/lib/saved-views/model";
 import type { Task, TaskPriority } from "@/lib/tasks/model";
 
@@ -34,15 +35,21 @@ export interface ListContext {
 // ---------------------------------------------------------------------------
 /**
  * `matchIds`: id task máy chủ trả cho từ khóa q (bỏ dấu ở CSDL); null = không tìm theo từ khóa.
+ * `who` (E13-2): người đang xem (giá trị `me`) và hôm nay YYYY-MM-DD giờ Việt Nam (`overdue`).
  */
 export function matchesListFilters(
   task: Task,
   f: SavedViewFilters,
   matchIds: ReadonlySet<string> | null,
+  who: { me: string; today: string } = { me: "", today: "" },
 ): boolean {
   if (f.status_id && !(task.status_id && f.status_id.includes(task.status_id)))
     return false;
-  if (f.assignee_id && task.assignee_id !== f.assignee_id) return false;
+  const person = (v: string) => (v === VIEW_ME ? who.me : v);
+  if (f.assignee_id && task.assignee_id !== person(f.assignee_id)) return false;
+  if (f.created_by && task.created_by !== person(f.created_by)) return false;
+  if ((f.open || f.overdue) && task.completed_at) return false;
+  if (f.overdue && !(task.due_date && task.due_date < who.today)) return false;
   if (f.priority && task.priority !== f.priority) return false;
   if (f.label_id && !task.label_ids.includes(f.label_id)) return false;
   if (f.due_after && !(task.due_date && task.due_date >= f.due_after))
