@@ -1344,6 +1344,62 @@ const viMessages = {
       network: "Mất kết nối. Vui lòng thử lại.",
     },
   },
+  /** Story E13-2 (QLDA-54): menu chế độ xem S12 trên bảng phân cấp, 7 chế độ xem mặc định. */
+  savedViewsMenu: {
+    regionLabel: "Chế độ xem đã lưu",
+    toggle: (name: string) => `Chế độ xem: ${name}`,
+    noneSelected: "Cách xem của bạn",
+    searchLabel: "Tìm chế độ xem",
+    searchPlaceholder: "Tìm chế độ xem…",
+    sections: {
+      favorites: "Yêu thích",
+      defaults: "Mặc định",
+      shared: "Công khai",
+      mine: "Riêng tư",
+    },
+    mineEmpty: "Bạn chưa có chế độ xem riêng.",
+    noResults: "Không có chế độ xem nào khớp.",
+    loading: "Đang tải chế độ xem…",
+    loadError: "Chưa tải được danh sách chế độ xem.",
+    retry: "Thử lại",
+    favoriteAdd: (name: string) => `Thêm “${name}” vào yêu thích`,
+    favoriteRemove: (name: string) => `Bỏ “${name}” khỏi yêu thích`,
+    favoriteFailed: "Chưa cập nhật được yêu thích. Thử lại sau.",
+    eyebrow: "Chế độ xem",
+    kind: {
+      default: "Mặc định",
+      public: "Công khai",
+      private: "Riêng tư",
+    },
+    readOnly: "Chỉ đọc",
+    defaultNote:
+      "Chế độ xem mặc định, không sửa được. Bạn vẫn đổi bộ lọc, sắp xếp, nhóm để xem tạm.",
+    publicNote: "Chế độ xem công khai của dự án.",
+    privateNote: "Chế độ xem riêng của bạn, chỉ bạn thấy.",
+    modified: "Đã đổi so với chế độ xem",
+    reset: "Đặt lại",
+    missing:
+      "Không mở được chế độ xem trong liên kết (có thể đã bị xóa hoặc bạn không có quyền). Đang hiện cách xem của bạn.",
+    dismiss: "Đóng thông báo",
+    names: {
+      allOpen: "Tất cả đang mở",
+      latestActivity: "Hoạt động gần nhất",
+      recentlyCreated: "Mới tạo",
+      overdue: "Quá hạn",
+      summary: "Tóm tắt",
+      createdByMe: "Tạo bởi tôi",
+      assignedToMe: "Giao cho tôi",
+    },
+    assigneeMe: "Tôi",
+    chips: {
+      label: "Bộ lọc khác",
+      open: "Chưa hoàn thành",
+      overdue: "Quá hạn",
+      createdByMe: "Tạo bởi tôi",
+      createdBy: (name: string) => `Tạo bởi ${name}`,
+      remove: (label: string) => `Bỏ bộ lọc “${label}”`,
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */

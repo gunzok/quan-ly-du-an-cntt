@@ -9,7 +9,10 @@ select plan(105);
 
 select tests.seed_fixture();
 -- Cô lập: mẫu mặc định dùng chung (project_id null) không bị seed_fixture xóa theo dự án.
+-- E13-2: 7 mặc định dùng chung do migration seed có trigger chặn xóa; mở tạm cho phiên dọn.
+set local app.saved_views_system_write = 'on';
 delete from public.saved_views;
+set local app.saved_views_system_write = 'off';
 
 -- Tra id bỏ qua RLS (SECURITY DEFINER): tên chế độ xem trong test là duy nhất.
 create function tests.v(view_name text)

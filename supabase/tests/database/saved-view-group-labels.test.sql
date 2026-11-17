@@ -11,7 +11,10 @@ begin;
 select plan(16);
 
 select tests.seed_fixture();
+-- E13-2: 7 mặc định dùng chung do migration seed có trigger chặn xóa; mở tạm cho phiên dọn.
+set local app.saved_views_system_write = 'on';
 delete from public.saved_views;
+set local app.saved_views_system_write = 'off';
 
 create function tests.q(group_by text)
 returns jsonb language sql immutable as $$

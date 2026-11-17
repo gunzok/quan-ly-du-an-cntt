@@ -89,6 +89,7 @@ export function visibilityForbidden(next: SavedViewVisibility): ApiError {
  *   - 23514 CHECK (tên, query; schema API đã chặn trước): 400.
  *   - 42501 RLS, quyền cột: 403.
  *   - P0001 saved_view_identity_immutable (đổi dự án, chủ sở hữu; API không gửi): 403.
+ *   - P0001 saved_view_default_immutable (mặc định dùng chung, E13-2; RLS đã chặn trước): 403.
  */
 export function mapViewWriteError(error: {
   code?: string;
@@ -104,6 +105,9 @@ export function mapViewWriteError(error: {
     case "42501":
       return apiError("forbidden");
     case "P0001":
+      if (error.message === "saved_view_default_immutable") {
+        return apiError("forbidden", t.defaultReadOnly);
+      }
       return error.message === "saved_view_identity_immutable"
         ? apiError("forbidden")
         : null;

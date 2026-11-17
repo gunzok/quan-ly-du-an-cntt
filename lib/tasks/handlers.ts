@@ -5,6 +5,7 @@ import { isSameOrigin, isUuid, readJsonBody } from "@/lib/api/request";
 import { apiError, errorResponse, jsonResponse } from "@/lib/api/respond";
 import { strings } from "@/lib/strings";
 import { labelNotInProject } from "@/lib/project-config/policy";
+import { todayIso } from "@/lib/projects/format";
 import {
   TASK_SELECT,
   toTask,
@@ -24,8 +25,11 @@ import {
 import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
 import { loadTaskDetail } from "./detail";
 import {
+  DEFAULT_TASK_LIST_SORT,
+  ME,
   TASK_BODY_MAX_BYTES,
   encodeTaskCursor,
+  sortField,
   isDateOrderValid,
   validateTaskCreate,
   validateTaskListQuery,
@@ -55,6 +59,8 @@ export interface TaskDeps {
   /** Client theo phiên cookie của người gọi (khóa anon, RLS áp dụng). */
   session: SupabaseClient;
   requestId?: string;
+  /** Đồng hồ cho bộ lọc `overdue` (test múi giờ); mặc định giờ hệ thống. */
+  now?: () => Date;
 }
 
 interface Ctx {
@@ -240,7 +246,18 @@ export async function handleListTasks(
       q,
       due_after,
       due_before,
+      created_by,
+      open,
+      overdue,
     } = parsed.data;
+    const sort = parsed.data.sort ?? DEFAULT_TASK_LIST_SORT;
+    const field = sortField(sort);
+    const ascending = !sort.startsWith("-");
+    // `me` (E13-2): người gọi; chế độ xem mặc định "Giao cho tôi", "Tạo bởi tôi".
+    const me = (v: string | null | undefined) =>
+      v === ME ? user.value : (v ?? null);
+    const assignee = me(assignee_id);
+    const author = me(created_by);
 
     // Lọc theo nhãn: nhúng task_labels lần hai với bí danh và !inner (chỉ task có nhãn đó), để
     // phần task_labels trả về vẫn đủ mọi nhãn của task.
@@ -272,21 +289,31 @@ export async function handleListTasks(
     if (label_id && !q) {
       query = query.eq("filter_labels.label_id", label_id);
     }
-    if (assignee_id) query = query.eq("assignee_id", assignee_id);
+    if (assignee) query = query.eq("assignee_id", assignee);
+    if (author) query = query.eq("created_by", author);
+    // Chưa hoàn thành: completed_at null ⇔ trạng thái không thuộc nhóm done (trigger E2-3).
+    if (open || overdue) query = query.is("completed_at", null);
+    // Quá hạn: hạn trước hôm nay theo giờ Việt Nam (cùng định nghĩa với dashboard); hạn hôm nay
+    // chưa trễ.
+    if (overdue) {
+      query = query.lt("due_date", todayIso(deps.now?.() ?? new Date()));
+    }
     if (parent_id) query = query.eq("parent_id", parent_id);
     if (status_ids) query = query.in("status_id", status_ids);
     if (priority) query = query.eq("priority", priority);
     if (due_after) query = query.gte("due_date", due_after);
     if (due_before) query = query.lte("due_date", due_before);
     if (cursor) {
-      // Giá trị con trỏ đã kiểm chặt định dạng (dấu thời gian ISO, uuid) nên ghép vào bộ lọc an toàn.
+      // Giá trị con trỏ đã kiểm chặt định dạng (dấu thời gian ISO, uuid) và trường khớp `sort`
+      // (validateTaskListQuery) nên ghép vào bộ lọc an toàn.
+      const op = ascending ? "gt" : "lt";
       query = query.or(
-        `created_at.lt."${cursor.created_at}",and(created_at.eq."${cursor.created_at}",id.lt.${cursor.id})`,
+        `${field}.${op}."${cursor.created_at}",and(${field}.eq."${cursor.created_at}",id.${op}.${cursor.id})`,
       );
     }
     const { data, error } = await query
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
+      .order(field, { ascending })
+      .order("id", { ascending })
       .limit(limit + 1);
     if (error) throw error;
 
@@ -297,7 +324,11 @@ export async function handleListTasks(
       data: page,
       next_cursor:
         rows.length > limit && last
-          ? encodeTaskCursor({ created_at: last.created_at, id: last.id })
+          ? encodeTaskCursor(
+              field === "updated_at"
+                ? { created_at: last.updated_at, id: last.id, field }
+                : { created_at: last.created_at, id: last.id },
+            )
           : null,
     };
     return jsonResponse(body);
