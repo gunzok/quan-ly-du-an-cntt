@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Avatar } from "@/components/ui/avatar";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { signOut } from "@/lib/auth/actions";
 import { HOME_PATH } from "@/lib/auth/routes";
+import { cn } from "@/lib/cn";
 import { useStrings } from "@/lib/i18n/client";
 
 const navLink =
   "flex min-h-11 items-center rounded-md px-2.5 text-sm text-text hover:bg-bg-muted hover:text-text sm:min-h-9";
+const navCurrent =
+  "bg-bg-muted font-semibold shadow-[inset_2px_0_0_var(--color-primary)]";
+/** Trang hồ sơ cá nhân (Story E1-7). */
+const PROFILE_PATH = "/profile";
 
 /**
  * Khung trang Blueprint (mockup v3 bp-Projects.dc.html): thanh bên (thương hiệu, điều hướng, người
@@ -32,6 +38,7 @@ export function AppShell({
 }) {
   const strings = useStrings();
   const t = strings.projects;
+  const onProfile = usePathname() === PROFILE_PATH;
   return (
     <div className="flex flex-1 flex-col bg-canvas lg:p-3">
       <div className="flex min-h-full flex-1 flex-col overflow-hidden bg-bg lg:flex-row lg:rounded-xl lg:border lg:border-solid lg:border-border">
@@ -52,10 +59,17 @@ export function AppShell({
           <nav aria-label={t.navLabel} className="flex flex-col gap-0.5">
             <Link
               href={HOME_PATH}
-              aria-current="page"
-              className={`${navLink} bg-bg-muted font-semibold shadow-[inset_2px_0_0_var(--color-primary)]`}
+              aria-current={onProfile ? undefined : "page"}
+              className={cn(navLink, !onProfile && navCurrent)}
             >
               {t.navProjects}
+            </Link>
+            <Link
+              href={PROFILE_PATH}
+              aria-current={onProfile ? "page" : undefined}
+              className={cn(navLink, onProfile && navCurrent)}
+            >
+              {strings.profile.navLink}
             </Link>
             {isAdmin ? (
               <>
