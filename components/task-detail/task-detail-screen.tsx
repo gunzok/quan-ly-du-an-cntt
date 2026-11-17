@@ -33,6 +33,7 @@ import { apiErrorText } from "@/lib/i18n/api-error";
 import { useStrings } from "@/lib/i18n/client";
 import { Properties } from "./properties";
 import { BlockedBanner } from "./blocked-banner";
+import { TaskActivitySection } from "@/components/activity/task-activity-section";
 import { RelationsSection, type RelationsState } from "./relations-section";
 import { SubtasksSection } from "./subtasks-section";
 import { DescriptionSection, TitleEditor } from "./text-fields";
@@ -55,8 +56,8 @@ export interface TaskDetailScreenProps {
  * Cùng một thành phần cho cả hai, chỉ khác lớp CSS.
  *
  * Dữ liệu qua /api/v1 (client phiên, RLS); quyền sửa lấy từ `permissions` của GET /tasks/{id}, chỉ
- * để khóa giao diện, API kiểm lại ở từng request. Nhật ký task (mục 04 của mockup) chưa có API
- * (E6-2) nên ẩn.
+ * để khóa giao diện, API kiểm lại ở từng request. Nhật ký task (mục 04 của mockup, E6-2) chỉ hiện
+ * cho PM của dự án và Admin.
  */
 export function TaskDetailScreen(props: TaskDetailScreenProps) {
   return (
@@ -420,6 +421,15 @@ function Screen({
               onRetry={() => setRelKey((n) => n + 1)}
               onChange={updateRelations}
             />
+
+            {isAdmin || role === "pm" ? (
+              <TaskActivitySection
+                number="04"
+                projectId={projectId}
+                taskId={task.id}
+                reloadToken={task.updated_at}
+              />
+            ) : null}
 
             {task.permissions.can_delete ? (
               <div className="flex border-0 border-t border-solid border-border pt-4">
