@@ -317,13 +317,14 @@ select is(public.delete_task_status('00000000-0000-0000-0000-00000000c002', test
   'Xóa trạng thái, chuyển cả cha và con sang done trong một lệnh: được');
 
 -- ===========================================================================
--- Xóa task cha: giữ hành vi E2-2 (xóa dây chuyền mọi hậu duệ)
+-- Xóa task cha: QLDA-81 thay hành vi E2-2 (không còn xóa dây chuyền). Ca đầy đủ theo vai trò,
+-- xóa dự án và xóa tài khoản: block-parent-delete.test.sql.
 -- ===========================================================================
-select is(tests.affected_rows(format('delete from public.tasks where id = %L', tests.k('p'))), 1,
-  'PM xóa task cha');
+select throws_ok(format('delete from public.tasks where id = %L', tests.k('p')), '23503', null,
+  'PM xóa task cha còn việc con: bị từ chối (QLDA-81)');
 select tests.logout();
-select is((select count(*)::integer from public.tasks where id in (tests.k('pc'), tests.k('pg'))), 0,
-  'Xóa cha xóa theo mọi hậu duệ (ON DELETE CASCADE, hành vi đã có)');
+select is((select count(*)::integer from public.tasks where id in (tests.k('pc'), tests.k('pg'))), 2,
+  'Việc con, cháu còn nguyên (không còn ON DELETE CASCADE)');
 
 select * from finish();
 rollback;
