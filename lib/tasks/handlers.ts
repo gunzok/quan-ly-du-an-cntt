@@ -25,6 +25,11 @@ import {
 import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
 import { loadTaskDetail } from "./detail";
 import {
+  countSubtasks,
+  isSubtasksRemainError,
+  subtasksRemain,
+} from "./delete";
+import {
   attachBlocked,
   blockedCompletionWarning,
   loadOpenBlockers,
@@ -596,6 +601,7 @@ export async function handlePatchTask(
 
 // ---------------------------------------------------------------------------
 // DELETE /api/v1/tasks/{id}: xóa vĩnh viễn (BR-11). Hộp thoại xác nhận là việc của giao diện.
+// Task còn việc con (mọi cấp): 422 kèm `subtask_count` (QLDA-81), sau các bước 403/404/401.
 // ---------------------------------------------------------------------------
 export async function handleDeleteTask(
   request: Request,
@@ -619,6 +625,14 @@ export async function handleDeleteTask(
       .eq("id", task.id)
       .select("id");
     if (error) {
+      // QLDA-81: còn việc con (khóa ngoại NO ACTION). Xét trước mapTaskWriteError, nơi 23503 của
+      // tasks_parent_id_fkey nghĩa là "task cha không tồn tại" khi tạo/chuyển việc con.
+      if (isSubtasksRemainError(error)) {
+        return fail(
+          subtasksRemain(await countSubtasks(deps.session, task)),
+          ctx,
+        );
+      }
       const mapped = mapTaskWriteError(error);
       return mapped ? fail(mapped, ctx) : internal(ctx, "delete", error);
     }
