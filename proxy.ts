@@ -7,7 +7,7 @@ import {
   logRateLimitUnavailable,
   rateLimitedResponse,
 } from "@/lib/api/rate-limit";
-import { isApiPath } from "@/lib/auth/routes";
+import { isApiPath, isInternalApiPath } from "@/lib/auth/routes";
 import {
   buildContentSecurityPolicy,
   createNonce,
@@ -67,9 +67,13 @@ export async function proxy(request: NextRequest) {
     (pathname === "/dev" || pathname.startsWith("/dev/"))
       ? new NextResponse("Not Found", { status: 404 })
       : null;
-  const crossOrigin = isApiPath(pathname) ? rejectCrossOrigin(request) : null;
+  // /api/internal/*: máy gọi máy, tự xác thực bằng CRON_SECRET (không cookie nên không có CSRF).
+  const internal = isInternalApiPath(pathname) ? NextResponse.next() : null;
+  const crossOrigin =
+    !internal && isApiPath(pathname) ? rejectCrossOrigin(request) : null;
   const response =
     devOnly ??
+    internal ??
     crossOrigin ??
     (await updateSession(request, {
       guard: isRateLimitedApiPath(pathname)

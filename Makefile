@@ -17,7 +17,7 @@
 
 .PHONY: install lint test build security check-pnpm check-gitleaks \
 	check-supabase db-start db-stop db-reset db-seed db-test test-db test-integration \
-	e2e-install test-e2e perf-seed perf-clean perf
+	e2e-install test-e2e perf-seed perf-clean perf email-dispatch
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -161,3 +161,12 @@ perf: check-pnpm check-supabase
 	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="perf-$$(date +%s)-$$$$"; \
 	if [ -z "$$PERF_BASE_URL" ]; then pnpm build || exit 1; fi; \
 	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/measure.ts
+
+# ---------------------------------------------------------------------------
+# Email (Story E4-2). Chạy tay worker gửi email một lần: gọi /api/internal/email/dispatch của
+# ứng dụng đang chạy (mặc định http://localhost:3000, đổi bằng EMAIL_DISPATCH_URL) với CRON_SECRET
+# (shell hoặc .env.local; ứng dụng phải chạy với cùng giá trị). Cục bộ email vào Mailpit
+# http://127.0.0.1:54324. Môi trường thật do pg_cron + pg_net gọi (migration 20261115370000).
+# ---------------------------------------------------------------------------
+email-dispatch:
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/email-dispatch.ts

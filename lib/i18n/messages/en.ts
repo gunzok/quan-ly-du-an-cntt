@@ -1638,4 +1638,44 @@ export const en: Messages = {
       saveFailed: "Could not save your profile. Try again.",
     },
   },
+  emailPreferences: {
+    heading: "Email notifications",
+    hint: "Choose which notifications you also want by email. In-app notifications stay the same.",
+    types: {
+      task_assigned: "Assigned to me",
+      task_status_changed: "Task status changed",
+    },
+    typeHints: {
+      task_assigned: "Email when someone assigns a task to you.",
+      task_status_changed:
+        "Email when a task you own or created changes status.",
+    },
+    on: "On",
+    off: "Off",
+    saving: "Saving…",
+    saved: (type: string, on: boolean) =>
+      on ? `Email turned on: ${type}.` : `Email turned off: ${type}.`,
+    saveFailed: "Could not save email settings. Try again.",
+    unavailable: "Could not load email settings. Reload the page to try again.",
+  },
+  email: {
+    appName: "Project Manager",
+    someone: "A team member",
+    assignedSubject: (title: string) => `You were assigned: ${title}`,
+    assignedIntro: (actor: string) => `${actor} assigned a task to you.`,
+    assignedIntroNoActor: "A task was assigned to you.",
+    statusSubject: (title: string, status: string) =>
+      `Task ${title} moved to ${status}`,
+    statusIntro: (actor: string, status: string) =>
+      `${actor} moved the task to ${status}.`,
+    statusIntroNoActor: (status: string) => `The task moved to ${status}.`,
+    taskLabel: "Task",
+    projectLabel: "Project",
+    assignedByLabel: "Assigned by",
+    changedByLabel: "Changed by",
+    statusLabel: "Status",
+    openTask: "Open task",
+    footer:
+      "You get this email because email notifications are on. Turn them off on your Profile page in the app.",
+  },
 };
