@@ -186,7 +186,10 @@ export function readZipText(bytes: Uint8Array, name: string): string | null {
     const entryName = buf.toString("utf8", p + 46, p + 46 + nameLen);
     if (entryName === name) {
       const start =
-        local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+        local +
+        30 +
+        buf.readUInt16LE(local + 26) +
+        buf.readUInt16LE(local + 28);
       const data = buf.subarray(start, start + size);
       return (method === 8 ? inflateRawSync(data) : data).toString("utf8");
     }

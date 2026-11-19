@@ -11,7 +11,8 @@ const same = { formulaSheet: "S", targetSheet: "S" };
 const shift = { row: 10, delta: 5 };
 
 describe("mapFormulaRows (chèn 5 dòng sau dòng mẫu 10)", () => {
-  const map = (f: string, ctx = same) => mapFormulaRows(f, ctx, insertMapper(shift));
+  const map = (f: string, ctx = same) =>
+    mapFormulaRows(f, ctx, insertMapper(shift));
 
   it("ô phía dưới dời xuống, ô trên và chính dòng mẫu giữ nguyên", () => {
     expect(map("A9+A10+A11")).toBe("A9+A10+A16");
@@ -26,14 +27,19 @@ describe("mapFormulaRows (chèn 5 dòng sau dòng mẫu 10)", () => {
   });
 
   it("không đụng chuỗi, tên hàm, cả cột", () => {
-    expect(map('IF(A11="A11",LOG10(A11),0)')).toBe('IF(A16="A11",LOG10(A16),0)');
+    expect(map('IF(A11="A11",LOG10(A11),0)')).toBe(
+      'IF(A16="A11",LOG10(A16),0)',
+    );
     expect(map("SUM(A:A)")).toBe("SUM(A:A)");
   });
 
   it("chỉ dời tham chiếu trỏ vào trang đích", () => {
     expect(map("Khac!A11+A11")).toBe("Khac!A11+A16");
     expect(
-      map("'Báo cáo'!A11+A11", { formulaSheet: "Khac", targetSheet: "Báo cáo" }),
+      map("'Báo cáo'!A11+A11", {
+        formulaSheet: "Khac",
+        targetSheet: "Báo cáo",
+      }),
     ).toBe("'Báo cáo'!A16+A11");
   });
 });

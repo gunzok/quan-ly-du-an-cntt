@@ -18,7 +18,10 @@ import { buildSampleXlsxTemplate } from "./sample-template";
  * sinh lại: UPDATE_GOLDEN=1 pnpm vitest run lib/reports/xlsx-fill.test.ts, rồi xem diff.
  */
 
-const GOLDEN_DIR = new URL("../../tests/fixtures/reports/golden/", import.meta.url);
+const GOLDEN_DIR = new URL(
+  "../../tests/fixtures/reports/golden/",
+  import.meta.url,
+);
 
 async function expectGolden(name: string, value: unknown) {
   const file = new URL(`${name}.json`, GOLDEN_DIR);
@@ -75,17 +78,30 @@ describe("template mẫu", () => {
     expect(ws.getCell("F22").numFmt).toBe("dd/mm/yyyy");
     expect(ws.autoFilter).toBe("A21:H71");
     expect(ws.pageSetup.printArea).toBe("A1:H77");
-    const cf = (ws as unknown as { conditionalFormattings: { ref: string; rules: { formulae: string[] }[] }[] }).conditionalFormattings;
+    const cf = (
+      ws as unknown as {
+        conditionalFormattings: {
+          ref: string;
+          rules: { formulae: string[] }[];
+        }[];
+      }
+    ).conditionalFormattings;
     expect(cf[0].ref).toBe("F22:F71");
-    expect(cf[0].rules[0].formulae[0]).toBe('AND(F22<>"",H22="",F22<INT(NOW()))');
+    expect(cf[0].rules[0].formulae[0]).toBe(
+      'AND(F22<>"",H22="",F22<INT(NOW()))',
+    );
     expect(ws.getCell("F77").value).toBe("PM Mẫu");
     expect(ws.headerFooter.oddFooter).toBe("Dự án mẫu E5-3 · &P/&N");
-    expect(readZipText(out, "xl/workbook.xml")).toMatch(/<calcPr[^>]*fullCalcOnLoad="1"/);
+    expect(readZipText(out, "xl/workbook.xml")).toMatch(
+      /<calcPr[^>]*fullCalcOnLoad="1"/,
+    );
   });
 
   it("tiêu đề giống công thức vẫn là ô chữ", async () => {
     const tpl = await buildSampleXlsxTemplate(getMessages("vi"));
-    const wb = await load(await renderXlsxReport(tpl, fixtureReportData(), "vi"));
+    const wb = await load(
+      await renderXlsxReport(tpl, fixtureReportData(), "vi"),
+    );
     const cell = wb.worksheets[0].getCell("B23");
     expect(cell.type).toBe(ExcelJS.ValueType.String);
     expect(cell.value).toBe("=1+1 tiêu đề giống công thức");
@@ -94,7 +110,10 @@ describe("template mẫu", () => {
   it("2.000 task điền dưới 10 giây (NFR-03 đặt 30 giây cho cả lần xuất)", async () => {
     const tpl = await buildSampleXlsxTemplate(getMessages("vi"));
     const tasks = Array.from({ length: 2000 }, (_, i) =>
-      fixtureTask(i + 1, { title: `Task ${i + 1} ${"x".repeat(60)}`, labels: ["a", "b"] }),
+      fixtureTask(i + 1, {
+        title: `Task ${i + 1} ${"x".repeat(60)}`,
+        labels: ["a", "b"],
+      }),
     );
     const started = performance.now();
     const out = await renderXlsxReport(tpl, fixtureReportData(tasks), "vi");
@@ -106,7 +125,9 @@ describe("template mẫu", () => {
 });
 
 describe("template tự soạn", () => {
-  async function custom(build: (wb: ExcelJS.Workbook, ws: ExcelJS.Worksheet) => void) {
+  async function custom(
+    build: (wb: ExcelJS.Workbook, ws: ExcelJS.Worksheet) => void,
+  ) {
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet("Báo cáo");
     build(wb, ws);
@@ -115,7 +136,8 @@ describe("template tự soạn", () => {
 
   it("ô giữ chỗ trong chữ, chữ nhiều kiểu, khóa lạ giữ nguyên, ngôn ngữ en", async () => {
     const tpl = await custom((_, ws) => {
-      ws.getCell("A1").value = "Dự án {{ project.name }} – {{counts.total}} task – {{khong.co}}";
+      ws.getCell("A1").value =
+        "Dự án {{ project.name }} – {{counts.total}} task – {{khong.co}}";
       ws.getCell("A2").value = {
         richText: [
           { text: "Từ ", font: { bold: true } },
@@ -127,10 +149,16 @@ describe("template tự soạn", () => {
     });
     const data = fixtureReportData();
     const wb = await load(
-      await renderXlsxReport(tpl, { ...data, dashboard: { ...data.dashboard, total: 1234 } }, "en"),
+      await renderXlsxReport(
+        tpl,
+        { ...data, dashboard: { ...data.dashboard, total: 1234 } },
+        "en",
+      ),
     );
     const ws = wb.worksheets[0];
-    expect(ws.getCell("A1").value).toBe("Dự án Dự án mẫu E5-3 – 1,234 task – {{khong.co}}");
+    expect(ws.getCell("A1").value).toBe(
+      "Dự án Dự án mẫu E5-3 – 1,234 task – {{khong.co}}",
+    );
     expect(ws.getCell("A2").value).toEqual({
       richText: [
         { text: "Từ ", font: { bold: true } },
@@ -148,9 +176,15 @@ describe("template tự soạn", () => {
       ws.getCell("B1").value = "{{task.title}}";
       ws.mergeCells("B1:C1");
       ws.getCell("D1").value = "{{task.level}}";
-      ws.getCell("E1").value = { formula: "D1*2", result: 0 } as ExcelJS.CellFormulaValue;
+      ws.getCell("E1").value = {
+        formula: "D1*2",
+        result: 0,
+      } as ExcelJS.CellFormulaValue;
       ws.getCell("F1").value = "{{/tasks}}";
-      ws.getCell("A2").value = { formula: "SUM(D1:D1)", result: 0 } as ExcelJS.CellFormulaValue;
+      ws.getCell("A2").value = {
+        formula: "SUM(D1:D1)",
+        result: 0,
+      } as ExcelJS.CellFormulaValue;
       ws.getCell("A3").value = "Cuối";
       ws.mergeCells("A3:B4");
       ws.getCell("D3").dataValidation = {
@@ -188,7 +222,9 @@ describe("template tự soạn", () => {
       ws.getCell("C2").value = "{{task.title}}";
       ws.getCell("A3").value = "Sau";
     });
-    const wb = await load(await renderXlsxReport(tpl, fixtureReportData([]), "vi"));
+    const wb = await load(
+      await renderXlsxReport(tpl, fixtureReportData([]), "vi"),
+    );
     const ws = wb.worksheets[0];
     expect(ws.getCell("B2").value).toBe("Không có task nào trong kỳ.");
     expect(ws.getCell("C2").value).toBeNull();

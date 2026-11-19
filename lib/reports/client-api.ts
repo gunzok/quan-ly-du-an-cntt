@@ -50,9 +50,9 @@ export async function exportReport(
     return { ok: false, error: null, network: true };
   }
   if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as
-      | ApiErrorBody
-      | null;
+    const body = (await response
+      .json()
+      .catch(() => null)) as ApiErrorBody | null;
     const error = body?.error;
     return {
       ok: false,

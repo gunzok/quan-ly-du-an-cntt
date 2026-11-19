@@ -1,9 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { reportFileName } from "./model";
-import { currentMonthPeriod, isCalendarDate, periodBounds, periodDays } from "./period";
+import {
+  currentMonthPeriod,
+  isCalendarDate,
+  periodBounds,
+  periodDays,
+} from "./period";
 import { validateExportReport } from "./validate";
 
-const ok = { format: "xlsx", period_start: "2026-11-01", period_end: "2026-11-30" };
+const ok = {
+  format: "xlsx",
+  period_start: "2026-11-01",
+  period_end: "2026-11-30",
+} as const;
 
 describe("validateExportReport", () => {
   it("nhận thân hợp lệ", () => {
@@ -19,10 +28,12 @@ describe("validateExportReport", () => {
       ok: false,
       details: [{ field: "format", issue: "invalid_value" }],
     });
-    expect(validateExportReport({ ...ok, period_start: "2026-02-31" })).toEqual({
-      ok: false,
-      details: [{ field: "period_start", issue: "invalid_format" }],
-    });
+    expect(validateExportReport({ ...ok, period_start: "2026-02-31" })).toEqual(
+      {
+        ok: false,
+        details: [{ field: "period_start", issue: "invalid_format" }],
+      },
+    );
     expect(validateExportReport([])).toMatchObject({ ok: false });
   });
   it("kỳ ngược hoặc dài quá 366 ngày: period_end invalid_value", () => {
@@ -32,10 +43,18 @@ describe("validateExportReport", () => {
       details: [bad],
     });
     expect(
-      validateExportReport({ ...ok, period_start: "2025-01-01", period_end: "2026-01-02" }),
+      validateExportReport({
+        ...ok,
+        period_start: "2025-01-01",
+        period_end: "2026-01-02",
+      }),
     ).toEqual({ ok: false, details: [bad] });
     expect(
-      validateExportReport({ ...ok, period_start: "2024-01-01", period_end: "2024-12-31" }).ok,
+      validateExportReport({
+        ...ok,
+        period_start: "2024-01-01",
+        period_end: "2024-12-31",
+      }).ok,
     ).toBe(true);
   });
 });
@@ -58,7 +77,9 @@ describe("kỳ báo cáo giờ Việt Nam", () => {
       start: "2026-11-01",
       end: "2026-11-30",
     });
-    expect(currentMonthPeriod(new Date("2028-02-10T00:00:00Z")).end).toBe("2028-02-29");
+    expect(currentMonthPeriod(new Date("2028-02-10T00:00:00Z")).end).toBe(
+      "2028-02-29",
+    );
   });
 });
 
@@ -67,6 +88,8 @@ describe("reportFileName", () => {
     expect(reportFileName("Dự án Đường sắt / Giai đoạn 2", ok)).toBe(
       "bao-cao-du-an-duong-sat-giai-doan-2-2026-11-01-2026-11-30.xlsx",
     );
-    expect(reportFileName("!!!", ok)).toBe("bao-cao-du-an-2026-11-01-2026-11-30.xlsx");
+    expect(reportFileName("!!!", ok)).toBe(
+      "bao-cao-du-an-2026-11-01-2026-11-30.xlsx",
+    );
   });
 });

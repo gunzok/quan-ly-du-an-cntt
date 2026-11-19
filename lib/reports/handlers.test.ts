@@ -20,29 +20,53 @@ function fakeSession(tables: Record<string, unknown>): SupabaseClient {
     return b;
   };
   return {
-    auth: { getUser: async () => ({ data: { user: { id: USER } }, error: null }) },
+    auth: {
+      getUser: async () => ({ data: { user: { id: USER } }, error: null }),
+    },
     from: builder,
   } as unknown as SupabaseClient;
 }
 
 function request(body: unknown) {
-  return new Request(`http://localhost:3000/api/v1/projects/${PROJECT}/reports`, {
-    method: "POST",
-    headers: { origin: "http://localhost:3000", "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  return new Request(
+    `http://localhost:3000/api/v1/projects/${PROJECT}/reports`,
+    {
+      method: "POST",
+      headers: {
+        origin: "http://localhost:3000",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
 }
 
 const base = {
-  projects: { id: PROJECT, name: "Dự án", description: null, start_date: null, end_date: null, status: "active" },
+  projects: {
+    id: PROJECT,
+    name: "Dự án",
+    description: null,
+    start_date: null,
+    end_date: null,
+    status: "active",
+  },
   project_members: { role: "pm" },
-  profiles: { full_name: "PM", email: "pm@example.com", is_admin: false, is_active: true },
+  profiles: {
+    full_name: "PM",
+    email: "pm@example.com",
+    is_admin: false,
+    is_active: true,
+  },
 };
 
 describe("handleExportReport", () => {
   it("không có template xlsx đang dùng: 422 report_template_missing", async () => {
     const res = await handleExportReport(
-      request({ format: "xlsx", period_start: "2026-11-01", period_end: "2026-11-30" }),
+      request({
+        format: "xlsx",
+        period_start: "2026-11-01",
+        period_end: "2026-11-30",
+      }),
       PROJECT,
       { session: fakeSession(base), rateLimit: async () => ({ ok: true }) },
     );
@@ -53,10 +77,17 @@ describe("handleExportReport", () => {
 
   it("PM bị khóa: 403 dù còn là PM", async () => {
     const res = await handleExportReport(
-      request({ format: "xlsx", period_start: "2026-11-01", period_end: "2026-11-30" }),
+      request({
+        format: "xlsx",
+        period_start: "2026-11-01",
+        period_end: "2026-11-30",
+      }),
       PROJECT,
       {
-        session: fakeSession({ ...base, profiles: { ...base.profiles, is_active: false } }),
+        session: fakeSession({
+          ...base,
+          profiles: { ...base.profiles, is_active: false },
+        }),
         rateLimit: async () => ({ ok: true }),
       },
     );

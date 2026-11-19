@@ -178,7 +178,7 @@ export function ExportReportDialog({
     }
   }
 
-  function useThisMonth() {
+  function applyThisMonth() {
     const month = currentMonthPeriod();
     setStart(month.start);
     setEnd(month.end);
@@ -295,7 +295,7 @@ export function ExportReportDialog({
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="m-0 text-xs text-text-muted">{t.periodHint}</p>
-              <Button variant="text" onClick={useThisMonth}>
+              <Button variant="text" onClick={applyThisMonth}>
                 {t.thisMonth}
               </Button>
             </div>
@@ -362,7 +362,10 @@ function TemplateStatus({
   switch (state.status) {
     case "loading":
       return (
-        <p role="status" className={cn(box, "m-0 border-border text-text-muted")}>
+        <p
+          role="status"
+          className={cn(box, "m-0 border-border text-text-muted")}
+        >
           {t.templateLoading}
         </p>
       );

@@ -69,7 +69,10 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
   const projectName = `IT E5-3 ${tag}`;
   let noActiveTemplateAtStart = false;
 
-  function deps(role: Role | null, extra: Partial<ReportDeps> = {}): ReportDeps {
+  function deps(
+    role: Role | null,
+    extra: Partial<ReportDeps> = {},
+  ): ReportDeps {
     return {
       session: sessionClient(role ? jars[role] : new CookieJar()),
       now: () => NOW,
@@ -81,14 +84,15 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
   function exportRequest(
     body: unknown,
     origin: string | null = APP_ORIGIN,
-    id = projectId,
+    id: string = projectId,
   ) {
     const headers = new Headers({ "content-type": "application/json" });
     if (origin) headers.set("origin", origin);
-    return new Request(
-      new URL(`/api/v1/projects/${id}/reports`, APP_ORIGIN),
-      { method: "POST", headers, body: JSON.stringify(body) },
-    );
+    return new Request(new URL(`/api/v1/projects/${id}/reports`, APP_ORIGIN), {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
   }
 
   const NOV = {
@@ -98,7 +102,11 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
   };
 
   async function exportAs(role: Role | null, body: unknown = NOV, extra = {}) {
-    return handleExportReport(exportRequest(body), projectId, deps(role, extra));
+    return handleExportReport(
+      exportRequest(body),
+      projectId,
+      deps(role, extra),
+    );
   }
 
   async function code(res: Response) {
@@ -231,7 +239,10 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
       );
       if (paths.length > 0)
         await service.storage.from(REPORT_TEMPLATE_BUCKET).remove(paths);
-      await service.from("report_templates").delete().in("id", createdTemplates);
+      await service
+        .from("report_templates")
+        .delete()
+        .in("id", createdTemplates);
     }
     await service.from("projects").delete().eq("id", projectId);
     for (const id of createdUsers) await service.auth.admin.deleteUser(id);
@@ -384,9 +395,9 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
     const ws = wb.worksheets[0];
     expect(ws.getCell("A2").value).toBe(`Dự án: ${projectName}`);
     // Tổng quan toàn dự án: 3 task, 1 xong, 2 mở; trễ (theo ngày 18/11): task hạn 05/11 và 15/01.
-    expect(
-      ["B8", "C8", "D8", "E8"].map((a) => ws.getCell(a).value),
-    ).toEqual([3, 1, 2, 2]);
+    expect(["B8", "C8", "D8", "E8"].map((a) => ws.getCell(a).value)).toEqual([
+      3, 1, 2, 2,
+    ]);
     // Task trong kỳ tháng 11: hai task hạn trong tháng 11 chắc chắn có (task tạo lúc chạy test nên
     // không kiểm số tuyệt đối, phòng đồng hồ máy khác tháng).
     const column = [...Array(ws.rowCount).keys()].map((i) =>
