@@ -1029,8 +1029,6 @@ export const en: Messages = {
       action: "Delete task",
       title: (title: string) => `Delete task “${title}”?`,
       body: "The task will be deleted permanently. This cannot be undone.",
-      bodyWithSubtasks: (count: number) =>
-        `The task and all ${count} of its subtasks will be deleted permanently. This cannot be undone.`,
       confirm: "Delete permanently",
       failed: "Could not delete the task.",
     },
@@ -1677,5 +1675,15 @@ export const en: Messages = {
     openTask: "Open task",
     footer:
       "You get this email because email notifications are on. Turn them off on your Profile page in the app.",
+  },
+  taskDelete: {
+    errors: {
+      hasSubtasks:
+        "This task still has subtasks. Delete them or move them to another task before deleting this task.",
+    },
+    blockedTitle: (title: string) => `Can't delete task “${title}” yet`,
+    blockedBody: (count: number) =>
+      `This task still has ${count} ${count === 1 ? "subtask" : "subtasks"}. Delete or move the subtasks first.`,
+    viewSubtasks: "View subtasks",
   },
 };
