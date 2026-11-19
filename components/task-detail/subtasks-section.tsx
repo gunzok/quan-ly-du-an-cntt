@@ -20,11 +20,14 @@ import { useStrings } from "@/lib/i18n/client";
  * cấp 3 thì giải thích thay vì hiện ô thêm. Máy chủ vẫn kiểm cấp, quyền, BR-04 và trả lỗi dễ hiểu.
  */
 export function SubtasksSection({
+  anchorId,
   number,
   task,
   statuses,
   onAdded,
 }: {
+  /** id cố định cho tiêu đề mục (đích liên kết, nhận focus): hộp thoại xóa bị chặn (QLDA-81). */
+  anchorId?: string;
   number: string;
   task: TaskDetail;
   statuses: TaskStatus[];
@@ -33,7 +36,8 @@ export function SubtasksSection({
   const strings = useStrings();
   const t = strings.taskDetail.subtasks;
   const { toast } = useToast();
-  const headingId = useId();
+  const generatedId = useId();
+  const headingId = anchorId ?? generatedId;
   const inputId = useId();
   const errorId = useId();
   const [title, setTitle] = useState("");
@@ -65,7 +69,11 @@ export function SubtasksSection({
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-2">
-      <h2 id={headingId} className="label m-0 flex items-center gap-2">
+      <h2
+        id={headingId}
+        tabIndex={anchorId ? -1 : undefined}
+        className="label m-0 flex scroll-mt-4 items-center gap-2"
+      >
         <span
           aria-hidden="true"
           className="inline-block size-1.5 rounded-pill bg-accent"

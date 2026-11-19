@@ -35,9 +35,13 @@ import { Properties } from "./properties";
 import { BlockedBanner } from "./blocked-banner";
 import { TaskActivitySection } from "@/components/activity/task-activity-section";
 import { RelationsSection, type RelationsState } from "./relations-section";
+import { DeleteBlockedDialog } from "./delete-blocked-dialog";
 import { SubtasksSection } from "./subtasks-section";
 import { DescriptionSection, TitleEditor } from "./text-fields";
 import { useTaskSaver } from "./use-task-saver";
+
+/** id tiêu đề mục Việc con: đích của liên kết trong hộp thoại xóa bị chặn (QLDA-81). */
+const SUBTASKS_ANCHOR_ID = "task-subtasks";
 
 export interface TaskDetailScreenProps {
   projectId: string;
@@ -246,11 +250,17 @@ function Screen({
     if (!task) return;
     const result = await deleteTask(task.id);
     if (!result.ok) {
+      const count = result.error.subtask_count;
       toast({
         tone: "error",
         title: t.delete.failed,
-        description: apiErrorText(strings, result.error),
+        description:
+          typeof count === "number"
+            ? strings.taskDelete.blockedBody(count)
+            : apiErrorText(strings, result.error),
       });
+      // QLDA-81: vừa có người thêm việc con: tải lại để nút xóa chuyển sang hộp thoại bị chặn.
+      if (typeof count === "number") reloadTask();
       return;
     }
     // Về task cha nếu có, không thì về bảng dự án.
@@ -404,6 +414,7 @@ function Screen({
 
             <SubtasksSection
               key={`subtasks-${task.id}`}
+              anchorId={SUBTASKS_ANCHOR_ID}
               number="02"
               task={task}
               statuses={config?.statuses ?? []}
@@ -433,17 +444,23 @@ function Screen({
 
             {task.permissions.can_delete ? (
               <div className="flex border-0 border-t border-solid border-border pt-4">
-                <ConfirmDialog
-                  trigger={<Button variant="danger">{t.delete.action}</Button>}
-                  title={t.delete.title(task.title)}
-                  description={
-                    task.subtasks.length > 0
-                      ? t.delete.bodyWithSubtasks(task.subtasks.length)
-                      : t.delete.body
-                  }
-                  confirmLabel={t.delete.confirm}
-                  onConfirm={remove}
-                />
+                {task.subtasks.length > 0 ? (
+                  <DeleteBlockedDialog
+                    taskTitle={task.title}
+                    subtaskCount={task.subtasks.length}
+                    subtasksAnchorId={SUBTASKS_ANCHOR_ID}
+                  />
+                ) : (
+                  <ConfirmDialog
+                    trigger={
+                      <Button variant="danger">{t.delete.action}</Button>
+                    }
+                    title={t.delete.title(task.title)}
+                    description={t.delete.body}
+                    confirmLabel={t.delete.confirm}
+                    onConfirm={remove}
+                  />
+                )}
               </div>
             ) : null}
           </>

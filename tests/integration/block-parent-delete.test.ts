@@ -111,7 +111,11 @@ describe.skipIf(!enabled)("QLDA-81: chặn xóa task cha còn việc con", () =>
     return ((await res.json()) as { data: Task }).data;
   }
 
-  const remove = (who: string, id: string, origin: string | null = APP_ORIGIN) =>
+  const remove = (
+    who: string,
+    id: string,
+    origin: string | null = APP_ORIGIN,
+  ) =>
     handleDeleteTask(
       request("DELETE", `/api/v1/tasks/${id}`, undefined, origin),
       id,
@@ -119,7 +123,10 @@ describe.skipIf(!enabled)("QLDA-81: chặn xóa task cha còn việc con", () =>
     );
 
   async function alive(ids: string[]) {
-    const { data, error } = await service.from("tasks").select("id").in("id", ids);
+    const { data, error } = await service
+      .from("tasks")
+      .select("id")
+      .in("id", ids);
     if (error) throw error;
     return data.length;
   }
@@ -129,7 +136,14 @@ describe.skipIf(!enabled)("QLDA-81: chặn xóa task cha còn việc con", () =>
     service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
-    for (const label of ["admin", "pm", "member", "viewer", "outsider", "gone"]) {
+    for (const label of [
+      "admin",
+      "pm",
+      "member",
+      "viewer",
+      "outsider",
+      "gone",
+    ]) {
       await createUser(label);
     }
     const admin = await service
@@ -192,14 +206,26 @@ describe.skipIf(!enabled)("QLDA-81: chặn xóa task cha còn việc con", () =>
     const root = await createOk("pm");
     await createOk("pm", root.id);
 
-    await expectError(await remove("pm", root.id, "https://evil.example"), 403, "forbidden");
+    await expectError(
+      await remove("pm", root.id, "https://evil.example"),
+      403,
+      "forbidden",
+    );
     await expectError(await remove("nobody", root.id), 401, "unauthenticated");
     await expectError(await remove("outsider", root.id), 404, "not_found");
     await expectError(await remove("viewer", root.id), 403, "forbidden");
     // Thành viên không tạo task này: 403, không lộ số việc con.
-    const forbidden = await expectError(await remove("member", root.id), 403, "forbidden");
+    const forbidden = await expectError(
+      await remove("member", root.id),
+      403,
+      "forbidden",
+    );
     expect(forbidden.subtask_count).toBeUndefined();
-    await expectError(await remove("pm", root.id), 422, "business_rule_violated");
+    await expectError(
+      await remove("pm", root.id),
+      422,
+      "business_rule_violated",
+    );
   });
 
   it("xóa lá 204; xóa dần từ dưới lên thì xóa được cha", async () => {
@@ -257,12 +283,21 @@ describe.skipIf(!enabled)("QLDA-81: chặn xóa task cha còn việc con", () =>
       .in("id", [root, child, grand]);
     if (error) throw error;
     expect(data).toHaveLength(3);
-    expect(data.every((t) => t.created_by === null && t.assignee_id === null)).toBe(true);
+    expect(
+      data.every((t) => t.created_by === null && t.assignee_id === null),
+    ).toBe(true);
 
-    const project = await service.from("projects").delete().eq("id", projectA).select("id");
+    const project = await service
+      .from("projects")
+      .delete()
+      .eq("id", projectA)
+      .select("id");
     expect(project.error).toBeNull();
     expect(project.data).toHaveLength(1);
-    const left = await service.from("tasks").select("id").eq("project_id", projectA);
+    const left = await service
+      .from("tasks")
+      .select("id")
+      .eq("project_id", projectA);
     expect(left.data).toEqual([]);
   });
 });

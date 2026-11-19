@@ -24,11 +24,7 @@ import {
 } from "./policy";
 import { parentCycle, parentNotEditable, parentNotFound } from "./subtasks";
 import { loadTaskDetail } from "./detail";
-import {
-  countSubtasks,
-  isSubtasksRemainError,
-  subtasksRemain,
-} from "./delete";
+import { countSubtasks, isSubtasksRemainError, subtasksRemain } from "./delete";
 import {
   attachBlocked,
   blockedCompletionWarning,

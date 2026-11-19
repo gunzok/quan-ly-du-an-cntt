@@ -22,7 +22,10 @@ export function isSubtasksRemainError(error: DbError): boolean {
 /** 422 `business_rule_violated`, kèm `subtask_count` (mọi cấp). */
 export function subtasksRemain(count: number): ApiError {
   return {
-    ...apiError("business_rule_violated", strings.taskDelete.errors.hasSubtasks),
+    ...apiError(
+      "business_rule_violated",
+      strings.taskDelete.errors.hasSubtasks,
+    ),
     subtask_count: count,
   };
 }
