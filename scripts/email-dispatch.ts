@@ -4,6 +4,8 @@
  * kèm `Authorization: Bearer $CRON_SECRET` (shell hoặc .env.local). Ứng dụng cần cùng CRON_SECRET.
  * Không in bí mật. Email cục bộ vào Mailpit: http://127.0.0.1:54324.
  */
+export {};
+
 const url =
   process.env.EMAIL_DISPATCH_URL ??
   "http://localhost:3000/api/internal/email/dispatch";

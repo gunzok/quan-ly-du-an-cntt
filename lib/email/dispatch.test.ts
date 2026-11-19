@@ -34,7 +34,9 @@ function fakeDb(rows: ClaimedEmail[]) {
 function sender(
   results: SendResult[],
 ): EmailSender & { send: ReturnType<typeof vi.fn> } {
-  const send = vi.fn(async () => results.shift() ?? { ok: true });
+  const send = vi.fn(
+    async (): Promise<SendResult> => results.shift() ?? { ok: true },
+  );
   return { name: "fake", send };
 }
 
