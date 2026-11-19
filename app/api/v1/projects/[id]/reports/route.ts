@@ -2,11 +2,10 @@ import { getLocale } from "@/lib/i18n/server";
 import { handleExportReport } from "@/lib/reports/handlers";
 import { createClient } from "@/lib/supabase/server";
 
-/** exceljs cần Node (không chạy Edge, ADR-004). */
-export const runtime = "nodejs";
 /** Trần của nền tảng (giây), lớn hơn trần 25 giây của ứng dụng để 504 report_timeout luôn do ta trả. */
 export const maxDuration = 30;
 
+// Route Handler mặc định chạy Node (exceljs cần Node, ADR-004); cacheComponents không cho khai `runtime`.
 type Params = { params: Promise<{ id: string }> };
 
 /** POST /api/v1/projects/{id}/reports — PM của dự án, Admin: xuất báo cáo xlsx (Story E5-3). */

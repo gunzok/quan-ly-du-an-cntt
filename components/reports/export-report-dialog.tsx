@@ -405,7 +405,7 @@ function TemplateStatus({
             {isAdmin ? (
               <Link
                 href="/admin/report-templates"
-                className="inline-flex min-h-11 items-center sm:min-h-0"
+                className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-2 sm:min-h-0"
               >
                 {t.templatePageLink}
               </Link>
@@ -413,7 +413,7 @@ function TemplateStatus({
             <a
               href={sampleTemplateUrl("xlsx")}
               download
-              className="inline-flex min-h-11 items-center sm:min-h-0"
+              className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-2 sm:min-h-0"
             >
               {t.sampleLink}
             </a>

@@ -236,7 +236,11 @@ function Screen() {
           </p>
           <p className="text-sm text-text-muted">
             {strings.reports.sampleHint}{" "}
-            <a href={sampleTemplateUrl("xlsx")} download>
+            <a
+              href={sampleTemplateUrl("xlsx")}
+              download
+              className="font-medium text-primary underline underline-offset-2"
+            >
               {strings.reports.dialog.sampleLink}
             </a>
           </p>
