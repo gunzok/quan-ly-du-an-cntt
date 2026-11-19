@@ -51,6 +51,8 @@ build: check-pnpm
 	pnpm build
 
 # Quét bí mật trong toàn bộ lịch sử git + quét lỗ hổng phụ thuộc
+# Ngoại lệ audit có hạn (auditConfig.ignoreGhsas trong pnpm-workspace.yaml): chỉ GHSA-fc5q-39xc-vjpf
+# (picomatch, chỉ công cụ phát triển), rà lại trước 2026-12-18 — xem docs/03-design/security.md mục 7.
 security: check-pnpm check-gitleaks
 	gitleaks git --redact --no-banner .
 	pnpm audit --audit-level $(AUDIT_LEVEL)

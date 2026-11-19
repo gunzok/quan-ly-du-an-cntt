@@ -1,3 +1,10 @@
 allowBuilds:
   sharp: false
   unrs-resolver: false
+# Bỏ qua CÓ HẠN đúng một advisory (quyết định 2026-11-18, rà lại trước 2026-12-18):
+# GHSA-fc5q-39xc-vjpf — picomatch ReDoS (<= 4.0.7, chưa có bản vá), chỉ nằm trong công cụ
+# phát triển (eslint-config-next, vitest/vite/tinyglobby), không có đường từ dependencies production.
+# Lý do và cách kiểm: docs/03-design/security.md mục 7. Mọi cảnh báo high khác vẫn làm `make security` đỏ.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf
