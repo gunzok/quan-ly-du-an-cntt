@@ -10,7 +10,7 @@ Mã nguồn: `lib/reports/` (điền: `xlsx-fill.ts`, danh sách ô giữ chỗ:
 
 - Ô giữ chỗ viết `{{khóa}}` trong ô chữ, khóa chữ thường, không dấu, ví dụ `{{project.name}}`. Cho phép dấu cách trong ngoặc (`{{ project.name }}`).
 - **Ô chỉ có đúng một ô giữ chỗ** (ví dụ ô B8 chỉ chứa `{{counts.total}}`): ghi giá trị **đúng kiểu** (số, ngày, ngày giờ, tỷ lệ) để Excel cộng, lọc, sắp xếp được. Định dạng số của ô trong template được giữ; ô để "General" thì ứng dụng gán mặc định: ngày `dd/mm/yyyy`, ngày giờ `dd/mm/yyyy hh:mm`, tỷ lệ `0%`.
-- **Ô giữ chỗ lẫn trong chữ** (ví dụ `Kỳ báo cáo: {{period.start}} – {{period.end}}`): thay bằng chữ đã định dạng theo ngôn ngữ của người xuất (vi: `30/11/2026`, `1.234`; en: `11/30/2026`, `1,234`). Chữ nhiều kiểu (đậm một phần) giữ nguyên kiểu từng đoạn, miễn là một ô giữ chỗ không bị cắt ngang giữa hai kiểu.
+- **Ô giữ chỗ lẫn trong chữ** (ví dụ `Kỳ báo cáo: {{period.start}} – {{period.end}}`): thay bằng chữ đã định dạng theo ngôn ngữ của người xuất (vi: `30/11/2026`, `1.234`; en: `30 Nov 2026`, `1,234`). Chữ nhiều kiểu (đậm một phần) giữ nguyên kiểu từng đoạn, miễn là một ô giữ chỗ không bị cắt ngang giữa hai kiểu.
 - Ô giữ chỗ còn dùng được trong đầu trang, chân trang (Page Layout → Header/Footer), ví dụ `{{project.name}} · &P/&N`.
 - **Khóa sai chính tả** được giữ nguyên trong tệp xuất để người soạn nhìn thấy và sửa.
 - Ngày giờ ghi theo **giờ Việt Nam** (UTC+7). Excel không lưu múi giờ.

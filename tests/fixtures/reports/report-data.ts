@@ -1,3 +1,4 @@
+import { inflateRawSync } from "node:zlib";
 import ExcelJS from "exceljs";
 import { toDashboard } from "@/lib/dashboard/model";
 import type { ReportData, ReportTask } from "@/lib/reports/placeholders";
@@ -166,4 +167,30 @@ export async function dumpXlsx(
     out[ws.name] = { cells, merges };
   });
   return out;
+}
+
+/** Đọc một phần tử trong tệp ZIP (xlsx) theo thư mục trung tâm; không có: null. Chỉ dùng cho test. */
+export function readZipText(bytes: Uint8Array, name: string): string | null {
+  const buf = Buffer.from(bytes);
+  const eocd = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  if (eocd < 0) return null;
+  const count = buf.readUInt16LE(eocd + 10);
+  let p = buf.readUInt32LE(eocd + 16);
+  for (let i = 0; i < count; i++) {
+    const method = buf.readUInt16LE(p + 10);
+    const size = buf.readUInt32LE(p + 20);
+    const nameLen = buf.readUInt16LE(p + 28);
+    const extraLen = buf.readUInt16LE(p + 30);
+    const commentLen = buf.readUInt16LE(p + 32);
+    const local = buf.readUInt32LE(p + 42);
+    const entryName = buf.toString("utf8", p + 46, p + 46 + nameLen);
+    if (entryName === name) {
+      const start =
+        local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+      const data = buf.subarray(start, start + size);
+      return (method === 8 ? inflateRawSync(data) : data).toString("utf8");
+    }
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  return null;
 }
