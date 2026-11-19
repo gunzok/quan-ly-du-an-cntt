@@ -364,9 +364,11 @@ test.describe.serial("Ngăn chi tiết task", () => {
     await expect(page.getByText(`Task chính`)).toHaveCount(0);
   });
 
-  test("360 px, bàn phím: toàn trang, không tràn ngang; xóa task cha nói rõ xóa cả việc con (tối)", async ({
+  test("360 px, bàn phím: không tràn ngang; xóa task cha còn việc con bị chặn, xóa con rồi xóa được cha (tối)", async ({
     page,
   }) => {
+    // QLDA-81: task còn việc con không xóa được; hộp thoại nói rõ và dẫn tới danh sách việc con.
+    const d = strings.taskDelete;
     await page.emulateMedia({ colorScheme: "dark" });
     await page.setViewportSize({ width: 360, height: 780 });
     await signInAs(page, "pm");
@@ -384,12 +386,61 @@ test.describe.serial("Ngăn chi tiết task", () => {
     await remove.focus();
     await page.keyboard.press("Enter");
     const dialog = page.getByRole("alertdialog");
-    await expect(dialog).toContainText(t.delete.bodyWithSubtasks(1));
-    // Focus mặc định ở Hủy: Enter không xóa nhầm.
+    await expect(dialog.getByRole("heading")).toHaveText(
+      d.blockedTitle(`Task sẽ xóa ${tag}`),
+    );
+    await expect(dialog).toContainText(d.blockedBody(1));
+    await expect(
+      dialog.getByRole("button", { name: t.delete.confirm }),
+    ).toHaveCount(0);
+    expect(await blockingViolations(page)).toEqual([]);
+    await page.emulateMedia({ colorScheme: "light" });
+    expect(await blockingViolations(page)).toEqual([]);
+    await page.emulateMedia({ colorScheme: "dark" });
+    // Focus mặc định ở Đóng: Enter đóng hộp thoại, focus về nút mở.
+    await expect(
+      dialog.getByRole("button", { name: strings.ui.close }),
+    ).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(dialog).toHaveCount(0);
+    await expect(remove).toBeFocused();
 
+    // Liên kết tới danh sách việc con: đóng hộp thoại, focus vào tiêu đề mục Việc con.
     await remove.click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("link", { name: d.viewSubtasks })
+      .click();
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
+    await expect(page.locator("#task-subtasks")).toBeFocused();
+    const removed = await service!
+      .from("tasks")
+      .select("id")
+      .in("id", [ids.removable, ids.removableChild]);
+    expect(removed.data).toHaveLength(2);
+
+    // Xóa việc con trước (về lại task cha), rồi xóa được task cha.
+    await p
+      .getByRole("list", { name: t.subtasks.listLabel })
+      .getByRole("link", { name: `Con của task sẽ xóa ${tag}`, exact: true })
+      .click();
+    await expect(page).toHaveURL(
+      `/projects/${projectId}/tasks/${ids.removableChild}`,
+    );
+    await expect(p.locator('[data-field="label_ids"]')).toBeVisible();
+    await p.getByRole("button", { name: t.delete.action }).click();
+    await expect(page.getByRole("alertdialog")).toContainText(t.delete.body);
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t.delete.confirm })
+      .click();
+    await expect(page).toHaveURL(
+      `/projects/${projectId}/tasks/${ids.removable}`,
+    );
+    await expect(p.getByText(t.subtasks.empty, { exact: true })).toBeVisible();
+
+    await p.getByRole("button", { name: t.delete.action }).click();
+    await expect(page.getByRole("alertdialog")).toContainText(t.delete.body);
     await page
       .getByRole("alertdialog")
       .getByRole("button", { name: t.delete.confirm })

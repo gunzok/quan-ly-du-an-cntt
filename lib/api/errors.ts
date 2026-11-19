@@ -44,6 +44,8 @@ export interface ApiError {
   details?: ApiErrorDetail[];
   /** Id task liên quan (ví dụ việc con chưa xong khi đóng task cha, BR-04). */
   task_ids?: string[];
+  /** Số việc con (mọi cấp) còn lại khi xóa task cha bị từ chối (QLDA-81). */
+  subtask_count?: number;
   request_id?: string;
 }
 
