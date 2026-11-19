@@ -1746,6 +1746,9 @@ const viMessages = {
       total: "Tổng số dòng",
       signature: "Người lập báo cáo",
     },
+    /** Màn Template báo cáo (S11): lối tải template mẫu. */
+    sampleHint:
+      "Chưa có template của công ty? Tải template mẫu, sửa theo mẫu công ty (giữ các ô {{...}}) rồi tải lên.",
     api: {
       templateMissing:
         "Chưa có template Excel đang dùng. Admin cần tải lên và bật một template xlsx.",

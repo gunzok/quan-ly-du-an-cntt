@@ -1746,6 +1746,9 @@ export const en: Messages = {
       total: "Row count",
       signature: "Prepared by",
     },
+    /** Màn Template báo cáo (S11): lối tải template mẫu. */
+    sampleHint:
+      "No company template yet? Download the sample, adapt it to your company layout (keep the {{...}} placeholders), then upload it.",
     api: {
       templateMissing:
         "No Excel template is in use. An Admin needs to upload and activate an xlsx template.",
