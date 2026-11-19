@@ -1,33 +1,460 @@
 name: CD
 
+# Triển khai liên tục (Story E0-2, QLDA-33). Hướng dẫn cấu hình cho sếp: docs/05-ops/README.md;
+# migration và sao lưu: docs/05-ops/migration-va-sao-luu.md.
+#
+#   - CI (ci.yml) xanh trên main (gồm ci-gate)  → deploy-staging: migration Supabase staging
+#     (xem trước --dry-run rồi mới áp) → Vercel bản preview gắn tên miền staging → kiểm tra khói →
+#     ghi trạng thái "cd/staging" cho commit.
+#   - Gắn tag vX.Y.Z (trên commit của main, CI xanh, đã qua staging) → deploy-production: dừng chờ
+#     người duyệt của environment "production" → kiểm sao lưu → migration → Vercel --prod → khói.
+#   - Chạy tay (Actions → CD → Run workflow, nhánh main): triển khai lại staging, hoặc quay lại bản
+#     production trước (rollback-production, cũng cần duyệt).
+#
+# Repo CHƯA cấu hình (chưa có biến DEPLOY_STAGING_ENABLED / DEPLOY_PRODUCTION_ENABLED = true) thì
+# job plan chỉ ghi thông báo và các job triển khai bị bỏ qua (xám), không làm đỏ main. Đã bật mà
+# thiếu bí mật thì job triển khai ĐỎ và liệt kê tên bí mật còn thiếu (không in giá trị).
+
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
+  push:
     tags: ["v*.*.*"]
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Việc cần làm: staging (triển khai lại staging từ main) hoặc rollback-production"
+        type: choice
+        options: [staging, rollback-production]
+        default: staging
+      rollback_to:
+        description: "Chỉ cho rollback-production: URL hoặc id (dpl_...) bản production muốn quay lại; để trống = bản ngay trước"
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
+env:
+  # Ghim phiên bản công cụ (cập nhật có chủ đích, giống ci.yml).
+  VERCEL_CLI_VERSION: 65.9.0
+  SUPABASE_CLI_VERSION: 3.1.0
+
 jobs:
-  deploy-staging:
-    name: deploy-staging
+  # Quyết định có triển khai không, triển khai commit nào, và các chốt trước production.
+  plan:
+    name: plan
     runs-on: ubuntu-latest
-    environment: staging
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      statuses: read
+    outputs:
+      target: ${{ steps.decide.outputs.target }}
+      sha: ${{ steps.decide.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
-      # TODO(Pha 5): thay bằng lệnh triển khai staging thật (bí mật lấy từ GitHub Secrets)
-      - run: echo "STUB deploy staging cho ${{ github.sha }}"
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Xác định việc cần làm
+        id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA_EVENT: ${{ github.sha }}
+          WR_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WR_EVENT: ${{ github.event.workflow_run.event }}
+          WR_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          WR_SHA: ${{ github.event.workflow_run.head_sha }}
+          WR_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          INPUT_TARGET: ${{ inputs.target }}
+          STAGING_ENABLED: ${{ vars.DEPLOY_STAGING_ENABLED }}
+          PRODUCTION_ENABLED: ${{ vars.DEPLOY_PRODUCTION_ENABLED }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          target=none
+          sha=""
+          skip() {
+            echo "::notice::$1"
+            echo "### CD: không triển khai" >> "$GITHUB_STEP_SUMMARY"
+            echo "$1" >> "$GITHUB_STEP_SUMMARY"
+            echo "target=none" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          ci_gate_ok() {
+            gh api "repos/$REPO/commits/$1/check-runs?check_name=ci-gate&filter=latest" \
+              --jq '[.check_runs[] | select(.conclusion == "success")] | length' | grep -qv '^0$'
+          }
+
+          case "$EVENT" in
+            workflow_run)
+              if [ "$WR_EVENT" != "push" ] || [ "$WR_BRANCH" != "main" ] || [ "$WR_REPO" != "$REPO" ]; then
+                skip "CI không phải lượt push lên main của repo này ($WR_EVENT, $WR_BRANCH)."
+              fi
+              if [ "$WR_CONCLUSION" != "success" ]; then
+                skip "CI trên main không xanh ($WR_CONCLUSION) nên không triển khai staging."
+              fi
+              target=staging
+              sha="$WR_SHA"
+              ;;
+            push)
+              if ! [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                echo "::error::Tag $REF_NAME không đúng dạng vX.Y.Z."
+                exit 1
+              fi
+              target=production
+              sha="$GITHUB_SHA_EVENT"
+              ;;
+            workflow_dispatch)
+              if [ "$REF" != "refs/heads/main" ]; then
+                echo "::error::Chỉ chạy tay CD từ nhánh main (đang ở $REF)."
+                exit 1
+              fi
+              case "$INPUT_TARGET" in
+                staging) target=staging ;;
+                rollback-production) target=rollback ;;
+                *) echo "::error::target không hợp lệ: $INPUT_TARGET"; exit 1 ;;
+              esac
+              sha="$GITHUB_SHA_EVENT"
+              ;;
+            *)
+              skip "Sự kiện $EVENT không triển khai."
+              ;;
+          esac
+
+          if [ "$target" = staging ] && [ "$STAGING_ENABLED" != "true" ]; then
+            skip "Staging chưa cấu hình (biến repo DEPLOY_STAGING_ENABLED khác true). Bỏ qua triển khai; xem docs/05-ops/README.md."
+          fi
+          if { [ "$target" = production ] || [ "$target" = rollback ]; } && [ "$PRODUCTION_ENABLED" != "true" ]; then
+            skip "Production chưa cấu hình (biến repo DEPLOY_PRODUCTION_ENABLED khác true). Bỏ qua; xem docs/05-ops/README.md."
+          fi
+
+          if [ "$target" = staging ] && [ "$EVENT" = workflow_dispatch ] && ! ci_gate_ok "$sha"; then
+            echo "::error::Commit $sha chưa có ci-gate xanh, không triển khai staging."
+            exit 1
+          fi
+
+          if [ "$target" = production ]; then
+            # Chốt 1: commit của tag nằm trên main.
+            git fetch --no-tags origin main
+            if ! git merge-base --is-ancestor "$sha" origin/main; then
+              echo "::error::Tag $REF_NAME trỏ vào commit không thuộc main. Chỉ phát hành từ main."
+              exit 1
+            fi
+            # Chốt 2: CI (ci-gate) xanh cho đúng commit này.
+            if ! ci_gate_ok "$sha"; then
+              echo "::error::Commit $sha chưa có ci-gate xanh."
+              exit 1
+            fi
+            # Chốt 3: commit đã lên staging và qua kiểm tra khói (trạng thái cd/staging do job
+            # deploy-staging ghi). E0-10: lên staging trước rồi mới lên production.
+            staging_state="$(gh api "repos/$REPO/commits/$sha/status" \
+              --jq '[.statuses[] | select(.context == "cd/staging")][0].state // "none"')"
+            if [ "$staging_state" != "success" ]; then
+              echo "::error::Commit $sha chưa qua staging (cd/staging = $staging_state). Chờ CD staging xanh cho commit này rồi chạy lại job (Re-run)."
+              exit 1
+            fi
+            {
+              echo "### Chờ duyệt production $REF_NAME"
+              echo ""
+              echo "- Commit: \`$sha\` (thuộc main, ci-gate xanh, đã qua staging)."
+              echo "- Trước khi bấm duyệt: nếu BACKUP_STRATEGY=manual, chạy \`make db-backup DEPLOY_ENV=production\` trên máy và kiểm tệp sao lưu."
+              echo "- Xem trước migration sẽ chạy: phần \"Xem trước migration\" trong log job deploy-production (chạy sau khi duyệt, trước khi áp)."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Kế hoạch: $target cho $sha"
+
+  deploy-staging:
+    name: deploy-staging
+    needs: plan
+    if: needs.plan.outputs.target == 'staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.app_url }}
+    # Không hai bản triển khai staging chồng nhau; không hủy bản đang chạy (đang migrate dở).
+    concurrency:
+      group: cd-staging
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      statuses: write
+    env:
+      SHA: ${{ needs.plan.outputs.sha }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      APP_URL: ${{ vars.APP_URL }}
+      BACKUP_STRATEGY: ${{ vars.BACKUP_STRATEGY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          persist-credentials: false
+      - name: Kiểm tra cấu hình (chỉ in tên còn thiếu)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          missing=""
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID SUPABASE_DB_URL APP_URL NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY; do
+            [ -n "${!name:-}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::DEPLOY_STAGING_ENABLED=true nhưng environment staging thiếu:$missing. Xem docs/05-ops/README.md mục GitHub."
+            exit 1
+          fi
+          case "$APP_URL" in https://*) ;; *) echo "::error::APP_URL phải bắt đầu bằng https://"; exit 1 ;; esac
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - uses: supabase/setup-cli@v3
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+      - name: Xem trước migration (dry-run, không ghi CSDL)
+        run: supabase db push --remote="$SUPABASE_DB_URL" --skip-vault --dry-run
+      - name: Kiểm tra sao lưu staging (chỉ cảnh báo)
+        if: env.BACKUP_STRATEGY == 'supabase'
+        continue-on-error: true
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          supabase backups list --remote="$SUPABASE_PROJECT_REF" -o json \
+            | node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/backup-check.ts --max-age-hours 26
+      - name: Áp migration lên Supabase staging
+        run: supabase db push --remote="$SUPABASE_DB_URL" --skip-vault --yes
+      - name: Cài Vercel CLI (ghim phiên bản)
+        run: npm install --global "vercel@${VERCEL_CLI_VERSION}"
+      - name: Triển khai Vercel (preview, biến môi trường Preview = staging) và gắn tên miền staging
+        id: deploy
+        run: |
+          set -euo pipefail
+          url="$(vercel deploy --yes --archive=tgz --token="$VERCEL_TOKEN" \
+            --meta githubCommitSha="$SHA" --meta githubRepo="$GITHUB_REPOSITORY")"
+          echo "Bản triển khai: $url"
+          alias_host="${APP_URL#https://}"
+          alias_host="${alias_host%%/*}"
+          vercel alias set "$url" "$alias_host" --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
+          {
+            echo "deploy_url=$url"
+            echo "app_url=https://$alias_host"
+          } >> "$GITHUB_OUTPUT"
+      - name: Kiểm tra khói staging
+        env:
+          SMOKE_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SMOKE_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SMOKE_REQUIRE_SUPABASE: "1"
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          APP: ${{ steps.deploy.outputs.app_url }}
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/smoke.ts "$APP"
+      - name: Ghi trạng thái cd/staging cho commit (điều kiện để phát hành production)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" \
+            -f state=success -f context=cd/staging \
+            -f description="Đã triển khai staging và qua kiểm tra khói" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > /dev/null
+      - name: Hướng dẫn khi lỗi
+        if: failure()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ### Triển khai staging ĐỎ
+          - Đỏ ở bước migration: CSDL staging có thể đã áp một phần; xem log, sửa bằng migration MỚI rồi merge lại (docs/05-ops/migration-va-sao-luu.md mục Sự cố).
+          - Đỏ ở bước Vercel hoặc kiểm tra khói: staging vẫn chạy bản cũ (tên miền staging chỉ chuyển khi bước gắn tên miền chạy xong). Xem log, sửa và merge lại, hoặc chạy tay CD → staging.
+          - Production KHÔNG bị ảnh hưởng; commit này chưa có trạng thái cd/staging nên không phát hành được.
+          EOF
 
   deploy-production:
     name: deploy-production
-    # Chỉ chạy khi gắn tag phiên bản vX.Y.Z
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: deploy-staging
+    needs: plan
+    if: needs.plan.outputs.target == 'production'
     runs-on: ubuntu-latest
-    # GATE TRIỂN KHAI: environment "production" yêu cầu người duyệt, GitHub sẽ dừng chờ phê duyệt.
-    environment: production
+    timeout-minutes: 30
+    # GATE TRIỂN KHAI: environment "production" yêu cầu người duyệt; GitHub dừng chờ phê duyệt.
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.app_url }}
+    concurrency:
+      group: cd-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      SHA: ${{ needs.plan.outputs.sha }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      APP_URL: ${{ vars.APP_URL }}
+      BACKUP_STRATEGY: ${{ vars.BACKUP_STRATEGY }}
     steps:
       - uses: actions/checkout@v7
-      # TODO(Pha 5): thay bằng lệnh triển khai production thật
-      - run: echo "STUB deploy production cho ${{ github.ref_name }}"
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          persist-credentials: false
+      - name: Kiểm tra cấu hình (chỉ in tên còn thiếu)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          missing=""
+          required="VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID SUPABASE_DB_URL APP_URL NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY BACKUP_STRATEGY"
+          if [ "$BACKUP_STRATEGY" = supabase ]; then
+            required="$required SUPABASE_ACCESS_TOKEN SUPABASE_PROJECT_REF"
+          fi
+          for name in $required; do
+            [ -n "${!name:-}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::DEPLOY_PRODUCTION_ENABLED=true nhưng environment production thiếu:$missing. Xem docs/05-ops/README.md mục GitHub."
+            exit 1
+          fi
+          case "$BACKUP_STRATEGY" in supabase | manual) ;; *) echo "::error::BACKUP_STRATEGY phải là supabase hoặc manual."; exit 1 ;; esac
+          case "$APP_URL" in https://*) ;; *) echo "::error::APP_URL phải bắt đầu bằng https://"; exit 1 ;; esac
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - uses: supabase/setup-cli@v3
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+      - name: Xem trước migration (dry-run, không ghi CSDL)
+        run: supabase db push --remote="$SUPABASE_DB_URL" --skip-vault --dry-run
+      - name: Kiểm tra sao lưu production (bắt buộc)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          if [ "$BACKUP_STRATEGY" = supabase ]; then
+            supabase backups list --remote="$SUPABASE_PROJECT_REF" -o json \
+              | node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/backup-check.ts --max-age-hours 26
+          else
+            echo "::warning::BACKUP_STRATEGY=manual: CD không tự kiểm được bản sao lưu. Người duyệt xác nhận đã chạy make db-backup DEPLOY_ENV=production trước khi duyệt (docs/05-ops/migration-va-sao-luu.md)."
+          fi
+      - name: Áp migration lên Supabase production
+        run: supabase db push --remote="$SUPABASE_DB_URL" --skip-vault --yes
+      - name: Cài Vercel CLI (ghim phiên bản)
+        run: npm install --global "vercel@${VERCEL_CLI_VERSION}"
+      - name: Triển khai Vercel production
+        id: deploy
+        run: |
+          set -euo pipefail
+          url="$(vercel deploy --prod --yes --archive=tgz --token="$VERCEL_TOKEN" \
+            --meta githubCommitSha="$SHA" --meta githubRepo="$GITHUB_REPOSITORY" \
+            --meta release="$GITHUB_REF_NAME")"
+          echo "Bản triển khai: $url"
+          {
+            echo "deploy_url=$url"
+            echo "app_url=${APP_URL%/}"
+          } >> "$GITHUB_OUTPUT"
+      - name: Kiểm tra khói production
+        env:
+          SMOKE_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SMOKE_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SMOKE_REQUIRE_SUPABASE: "1"
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          APP: ${{ steps.deploy.outputs.app_url }}
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/smoke.ts "$APP"
+      - name: Tóm tắt
+        run: |
+          {
+            echo "### Đã phát hành $GITHUB_REF_NAME lên production"
+            echo "- Commit: \`$SHA\`"
+            echo "- Quay lại bản trước nếu cần: Actions → CD → Run workflow → rollback-production (docs/05-ops/README.md mục Quay lại)."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Hướng dẫn quay lại khi lỗi
+        if: failure()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ### Phát hành production ĐỎ: làm theo thứ tự
+          1. Đỏ TRƯỚC bước "Áp migration": chưa có gì thay đổi trên production. Sửa nguyên nhân rồi Re-run job.
+          2. Đỏ ở bước "Áp migration": migration chạy trong giao dịch nên thường không áp nửa chừng; kiểm `supabase migration list` (docs/05-ops/migration-va-sao-luu.md mục Sự cố). App production vẫn là bản cũ.
+          3. Đỏ ở bước Vercel: app production vẫn là bản cũ; CSDL đã có migration mới (migration phải tương thích ngược với bản app cũ).
+          4. Đỏ ở "Kiểm tra khói": bản mới ĐÃ nhận lưu lượng. Quay lại ngay: Actions → CD → Run workflow → target = rollback-production (cần duyệt), hoặc Vercel Dashboard → Deployments → bản trước → Instant Rollback.
+          5. Lỗi dữ liệu do migration: KHÔNG sửa tay trên production; viết migration sửa (forward fix) hoặc khôi phục từ bản sao lưu theo docs/05-ops/migration-va-sao-luu.md.
+          EOF
+
+  # Quay lại bản production trước (chỉ app trên Vercel; CSDL không tự quay lại).
+  rollback-production:
+    name: rollback-production
+    needs: plan
+    if: needs.plan.outputs.target == 'rollback'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+    concurrency:
+      group: cd-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      APP_URL: ${{ vars.APP_URL }}
+      ROLLBACK_TO: ${{ inputs.rollback_to }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          persist-credentials: false
+      - name: Kiểm tra cấu hình và tham số
+        run: |
+          missing=""
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID APP_URL; do
+            [ -n "${!name:-}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Environment production thiếu:$missing."
+            exit 1
+          fi
+          if [ -n "$ROLLBACK_TO" ] && ! [[ "$ROLLBACK_TO" =~ ^(https://[a-z0-9.-]+\.vercel\.app/?|dpl_[A-Za-z0-9]+)$ ]]; then
+            echo "::error::rollback_to phải là URL https://...vercel.app hoặc id dpl_..."
+            exit 1
+          fi
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Cài Vercel CLI (ghim phiên bản)
+        run: npm install --global "vercel@${VERCEL_CLI_VERSION}"
+      - name: Quay lại bản production trước trên Vercel
+        run: |
+          set -euo pipefail
+          if [ -n "$ROLLBACK_TO" ]; then
+            vercel rollback "$ROLLBACK_TO" --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
+          else
+            vercel rollback --token="$VERCEL_TOKEN" --scope="$VERCEL_ORG_ID"
+          fi
+      - name: Kiểm tra khói sau khi quay lại
+        env:
+          SMOKE_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SMOKE_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/smoke.ts "$APP_URL"
+      - name: Nhắc việc sau khi quay lại
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ### Đã quay lại bản production trước (chỉ app)
+          - CSDL KHÔNG quay lại. Nếu migration mới gây lỗi cho bản app cũ: viết migration sửa, hoặc khôi phục sao lưu (docs/05-ops/migration-va-sao-luu.md).
+          - Vercel tắt tự gán tên miền cho bản production mới sau khi rollback; lần phát hành tag tiếp theo sẽ gán lại (kiểm Vercel Dashboard nếu không).
+          - Ghi sự cố vào PROJECT_STATE.md và tạo issue sửa lỗi.
+          EOF

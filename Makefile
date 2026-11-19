@@ -17,7 +17,8 @@
 
 .PHONY: install lint test build security check-pnpm check-gitleaks \
 	check-supabase db-start db-stop db-reset db-seed db-test test-db test-integration \
-	e2e-install test-e2e perf-seed perf-clean perf email-dispatch
+	e2e-install test-e2e perf-seed perf-clean perf \
+	deploy-smoke check-migrations lint-workflows db-backup email-dispatch
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -163,6 +164,37 @@ perf: check-pnpm check-supabase
 	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="perf-$$(date +%s)-$$$$"; \
 	if [ -z "$$PERF_BASE_URL" ]; then pnpm build || exit 1; fi; \
 	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/measure.ts
+
+# ---------------------------------------------------------------------------
+# Triển khai (Story E0-2, E0-10). Hướng dẫn đầy đủ: docs/05-ops/README.md.
+# ---------------------------------------------------------------------------
+
+# Kiểm tra khói một bản đang chạy (cục bộ hoặc đã triển khai), không cần đăng nhập. Ví dụ:
+#   make deploy-smoke URL=http://127.0.0.1:3100
+#   make deploy-smoke URL=https://<tên>.vercel.app
+# Tùy chọn: SMOKE_SUPABASE_URL, SMOKE_SUPABASE_ANON_KEY (xem đầu scripts/deploy/smoke.ts).
+deploy-smoke:
+	@test -n "$(URL)" || { echo "::error::Thiếu URL. Ví dụ: make deploy-smoke URL=http://127.0.0.1:3100"; exit 1; }
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/smoke.ts "$(URL)"
+
+# Quy tắc migration so với nhánh gốc: không sửa/xóa migration đã merge, tên đúng dạng, không trùng
+# và (cảnh báo) không lùi timestamp. MIGRATIONS_BASE mặc định origin/main.
+MIGRATIONS_BASE ?= origin/main
+check-migrations:
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/deploy/check-migrations.ts "$(MIGRATIONS_BASE)" HEAD
+
+# Kiểm cú pháp workflow GitHub Actions (CI cài actionlint ghim phiên bản trong job lint).
+lint-workflows:
+	@command -v actionlint >/dev/null 2>&1 || { \
+		echo "::error::Thiếu actionlint. Cài: brew install actionlint (hoặc tải bản phát hành tại https://github.com/rhysd/actionlint/releases)"; \
+		exit 1; }
+	actionlint
+
+# Sao lưu tay CSDL staging/production về máy (ngoài repo). Cần Supabase CLI + Docker và chuỗi
+# kết nối Session pooler (SUPABASE_DB_URL hoặc nhập ẩn). Ví dụ: make db-backup DEPLOY_ENV=production
+db-backup:
+	@test -n "$(DEPLOY_ENV)" || { echo "::error::Thiếu DEPLOY_ENV. Ví dụ: make db-backup DEPLOY_ENV=production"; exit 1; }
+	scripts/deploy/backup.sh "$(DEPLOY_ENV)"
 
 # ---------------------------------------------------------------------------
 # Email (Story E4-2). Chạy tay worker gửi email một lần: gọi /api/internal/email/dispatch của
