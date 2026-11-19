@@ -23,6 +23,8 @@ import {
   type ProfileFieldIssue,
 } from "@/lib/profile/rules";
 import { applyTheme, THEMES, type Theme } from "@/lib/profile/theme";
+import type { EmailPreferences } from "@/lib/notifications/preferences";
+import { EmailPreferencesSection } from "./email-preferences-section";
 
 type FieldErrors = { full_name?: string; phone?: string };
 
@@ -102,9 +104,12 @@ function ChoiceGroup<T extends string>({
 export function ProfileScreen({
   profile,
   initialTheme,
+  emailPreferences,
 }: {
   profile: MeProfile;
   initialTheme: Theme;
+  /** Story E4-2: bật/tắt email theo loại; null = không tải được. */
+  emailPreferences: EmailPreferences | null;
 }) {
   const { t: strings } = useI18n();
   const t = strings.profile;
@@ -309,6 +314,8 @@ export function ProfileScreen({
           </p>
         ) : null}
       </form>
+
+      <EmailPreferencesSection initial={emailPreferences} />
 
       <section
         aria-labelledby="profile-roles-heading"

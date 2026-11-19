@@ -8,6 +8,7 @@ import { AppShell } from "@/components/projects/app-shell";
 import { LOGIN_PATH } from "@/lib/auth/routes";
 import { getStrings } from "@/lib/i18n/server";
 import { loadMe } from "@/lib/me/load";
+import { loadEmailPreferences } from "@/lib/notifications/preferences-handlers";
 import { THEME_COOKIE, themeAttribute } from "@/lib/profile/theme";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,6 +49,10 @@ async function ProfileGate() {
   if (!me) {
     redirect(LOGIN_PATH);
   }
+  // Story E4-2: lỗi đọc cài đặt email không làm hỏng trang hồ sơ (phần đó hiện thông báo lỗi).
+  const emailPreferences = await loadEmailPreferences(supabase).catch(
+    () => null,
+  );
   const cookieTheme = (await cookies()).get(THEME_COOKIE)?.value;
   const theme = themeAttribute(cookieTheme) ?? "system";
   const isPm = me.projects.some((p) => p.role === "pm");
@@ -65,7 +70,11 @@ async function ProfileGate() {
       roleLabel={roleLabel}
       isAdmin={me.is_admin}
     >
-      <ProfileScreen profile={{ ...me, email }} initialTheme={theme} />
+      <ProfileScreen
+        profile={{ ...me, email }}
+        initialTheme={theme}
+        emailPreferences={emailPreferences}
+      />
     </AppShell>
   );
 }

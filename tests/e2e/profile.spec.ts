@@ -227,6 +227,80 @@ test.describe.serial("Hồ sơ cá nhân S18", () => {
     expect(await blockingViolations(page)).toEqual([]);
   });
 
+  test("E4-2: bật/tắt email theo loại bằng bàn phím → lưu ngay, giữ sau tải lại; lỗi thì trả lại", async ({
+    page,
+  }) => {
+    const ep = strings.emailPreferences;
+    await page.emulateMedia({ colorScheme: "light" });
+    await signInOwner(page);
+    await openProfile(page);
+    const section = page.getByRole("region", { name: ep.heading });
+    const assigned = section.getByRole("switch", {
+      name: ep.types.task_assigned,
+      exact: true,
+    });
+    const status = section.getByRole("switch", {
+      name: ep.types.task_status_changed,
+      exact: true,
+    });
+    // Mặc định: giao việc bật, đổi trạng thái tắt.
+    await expect(assigned).toBeChecked();
+    await expect(status).not.toBeChecked();
+
+    const put = () =>
+      page.waitForResponse(
+        (r) =>
+          r.url().endsWith("/api/v1/me/notification-preferences") &&
+          r.request().method() === "PUT",
+      );
+    await assigned.focus();
+    let saved = put();
+    await page.keyboard.press("Space");
+    expect((await saved).status()).toBe(200);
+    await expect(assigned).not.toBeChecked();
+    await expect(
+      section
+        .getByRole("status")
+        .filter({ hasText: ep.saved(ep.types.task_assigned, false) }),
+    ).toBeVisible();
+    await expect(assigned).toBeFocused();
+
+    saved = put();
+    await status.check();
+    expect((await saved).status()).toBe(200);
+    const { data, error } = await service!
+      .from("notification_preferences")
+      .select("type, email_enabled")
+      .eq("user_id", users.owner)
+      .order("type");
+    if (error) throw error;
+    expect(data).toEqual([
+      { type: "task_assigned", email_enabled: false },
+      { type: "task_status_changed", email_enabled: true },
+    ]);
+
+    await page.reload();
+    await waitForHydration(page);
+    await expect(assigned).not.toBeChecked();
+    await expect(status).toBeChecked();
+    expect(await blockingViolations(page)).toEqual([]);
+
+    // Máy chủ lỗi: công tắc trở lại trạng thái cũ, báo lỗi.
+    await page.route("**/api/v1/me/notification-preferences", (route) =>
+      route.request().method() === "PUT"
+        ? route.fulfill({
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({ error: { code: "internal_error" } }),
+          })
+        : route.continue(),
+    );
+    await assigned.click();
+    await expect(section.getByRole("alert")).toHaveText(ep.saveFailed);
+    await expect(assigned).not.toBeChecked();
+    await page.unroute("**/api/v1/me/notification-preferences");
+  });
+
   test("AC2: đổi ngôn ngữ → đăng xuất, đăng nhập lại vẫn giữ English", async ({
     browser,
   }) => {
