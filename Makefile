@@ -17,7 +17,7 @@
 
 .PHONY: install lint test build security check-pnpm check-gitleaks \
 	check-supabase db-start db-stop db-reset db-seed db-test test-db test-integration \
-	e2e-install test-e2e perf-seed perf-clean perf
+	e2e-install test-e2e perf-seed perf-clean perf perf-report
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -161,3 +161,13 @@ perf: check-pnpm check-supabase
 	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="perf-$$(date +%s)-$$$$"; \
 	if [ -z "$$PERF_BASE_URL" ]; then pnpm build || exit 1; fi; \
 	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/measure.ts
+
+# Đo xuất báo cáo xlsx trên dự án perf 2.000 task (Story E5-3, NFR-03 < 30 giây). Cần make perf-seed
+# trước; không cần SEED_PASSWORD (tạo PM tạm). PERF_REPORT_ITERATIONS (mặc định 5, tối đa 10).
+perf-report: check-pnpm check-supabase
+	@eval "$$(supabase status -o env 2>/dev/null)"; \
+	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
+		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
+		exit 1; fi; \
+	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" PERF_REPORT=1 \
+	pnpm exec vitest run tests/integration/reports-perf.test.ts --silent=false
