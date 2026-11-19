@@ -1034,8 +1034,6 @@ const viMessages = {
       action: "Xóa task",
       title: (title: string) => `Xóa task “${title}”?`,
       body: "Task sẽ bị xóa vĩnh viễn, không hoàn tác được.",
-      bodyWithSubtasks: (count: number) =>
-        `Task và cả ${count} việc con của nó sẽ bị xóa vĩnh viễn, không hoàn tác được.`,
       confirm: "Xóa vĩnh viễn",
       failed: "Chưa xóa được task.",
     },
@@ -1637,6 +1635,17 @@ const viMessages = {
         "Số điện thoại không đúng định dạng (ví dụ 0900 000 000 hoặc +84 900 000 000).",
       saveFailed: "Không lưu được hồ sơ. Thử lại.",
     },
+  },
+  /** QLDA-81: chặn xóa task cha còn việc con. */
+  taskDelete: {
+    errors: {
+      hasSubtasks:
+        "Task còn việc con. Hãy xóa hoặc chuyển các việc con sang task khác trước khi xóa task này.",
+    },
+    blockedTitle: (title: string) => `Chưa xóa được task “${title}”`,
+    blockedBody: (count: number) =>
+      `Task còn ${count} việc con, hãy xóa hoặc chuyển các việc con trước.`,
+    viewSubtasks: "Xem danh sách việc con",
   },
 } as const;
 
