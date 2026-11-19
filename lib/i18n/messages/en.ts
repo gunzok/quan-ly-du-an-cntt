@@ -1696,7 +1696,7 @@ export const en: Messages = {
         timeout:
           "Creating the report took too long. Narrow the period and try again.",
         network:
-          "Could not reach the server. Check your connection and try again.",
+          "Cannot reach the server. Check your connection and try again.",
         failed: "Could not create the report. Try again later.",
       },
     },
