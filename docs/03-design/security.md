@@ -50,3 +50,13 @@ flowchart LR
 - CI chặn merge khi có bí mật hoặc lỗ hổng phụ thuộc mức high (NFR-08, đã có).
 - Kiểm thử phân quyền cho 4 vai trò ở mọi bảng trước khi vào Pha 5 hoàn tất (xem [test-strategy.md](test-strategy.md)).
 - Xem lại threat model khi thêm tính năng đợt sau (tệp đính kèm, bình luận, tích hợp).
+
+## 7. Phụ thuộc và chuỗi cung ứng
+- `make security` chạy `pnpm audit --audit-level high`; cảnh báo high hoặc critical làm CI đỏ (NFR-08).
+- Ngoại lệ chỉ được thêm khi có quyết định rõ ràng, phải có hạn rà lại, và chỉ liệt kê đúng mã GHSA trong `auditConfig.ignoreGhsas` của `pnpm-workspace.yaml` (pnpm 12 đọc cấu hình ở đây).
+
+| Advisory | Gói | Lý do bỏ qua | Quyết định | Rà lại trước |
+|---|---|---|---|---|
+| [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) | picomatch <= 4.0.7 (ReDoS qua extglob lặp một nhánh, mức high, chưa có bản vá) | Chỉ có trong công cụ phát triển (eslint-config-next, vitest/vite/tinyglobby, ...), không chạy ở production. Đã kiểm: `pnpm why picomatch --prod` trống, `pnpm audit --prod --audit-level high` không có lỗ hổng. | 2026-11-18 | 2026-12-18 |
+
+Khi rà lại: nếu đã có bản vá thì nâng phụ thuộc và xoá ngoại lệ; nếu picomatch xuất hiện trong `pnpm why picomatch --prod` thì xoá ngoại lệ ngay.
