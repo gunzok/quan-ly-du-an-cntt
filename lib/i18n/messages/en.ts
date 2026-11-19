@@ -1638,4 +1638,124 @@ export const en: Messages = {
       saveFailed: "Could not save your profile. Try again.",
     },
   },
+  reports: {
+    exportButton: "Export report",
+    dialog: {
+      eyebrow: "Export / Report",
+      title: "Export progress report",
+      description: (project: string) =>
+        `Project ${project}. The file follows the company template in use.`,
+      formatLegend: "01 / Format",
+      formats: {
+        xlsx: {
+          label: "Excel",
+          hint: "Data tables, easy to edit",
+          ext: ".XLSX",
+        },
+        docx: { label: "Word", hint: "Company report layout", ext: ".DOCX" },
+      },
+      comingSoon: "Coming soon",
+      docxComingSoon:
+        "Word export is in progress; only Excel is available now.",
+      periodLegend: "02 / Period",
+      periodStart: "From",
+      periodEnd: "To",
+      periodHint: "Both days included, Vietnam time; up to 366 days.",
+      thisMonth: "This month",
+      templateLegend: "03 / Template",
+      templateLoading: "Checking the template…",
+      templateActive: "Template in use",
+      templateLoadError:
+        "Could not check the template. You can still try to export.",
+      templateMissing: "No Excel template is in use.",
+      templateMissingPm:
+        "Ask an Admin to upload and activate an Excel template on the Report templates page.",
+      templateMissingAdmin:
+        "Upload and activate an Excel template on the Report templates page (you can start from the sample template).",
+      templatePageLink: "Open Report templates",
+      sampleLink: "Download sample template (.xlsx)",
+      scopeHint:
+        "Totals are as of export time. The task list covers tasks created, updated, due or completed in the period.",
+      durationHint: "Large projects can take up to 30 seconds.",
+      cancel: "Cancel",
+      submit: "Create and download",
+      exporting: "Creating the report…",
+      downloaded: (file: string) => `Downloaded ${file}.`,
+      errors: {
+        periodRequired: "Choose both a start date and an end date.",
+        periodOrder: "The end date must be on or after the start date.",
+        periodTooLong: "A report period can be at most 366 days.",
+        timeout:
+          "Creating the report took too long. Narrow the period and try again.",
+        network:
+          "Could not reach the server. Check your connection and try again.",
+        failed: "Could not create the report. Try again later.",
+      },
+    },
+    xlsx: {
+      noTasks: "No tasks in this period.",
+      noData: "No data.",
+      unassigned: "Unassigned",
+      formerMember: "Former member",
+      overdue: "Overdue",
+      projectStatus: { active: "Active", archived: "Archived" },
+    },
+    sample: {
+      sheetName: "Report",
+      title: "PROJECT PROGRESS REPORT",
+      projectLine: "Project: {{project.name}}",
+      periodLine:
+        "Period: {{period.start}} – {{period.end}} ({{period.days}} days)",
+      generatedLine:
+        "Created: {{report.generated_at}} · By: {{report.generated_by}}",
+      overviewHeading: "1. OVERVIEW (as of export)",
+      overview: {
+        total: "Total tasks",
+        done: "Done",
+        open: "Open",
+        overdue: "Overdue",
+        noDue: "No due date",
+        blocked: "Blocked",
+        progress: "Progress",
+      },
+      periodHeading: "2. IN THIS PERIOD",
+      periodCols: {
+        tasks: "Tasks in period",
+        created: "Created",
+        completed: "Completed",
+        due: "Due",
+      },
+      statusHeading: "3. BY STATUS",
+      statusCols: {
+        name: "Status",
+        group: "Group",
+        count: "Tasks",
+        ratio: "Share",
+      },
+      tasksHeading: "4. TASKS IN THIS PERIOD",
+      taskCols: {
+        index: "No.",
+        title: "Title",
+        status: "Status",
+        assignee: "Assignee",
+        priority: "Priority",
+        due: "Due",
+        labels: "Labels",
+        completed: "Completed at",
+      },
+      total: "Row count",
+      signature: "Prepared by",
+    },
+    api: {
+      templateMissing:
+        "No Excel template is in use. An Admin needs to upload and activate an xlsx template.",
+      templateUnreadable:
+        "The Excel template in use cannot be read. An Admin needs to upload it again.",
+      timeout: "The report export timed out. Narrow the period and try again.",
+      tooManyTasks:
+        "The period has too many tasks (at most 10,000). Narrow the period and try again.",
+      formatUnavailable:
+        "Word export is not available yet; only Excel (xlsx) can be exported.",
+    },
+  },
 };

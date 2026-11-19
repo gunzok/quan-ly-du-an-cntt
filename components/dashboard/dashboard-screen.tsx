@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
+import { ExportReportDialog } from "@/components/reports/export-report-dialog";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorIcon } from "@/components/ui/icons";
@@ -32,6 +33,9 @@ export interface DashboardScreenProps {
   projectName: string;
   /** PM, Thành viên, Admin: được tạo task (trạng thái rỗng hiện lối tạo task). */
   canCreateTask: boolean;
+  /** PM của dự án, Admin: thấy nút Xuất báo cáo (S07, Story E5-3). */
+  canExportReport?: boolean;
+  isAdmin?: boolean;
 }
 
 const card =
@@ -47,6 +51,8 @@ export function DashboardScreen({
   projectId,
   projectName,
   canCreateTask,
+  canExportReport = false,
+  isAdmin = false,
 }: DashboardScreenProps) {
   const strings = useStrings();
   const t = strings.dashboard;
@@ -125,16 +131,25 @@ export function DashboardScreen({
         {t.backToProjects}
       </Link>
       <header className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2">
-          <span className="label [overflow-wrap:anywhere]">
-            {t.eyebrow(projectName, data?.total ?? 0)}
-          </span>
-          <h1 className="font-display text-display-sm">
-            {t.heading}
-            <span aria-hidden="true" className="text-accent">
-              .
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex min-w-0 flex-col gap-2">
+            <span className="label [overflow-wrap:anywhere]">
+              {t.eyebrow(projectName, data?.total ?? 0)}
             </span>
-          </h1>
+            <h1 className="font-display text-display-sm">
+              {t.heading}
+              <span aria-hidden="true" className="text-accent">
+                .
+              </span>
+            </h1>
+          </div>
+          {canExportReport ? (
+            <ExportReportDialog
+              projectId={projectId}
+              projectName={projectName}
+              isAdmin={isAdmin}
+            />
+          ) : null}
         </div>
         <ProjectViewsNav projectId={projectId} current="dashboard" />
       </header>
