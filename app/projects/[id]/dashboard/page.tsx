@@ -83,6 +83,9 @@ async function DashboardGate({ params }: Params) {
   const role = (member?.role as ProjectRole | undefined) ?? null;
   // Tạo task: PM, Thành viên, Admin (BR-02); Người xem chỉ đọc.
   const canCreateTask = isAdmin || role === "pm" || role === "member";
+  // Xuất báo cáo S07: PM của dự án và Admin (Story E5-3); API kiểm lại.
+  const canExportReport =
+    profile?.is_active === true && (isAdmin || role === "pm");
   const roleLabel = isAdmin
     ? strings.projects.roles.admin
     : (pmRows ?? []).length > 0
@@ -100,6 +103,8 @@ async function DashboardGate({ params }: Params) {
         projectId={project.id as string}
         projectName={project.name as string}
         canCreateTask={canCreateTask}
+        canExportReport={canExportReport}
+        isAdmin={isAdmin}
       />
     </AppShell>
   );

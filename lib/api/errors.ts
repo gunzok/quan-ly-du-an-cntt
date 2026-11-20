@@ -13,7 +13,11 @@ export type ApiErrorCode =
   /** Tệp tải lên vượt giới hạn kích thước (Story E5-2). */
   | "payload_too_large"
   | "rate_limited"
-  | "internal_error";
+  | "internal_error"
+  /** Xuất báo cáo: không có template đang dùng cho định dạng đó (Story E5-3). */
+  | "report_template_missing"
+  /** Xuất báo cáo quá thời gian chờ (Story E5-3, R-006). */
+  | "report_timeout";
 
 export type FieldIssue =
   | "required"
@@ -59,6 +63,8 @@ export const API_ERROR_STATUS: Record<ApiErrorCode, number> = {
   payload_too_large: 413,
   rate_limited: 429,
   internal_error: 500,
+  report_template_missing: 422,
+  report_timeout: 504,
 };
 
 /** Thân phản hồi lỗi; tự gắn `message_key` khi thông điệp lấy từ từ điển tiếng Việt. */

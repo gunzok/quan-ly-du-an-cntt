@@ -1688,6 +1688,129 @@ const viMessages = {
       `Task còn ${count} việc con, hãy xóa hoặc chuyển các việc con trước.`,
     viewSubtasks: "Xem danh sách việc con",
   },
+  /** Xuất báo cáo tiến độ S07 (Story E5-3). */
+  reports: {
+    exportButton: "Xuất báo cáo",
+    dialog: {
+      eyebrow: "Xuất / Báo cáo",
+      title: "Xuất báo cáo tiến độ",
+      description: (project: string) =>
+        `Dự án ${project}. Tệp tạo theo template đang dùng của công ty.`,
+      formatLegend: "01 / Định dạng",
+      formats: {
+        xlsx: {
+          label: "Excel",
+          hint: "Bảng số liệu, dễ chỉnh sửa",
+          ext: ".XLSX",
+        },
+        docx: { label: "Word", hint: "Báo cáo theo mẫu công ty", ext: ".DOCX" },
+      },
+      comingSoon: "Sắp có",
+      docxComingSoon: "Xuất Word đang được làm, hiện chỉ xuất được Excel.",
+      periodLegend: "02 / Khoảng thời gian",
+      periodStart: "Từ ngày",
+      periodEnd: "Đến ngày",
+      periodHint: "Tính cả hai ngày, theo giờ Việt Nam; tối đa 366 ngày.",
+      thisMonth: "Tháng này",
+      templateLegend: "03 / Template",
+      templateLoading: "Đang kiểm tra template…",
+      templateActive: "Template đang dùng",
+      templateLoadError: "Không kiểm tra được template. Vẫn có thể thử xuất.",
+      templateMissing: "Chưa có template Excel đang dùng.",
+      templateMissingPm:
+        "Nhờ Admin tải lên và bật một template Excel ở trang Template báo cáo.",
+      templateMissingAdmin:
+        "Tải lên và bật một template Excel ở trang Template báo cáo (có thể bắt đầu từ template mẫu).",
+      templatePageLink: "Mở trang Template báo cáo",
+      sampleLink: "Tải template mẫu (.xlsx)",
+      scopeHint:
+        "Số liệu tổng là tại lúc xuất. Danh sách task gồm task được tạo, cập nhật, đến hạn hoặc hoàn thành trong kỳ.",
+      durationHint: "Dự án lớn có thể mất đến 30 giây.",
+      cancel: "Hủy",
+      submit: "Tạo và tải xuống",
+      exporting: "Đang tạo báo cáo…",
+      downloaded: (file: string) => `Đã tải xuống ${file}.`,
+      errors: {
+        periodRequired: "Chọn đủ ngày bắt đầu và ngày kết thúc.",
+        periodOrder: "Ngày kết thúc phải từ ngày bắt đầu trở đi.",
+        periodTooLong: "Kỳ báo cáo dài tối đa 366 ngày.",
+        timeout:
+          "Tạo báo cáo quá thời gian chờ. Thu hẹp kỳ báo cáo rồi thử lại.",
+        network: "Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.",
+        failed: "Không tạo được báo cáo. Thử lại sau.",
+      },
+    },
+    /** Chữ máy chủ ghi vào tệp xlsx. */
+    xlsx: {
+      noTasks: "Không có task nào trong kỳ.",
+      noData: "Không có dữ liệu.",
+      unassigned: "Chưa giao",
+      formerMember: "Người đã rời dự án",
+      overdue: "Trễ hạn",
+      projectStatus: { active: "Đang hoạt động", archived: "Đã lưu trữ" },
+    },
+    /** Template mẫu tải xuống (GET /api/v1/report-templates/sample). */
+    sample: {
+      sheetName: "Báo cáo",
+      title: "BÁO CÁO TIẾN ĐỘ DỰ ÁN",
+      projectLine: "Dự án: {{project.name}}",
+      periodLine:
+        "Kỳ báo cáo: {{period.start}} – {{period.end}} ({{period.days}} ngày)",
+      generatedLine:
+        "Lập lúc: {{report.generated_at}} · Người lập: {{report.generated_by}}",
+      overviewHeading: "1. TỔNG QUAN (tại lúc xuất)",
+      overview: {
+        total: "Tổng số task",
+        done: "Hoàn thành",
+        open: "Đang mở",
+        overdue: "Trễ hạn",
+        noDue: "Chưa có hạn",
+        blocked: "Bị chặn",
+        progress: "Tiến độ",
+      },
+      periodHeading: "2. TRONG KỲ",
+      periodCols: {
+        tasks: "Task trong kỳ",
+        created: "Tạo mới",
+        completed: "Hoàn thành",
+        due: "Đến hạn",
+      },
+      statusHeading: "3. THEO TRẠNG THÁI",
+      statusCols: {
+        name: "Trạng thái",
+        group: "Nhóm",
+        count: "Số task",
+        ratio: "Tỷ lệ",
+      },
+      tasksHeading: "4. DANH SÁCH TASK TRONG KỲ",
+      taskCols: {
+        index: "STT",
+        title: "Tiêu đề",
+        status: "Trạng thái",
+        assignee: "Người phụ trách",
+        priority: "Ưu tiên",
+        due: "Hạn",
+        labels: "Nhãn",
+        completed: "Hoàn thành lúc",
+      },
+      total: "Tổng số dòng",
+      signature: "Người lập báo cáo",
+    },
+    /** Màn Template báo cáo (S11): lối tải template mẫu. */
+    sampleHint:
+      "Chưa có template của công ty? Tải template mẫu, sửa theo mẫu công ty (giữ các ô {{...}}) rồi tải lên.",
+    api: {
+      templateMissing:
+        "Chưa có template Excel đang dùng. Admin cần tải lên và bật một template xlsx.",
+      templateUnreadable:
+        "Template Excel đang dùng không đọc được. Admin cần tải lên lại template.",
+      timeout:
+        "Xuất báo cáo quá thời gian chờ. Thu hẹp kỳ báo cáo rồi thử lại.",
+      tooManyTasks:
+        "Kỳ báo cáo có quá nhiều task (tối đa 10.000). Thu hẹp kỳ báo cáo rồi thử lại.",
+      formatUnavailable: "Xuất Word chưa có, hiện chỉ xuất được Excel (xlsx).",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */

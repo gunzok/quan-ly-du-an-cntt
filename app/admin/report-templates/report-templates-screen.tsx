@@ -30,6 +30,7 @@ import {
   REPORT_TEMPLATE_MIME,
   type ReportTemplate,
 } from "@/lib/report-templates/model";
+import { sampleTemplateUrl } from "@/lib/reports/client-api";
 import styles from "../users/admin-users.module.css";
 
 /**
@@ -232,6 +233,16 @@ function Screen() {
           </Button>
           <p id={hintId} className="text-sm text-text-muted">
             {t.upload.hint}
+          </p>
+          <p className="text-sm text-text-muted">
+            {strings.reports.sampleHint}{" "}
+            <a
+              href={sampleTemplateUrl("xlsx")}
+              download
+              className="font-medium text-primary underline underline-offset-2"
+            >
+              {strings.reports.dialog.sampleLink}
+            </a>
           </p>
           <div role="alert" className="text-sm text-danger">
             {uploadError}
