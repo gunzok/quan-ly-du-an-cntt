@@ -40,6 +40,7 @@ import {
   XLSX_MIME,
   zipBombDocx,
 } from "@/tests/fixtures/ooxml";
+import { acquireSharedLock } from "@/tests/support/shared-lock";
 import { missingIntegrationEnv } from "./env";
 import {
   APP_ORIGIN,
@@ -220,6 +221,18 @@ describe.skipIf(!enabled)("Template báo cáo (Supabase cục bộ)", () => {
     }
     return orphans;
   }
+
+  // Khóa test dùng chung: tải template lên khi định dạng chưa có template đang dùng thì tự bật: giữ
+  // khóa suốt tệp để không bật/tắt template giữa lúc reports.test.ts hay e2e luồng 8 xuất báo cáo
+  // (QLDA-56).
+  let releaseSharedLock: (() => Promise<void>) | undefined;
+  beforeAll(async () => {
+    releaseSharedLock = await acquireSharedLock("report-templates");
+  }, 300_000);
+  // Đăng ký trước nên chạy SAU afterAll dọn dữ liệu (vitest chạy hook after theo thứ tự ngược).
+  afterAll(async () => {
+    await releaseSharedLock?.();
+  });
 
   beforeAll(async () => {
     assertLocalSupabase();

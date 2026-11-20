@@ -127,6 +127,10 @@ e2e-install: check-pnpm
 # quản trị mà màn /admin/users gọi.
 # Đăng nhập có giới hạn tần suất (E0-5): mỗi lần chạy dùng RATE_LIMIT_SECRET ngẫu nhiên để bộ đếm
 # không cộng dồn giữa các lần chạy lại hay giữa các worktree dùng chung stack.
+# Email (luồng 7 ở tests/e2e/flows/): ứng dụng bật worker gửi email vào Mailpit cục bộ, CRON_SECRET
+# ngẫu nhiên mỗi lần chạy (test gọi /api/internal/email/dispatch như pg_cron), APP_BASE_URL trỏ server e2e.
+# E2E_ARGS: tham số thêm cho Playwright, ví dụ E2E_ARGS=--project=flows chỉ chạy 9 luồng chính (E0-9).
+E2E_ARGS ?=
 test-e2e: check-pnpm check-supabase
 	@eval "$$(supabase status -o env 2>/dev/null)"; \
 	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
@@ -136,7 +140,9 @@ test-e2e: check-pnpm check-supabase
 	export NEXT_PUBLIC_SUPABASE_URL="$$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$$ANON_KEY" E2E_PORT="$(E2E_PORT)"; \
 	export SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" RATE_LIMIT_SECRET="e2e-$$(date +%s)-$$$$"; \
 	export E2E_RELAXED_LOGIN_RATE_LIMIT=1; \
-	pnpm build && pnpm exec playwright test
+	export CRON_SECRET="e2e-cron-$$(openssl rand -hex 16)" EMAIL_PROVIDER=mailpit MAILPIT_URL="$$MAILPIT_URL"; \
+	export APP_BASE_URL="http://localhost:$(E2E_PORT)"; \
+	pnpm build && pnpm exec playwright test $(E2E_ARGS)
 
 # ---------------------------------------------------------------------------
 # Hiệu năng (Story E0-7, NFR-02). KHÔNG chạy trong CI mặc định (tốn vài phút); chạy cục bộ trước

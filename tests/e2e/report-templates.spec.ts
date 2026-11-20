@@ -10,6 +10,7 @@ import {
   sampleXlsx,
   XLSX_MIME,
 } from "@/tests/fixtures/ooxml";
+import { acquireSharedLock } from "@/tests/support/shared-lock";
 import { waitForHydration } from "./hydration";
 import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
 import { signInWithPassword } from "./login";
@@ -20,6 +21,9 @@ import { signInWithPassword } from "./login";
  * Tài khoản tạm tạo bằng khóa service của stack CỤC BỘ (make test-e2e), mật khẩu ngẫu nhiên; tệp là
  * tệp GIẢ sinh trong tests/fixtures/ooxml.ts (R-005). afterAll xóa template (dòng + tệp Storage),
  * dự án và tài khoản. Cần dịch vụ Storage của Supabase cục bộ.
+ * Template "đang dùng" là trạng thái toàn hệ thống: spec giữ khóa "report-templates"
+ * (tests/support/shared-lock.ts) từ beforeAll tới afterAll để không bật/tắt template giữa lúc luồng 8
+ * (tests/e2e/flows/) hay test tích hợp báo cáo đang xuất (QLDA-56).
  */
 const t = strings.reportTemplates;
 const BLOCKING_IMPACTS = new Set(["critical", "serious"]);
@@ -40,8 +44,11 @@ const names = {
 };
 
 let service: SupabaseClient | null = null;
+let releaseLock: (() => Promise<void>) | undefined;
 
 test.beforeAll(async () => {
+  test.setTimeout(180_000);
+  releaseLock = await acquireSharedLock("report-templates");
   service = serviceClient();
   await createTempUsers(
     service,
@@ -69,6 +76,14 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  try {
+    await cleanupTemplates();
+  } finally {
+    await releaseLock?.();
+  }
+});
+
+async function cleanupTemplates() {
   if (!service) return;
   const { data } = await service
     .from("report_templates")
@@ -91,7 +106,7 @@ test.afterAll(async () => {
     projectIds: [projectId],
     userIds: Object.values(users),
   });
-});
+}
 
 async function signInAs(page: Page, who: keyof typeof emails) {
   await signInWithPassword(page, emails[who], password);

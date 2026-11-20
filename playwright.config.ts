@@ -24,7 +24,22 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    // Spec theo Story (kiểm chi tiết từng tính năng).
+    {
+      name: "chromium",
+      testIgnore: /\/flows\//,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    // 9 luồng chính (Story E0-9, test-strategy.md mục 4): mỗi tệp một kịch bản liền mạch, dài hơn
+    // spec thường nên thời gian chờ mỗi test lớn hơn. Chạy riêng: `make test-e2e E2E_ARGS=--project=flows`.
+    {
+      name: "flows",
+      testMatch: /\/flows\/[^/]+\.spec\.ts$/,
+      timeout: 120_000,
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
   webServer: {
     command: `pnpm exec next start --port ${PORT}`,
     url: `${BASE_URL}/login`,

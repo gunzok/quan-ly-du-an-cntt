@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type BrowserContext, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { E2E_EMAIL, e2ePassword } from "./env";
 import { waitForHydration } from "./hydration";
@@ -35,4 +35,28 @@ export async function signInWithPassword(
 /** Đăng nhập bằng persona seed (mặc định E2E_EMAIL), mật khẩu SEED_PASSWORD. */
 export async function signIn(page: Page, email = E2E_EMAIL): Promise<void> {
   await signInWithPassword(page, email, e2ePassword());
+}
+
+type Cookies = Awaited<ReturnType<BrowserContext["cookies"]>>;
+
+/**
+ * Đăng nhập tối thiểu cho spec nhiều vai trò: mỗi tài khoản qua /login MỘT lần, các lần sau gắn lại
+ * cookie phiên đã lưu (bỏ cookie của vai trò trước). `creds` đọc lúc gọi nên tài khoản tạo trong
+ * beforeAll vẫn dùng được. Cache theo worker (spec serial chạy cùng worker).
+ */
+export function cachedSignIn<K extends string>(
+  creds: (who: K) => { email: string; password: string },
+): (page: Page, who: K) => Promise<void> {
+  const sessions: Partial<Record<K, Cookies>> = {};
+  return async (page, who) => {
+    await page.context().clearCookies();
+    const saved = sessions[who];
+    if (saved) {
+      await page.context().addCookies(saved);
+      return;
+    }
+    const { email, password } = creds(who);
+    await signInWithPassword(page, email, password);
+    sessions[who] = await page.context().cookies();
+  };
 }

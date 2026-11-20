@@ -37,6 +37,7 @@ import { buildSampleDocxTemplate } from "@/lib/reports/sample-docx-template";
 import { buildSampleXlsxTemplate } from "@/lib/reports/sample-template";
 import { strings } from "@/lib/strings";
 import { docxFromBody, dumpDocx, p } from "@/tests/fixtures/reports/docx";
+import { acquireSharedLock } from "@/tests/support/shared-lock";
 import { missingIntegrationEnv } from "./env";
 import {
   APP_ORIGIN,
@@ -167,6 +168,17 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
     if (error) throw error;
     return count ?? 0;
   }
+
+  // Khóa test dùng chung: template "đang dùng" là trạng thái toàn hệ thống: giữ khóa suốt tệp để e2e (luồng 8,
+  // report-templates.spec.ts) không bật/tắt template giữa lúc test này xuất báo cáo (QLDA-56).
+  let releaseSharedLock: (() => Promise<void>) | undefined;
+  beforeAll(async () => {
+    releaseSharedLock = await acquireSharedLock("report-templates");
+  }, 300_000);
+  // Đăng ký trước nên chạy SAU afterAll dọn dữ liệu (vitest chạy hook after theo thứ tự ngược).
+  afterAll(async () => {
+    await releaseSharedLock?.();
+  });
 
   beforeAll(async () => {
     assertLocalSupabase();

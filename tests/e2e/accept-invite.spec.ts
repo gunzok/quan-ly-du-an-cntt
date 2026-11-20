@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { vi as strings } from "@/lib/i18n/messages/vi";
 import { waitForHydration } from "./hydration";
+import { inviteLinkFromMailpit } from "./mailpit";
 import { cleanupTempData, serviceClient } from "./temp-data";
 
 /**
@@ -18,7 +19,6 @@ import { cleanupTempData, serviceClient } from "./temp-data";
  */
 const ADMIN_EMAIL = `e2e-e1-7-admin-${randomUUID()}@example.com`;
 const ADMIN_PASSWORD = `E2e-${randomUUID()}`;
-const MAILPIT_URL = process.env.MAILPIT_URL ?? "http://127.0.0.1:54324";
 const BLOCKING_IMPACTS = new Set(["critical", "serious"]);
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const t = strings.acceptInvite;
@@ -100,31 +100,6 @@ async function signIn(page: Page, email: string, password: string) {
     .getByRole("button", { name: strings.login.submit, exact: true })
     .click();
   await expect(page).toHaveURL("/");
-}
-
-/** Link /auth/accept-invite trong email mới nhất ở Mailpit, đổi origin sang server e2e. */
-async function inviteLinkFromMailpit(email: string, baseURL: string) {
-  const query = encodeURIComponent(`to:"${email}"`);
-  for (let i = 0; i < 40; i++) {
-    const search = await fetch(`${MAILPIT_URL}/api/v1/search?query=${query}`);
-    const { messages } = (await search.json()) as {
-      messages?: { ID: string }[];
-    };
-    if (messages?.length) {
-      const res = await fetch(
-        `${MAILPIT_URL}/api/v1/message/${messages[0].ID}`,
-      );
-      const { HTML } = (await res.json()) as { HTML?: string };
-      const href = (HTML ?? "")
-        .replace(/&amp;/g, "&")
-        .match(/href="([^"]*\/auth\/accept-invite\?[^"]+)"/)?.[1];
-      if (!href) throw new Error("Email mời không có link /auth/accept-invite");
-      const link = new URL(href);
-      return new URL(`${link.pathname}${link.search}`, baseURL).toString();
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250));
-  }
-  throw new Error(`Không thấy email mời gửi tới ${email} ở Mailpit`);
 }
 
 /** Điền và gửi form đặt mật khẩu; chỉ bấm khi form đã hydrate và hai ô đúng giá trị. */

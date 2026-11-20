@@ -19,6 +19,7 @@ import { handleEmailDispatch } from "@/lib/email/dispatch-handler";
 import { handleListNotifications } from "@/lib/notifications/handlers";
 import type { NotificationListResponse } from "@/lib/notifications/model";
 import { handlePutNotificationPreferences } from "@/lib/notifications/preferences-handlers";
+import { acquireSharedLock } from "@/tests/support/shared-lock";
 import { missingIntegrationEnv } from "./env";
 import {
   APP_ORIGIN,
@@ -171,6 +172,18 @@ describe.skipIf(!enabled)("Nhắc hạn (Supabase cục bộ + Mailpit)", () => 
       },
     );
   }
+
+  // Khóa test dùng chung: worker gửi email nhận MỌI dòng đang chờ (email_outbox_claim không lọc người nhận): giữ khóa
+  // suốt tệp để worker của test này không gửi mất dòng của email.test.ts (hay e2e luồng 7) và
+  // ngược lại (QLDA-56).
+  let releaseSharedLock: (() => Promise<void>) | undefined;
+  beforeAll(async () => {
+    releaseSharedLock = await acquireSharedLock("email-outbox");
+  }, 300_000);
+  // Đăng ký trước nên chạy SAU afterAll dọn dữ liệu (vitest chạy hook after theo thứ tự ngược).
+  afterAll(async () => {
+    await releaseSharedLock?.();
+  });
 
   beforeAll(async () => {
     assertLocalSupabase();

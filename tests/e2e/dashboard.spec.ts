@@ -3,17 +3,19 @@ import AxeBuilder from "@axe-core/playwright";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { cleanupTempData, serviceClient } from "./temp-data";
-import { signIn } from "./login";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
+import { cachedSignIn } from "./login";
 
 /**
  * Story E5-1 (QLDA-60): dashboard tiến độ S06.
  * Dự án tạm tạo bằng khóa service của stack CỤC BỘ (make test-e2e đặt SUPABASE_SERVICE_ROLE_KEY):
- *   - "số liệu": pm@ là PM (người tạo), member@ Thành viên, viewer@ Người xem; 3 task biết trước
- *     (1 xong, 1 trễ hạn giao member@, 1 đang làm chưa giao) => 33%, trễ hạn 1, đang làm 1.
+ *   - "số liệu": pm là PM (người tạo), member Thành viên, viewer Người xem; 3 task biết trước
+ *     (1 xong, 1 trễ hạn giao member, 1 đang làm chưa giao) => 33%, trễ hạn 1, đang làm 1.
  *   - "rỗng": cùng thành viên, không task (AC2).
- *   - "khác": chỉ pm@; viewer@ là người ngoài => 404 (BR-10).
- * admin@ không thuộc dự án nào ở trên nhưng là Admin nên xem được.
+ *   - "khác": chỉ pm; viewer là người ngoài => 404 (BR-10).
+ * admin không thuộc dự án nào ở trên nhưng là Admin nên xem được.
+ * Bốn vai trò là TÀI KHOẢN TẠM (QLDA-56; trước dùng persona seed nên chạm giới hạn đăng nhập theo
+ * email khi bộ e2e lớn), mỗi tài khoản đăng nhập một lần rồi dùng lại cookie phiên.
  * Mọi dòng task cùng tập cột (insert nhiều dòng của PostgREST điền null cho cột thiếu).
  * afterAll xóa các dự án tạm (xóa theo task, trạng thái, loại).
  */
@@ -28,15 +30,15 @@ const otherId = randomUUID();
 
 let service: SupabaseClient | null = null;
 
-async function userId(client: SupabaseClient, email: string) {
-  const { data, error } = await client
-    .from("profiles")
-    .select("id")
-    .eq("email", email)
-    .single();
-  if (error) throw error;
-  return data.id as string;
-}
+const password = `E2e-${randomUUID()}`;
+const roles = ["pm", "member", "viewer", "admin"] as const;
+type Role = (typeof roles)[number];
+const emailOf = (who: Role) => `e2e-e5-1-${who}-${tag}@example.com`;
+const users = {} as Record<Role, string>;
+const signInAs = cachedSignIn<Role>((who) => ({
+  email: emailOf(who),
+  password,
+}));
 
 /** Ngày YYYY-MM-DD theo giờ Việt Nam, lệch `days` ngày so với hôm nay. */
 function vnDate(days: number): string {
@@ -50,9 +52,28 @@ function vnDate(days: number): string {
 
 test.beforeAll(async () => {
   service = serviceClient();
-  const pm = await userId(service, "pm@example.com");
-  const member = await userId(service, "member@example.com");
-  const viewer = await userId(service, "viewer@example.com");
+  await createTempUsers(
+    service,
+    Object.fromEntries(
+      roles.map((who) => [
+        who,
+        {
+          email: emailOf(who),
+          password,
+          // Tên người phụ trách hiện ở bảng "theo người phụ trách" (expectSeededNumbers).
+          fullName:
+            who === "member" ? `Thành viên Thử ${tag}` : `E2E ${who} ${tag}`,
+        },
+      ]),
+    ) as Record<Role, { email: string; password: string; fullName: string }>,
+    users,
+  );
+  const admin = await service
+    .from("profiles")
+    .update({ is_admin: true })
+    .eq("id", users.admin);
+  if (admin.error) throw admin.error;
+  const { pm, member, viewer } = users;
   const projects = await service.from("projects").insert([
     { id: projectId, name: projectName, created_by: pm },
     { id: emptyId, name: `E2E ${tag} Tổng quan rỗng`, created_by: pm },
@@ -109,12 +130,9 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await cleanupTempData(service, {
     projectIds: [projectId, emptyId, otherId],
+    userIds: Object.values(users),
   });
 });
-
-async function signInAs(page: Page, email: string) {
-  await signIn(page, email);
-}
 
 async function blockingViolations(page: Page) {
   await page.evaluate(() =>
@@ -177,7 +195,7 @@ test.describe.serial("Dashboard tiến độ S06", () => {
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "light" });
-    await signInAs(page, "pm@example.com");
+    await signInAs(page, "pm");
     await page
       .getByRole("link", { name: `${t.open} ${projectName}`, exact: true })
       .click();
@@ -188,19 +206,18 @@ test.describe.serial("Dashboard tiến độ S06", () => {
 
   test("Người xem: cùng số liệu, axe tối", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await signInAs(page, "viewer@example.com");
+    await signInAs(page, "viewer");
     await page.goto(`/projects/${projectId}/dashboard`);
     await expectSeededNumbers(page);
     expect(await blockingViolations(page)).toEqual([]);
   });
 
   test("Thành viên và Admin (không thuộc dự án) xem được", async ({ page }) => {
-    await signInAs(page, "member@example.com");
+    await signInAs(page, "member");
     await page.goto(`/projects/${projectId}/dashboard`);
     await expectSeededNumbers(page);
 
-    await page.context().clearCookies();
-    await signInAs(page, "admin@example.com");
+    await signInAs(page, "admin");
     await page.goto(`/projects/${projectId}/dashboard`);
     await expectSeededNumbers(page);
   });
@@ -208,7 +225,7 @@ test.describe.serial("Dashboard tiến độ S06", () => {
   test("AC2: dự án chưa có task có hướng dẫn; Người xem không có nút tạo", async ({
     page,
   }) => {
-    await signInAs(page, "member@example.com");
+    await signInAs(page, "member");
     await page.goto(`/projects/${emptyId}/dashboard`);
     await expect(page.getByText(t.empty.title)).toBeVisible();
     await expect(page.getByText(t.empty.bodyCanCreate)).toBeVisible();
@@ -217,8 +234,7 @@ test.describe.serial("Dashboard tiến độ S06", () => {
     ).toHaveAttribute("href", `/projects/${emptyId}`);
     expect(await blockingViolations(page)).toEqual([]);
 
-    await page.context().clearCookies();
-    await signInAs(page, "viewer@example.com");
+    await signInAs(page, "viewer");
     await page.goto(`/projects/${emptyId}/dashboard`);
     await expect(page.getByText(t.empty.title)).toBeVisible();
     await expect(page.getByText(t.empty.bodyReadOnly)).toBeVisible();
@@ -230,7 +246,7 @@ test.describe.serial("Dashboard tiến độ S06", () => {
   test("Người ngoài: trang 404, không lộ tên dự án; API 404", async ({
     page,
   }) => {
-    await signInAs(page, "viewer@example.com");
+    await signInAs(page, "viewer");
     await page.goto(`/projects/${otherId}/dashboard`);
     await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
     await expect(page.getByText(`E2E ${tag} Tổng quan khác`)).toHaveCount(0);
@@ -240,7 +256,7 @@ test.describe.serial("Dashboard tiến độ S06", () => {
 
   test("360 px (tối): không tràn ngang, vẫn đủ số liệu", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await signInAs(page, "pm@example.com");
+    await signInAs(page, "pm");
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto(`/projects/${projectId}/dashboard`);
     await expectSeededNumbers(page);

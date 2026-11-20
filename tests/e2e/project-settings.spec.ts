@@ -3,14 +3,14 @@ import AxeBuilder from "@axe-core/playwright";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { cleanupTempData, serviceClient } from "./temp-data";
-import { signIn } from "./login";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
+import { cachedSignIn } from "./login";
 
 /**
  * Story E2-3 (QLDA-41): màn cấu hình dự án (trạng thái, loại task, nhãn).
  * Dùng một dự án tạm tạo bằng khóa service của stack CỤC BỘ (make test-e2e đặt
- * SUPABASE_SERVICE_ROLE_KEY): member@example.com là PM, viewer@example.com là Người xem. Dự án seed
- * chỉ được đọc; afterAll xóa dự án tạm (xóa theo trạng thái, loại, nhãn, task).
+ * SUPABASE_SERVICE_ROLE_KEY) với ba TÀI KHOẢN TẠM: PM, Người xem và người ngoài dự án (QLDA-56; trước
+ * dùng persona seed). afterAll xóa dự án tạm (xóa theo trạng thái, loại, nhãn, task) và tài khoản.
  */
 const t = strings.projectConfig;
 const BLOCKING_IMPACTS = new Set(["critical", "serious"]);
@@ -21,20 +21,29 @@ const projectId = randomUUID();
 
 let service: SupabaseClient | null = null;
 
-async function userId(client: SupabaseClient, email: string) {
-  const { data, error } = await client
-    .from("profiles")
-    .select("id")
-    .eq("email", email)
-    .single();
-  if (error) throw error;
-  return data.id as string;
-}
+const password = `E2e-${randomUUID()}`;
+const roles = ["pm", "viewer", "outsider"] as const;
+type Role = (typeof roles)[number];
+const emailOf = (who: Role) => `e2e-e2-3-${who}-${tag}@example.com`;
+const users = {} as Record<Role, string>;
+const signInAs = cachedSignIn<Role>((who) => ({
+  email: emailOf(who),
+  password,
+}));
 
 test.beforeAll(async () => {
   service = serviceClient();
-  const pm = await userId(service, "member@example.com");
-  const viewer = await userId(service, "viewer@example.com");
+  await createTempUsers(
+    service,
+    Object.fromEntries(
+      roles.map((who) => [
+        who,
+        { email: emailOf(who), password, fullName: `E2E ${who} ${tag}` },
+      ]),
+    ) as Record<Role, { email: string; password: string; fullName: string }>,
+    users,
+  );
+  const { pm, viewer } = users;
   const project = await service
     .from("projects")
     .insert({ id: projectId, name: projectName, created_by: pm });
@@ -61,12 +70,11 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await cleanupTempData(service, { projectIds: [projectId] });
+  await cleanupTempData(service, {
+    projectIds: [projectId],
+    userIds: Object.values(users),
+  });
 });
-
-async function signInAs(page: Page, email: string) {
-  await signIn(page, email);
-}
 
 async function blockingViolations(page: Page, include?: string) {
   await page.evaluate(() =>
@@ -107,7 +115,7 @@ test.describe.serial("Cấu hình dự án", () => {
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "light" });
-    await signInAs(page, "member@example.com");
+    await signInAs(page, "pm");
 
     // Lối vào từ thẻ dự án ở trang chủ.
     await page
@@ -219,7 +227,7 @@ test.describe.serial("Cấu hình dự án", () => {
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await signInAs(page, "viewer@example.com");
+    await signInAs(page, "viewer");
     await page.goto(`/projects/${projectId}/settings`);
     await expect(
       page.getByRole("heading", { level: 1, name: t.heading }),
@@ -241,7 +249,7 @@ test.describe.serial("Cấu hình dự án", () => {
   test("Dự án không thuộc về mình: trang 404, không lộ tên dự án", async ({
     page,
   }) => {
-    await signInAs(page, "pm@example.com");
+    await signInAs(page, "outsider");
     // notFound() trong Suspense: phản hồi đã bắt đầu stream nên mã HTTP vẫn 200, nội dung là 404.
     await page.goto(`/projects/${projectId}/settings`);
     await expect(page.getByRole("heading", { name: "404" })).toBeVisible();

@@ -25,6 +25,7 @@ import {
   handlePutNotificationPreferences,
 } from "@/lib/notifications/preferences-handlers";
 import { handleCreateTask, handlePatchTask } from "@/lib/tasks/handlers";
+import { acquireSharedLock } from "@/tests/support/shared-lock";
 import { missingIntegrationEnv } from "./env";
 import {
   APP_ORIGIN,
@@ -186,6 +187,18 @@ describe.skipIf(!enabled)("Email giao việc (Supabase cục bộ + Mailpit)", (
       },
     );
   }
+
+  // Khóa test dùng chung: worker gửi email nhận MỌI dòng đang chờ (email_outbox_claim không lọc người nhận): giữ khóa
+  // suốt tệp để worker của due-reminders.test.ts (hay e2e luồng 7) không gửi mất dòng mà test này
+  // đang chờ kiểm, và ngược lại (QLDA-56).
+  let releaseSharedLock: (() => Promise<void>) | undefined;
+  beforeAll(async () => {
+    releaseSharedLock = await acquireSharedLock("email-outbox");
+  }, 300_000);
+  // Đăng ký trước nên chạy SAU afterAll dọn dữ liệu (vitest chạy hook after theo thứ tự ngược).
+  afterAll(async () => {
+    await releaseSharedLock?.();
+  });
 
   beforeAll(async () => {
     assertLocalSupabase();
