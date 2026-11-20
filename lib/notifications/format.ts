@@ -1,6 +1,7 @@
 import { INTL_LOCALE, type Locale } from "@/lib/i18n/config";
 import {
   DISPLAY_TIME_ZONE,
+  formatCalendarDate,
   formatDateInZone,
   formatTimeInZone,
 } from "@/lib/i18n/format";
@@ -58,13 +59,23 @@ export function notificationText(
   n: Pick<
     Notification,
     "type" | "task_visible" | "title" | "status_name" | "actor"
-  >,
+  > &
+    Partial<Pick<Notification, "due_date" | "days_left">>,
   t: Messages["notifications"],
+  locale: Locale = "vi",
 ): string {
   if (!n.task_visible || !n.title) {
+    if (n.type === "task_due_soon") return t.hiddenDueSoon;
     return n.type === "task_assigned"
       ? t.hiddenAssigned
       : t.hiddenStatusChanged;
+  }
+  if (n.type === "task_due_soon") {
+    // Nhắc hạn (E4-3): số ngày còn lại và hạn tính LÚC NHẮC (payload), không tính lại theo hôm nay.
+    const due = formatCalendarDate(n.due_date ?? null, locale);
+    const days = n.days_left ?? null;
+    if (due && days !== null) return t.dueSoon(n.title, days, due);
+    return t.dueSoonNoDate(n.title);
   }
   const actor = n.actor ? n.actor.full_name || t.someone : null;
   if (n.type === "task_assigned") {

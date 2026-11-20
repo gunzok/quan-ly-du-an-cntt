@@ -131,3 +131,51 @@ describe("renderTaskEmail: đổi trạng thái", () => {
     expect(mail.text).toContain("Người thay đổi: Lê Bình");
   });
 });
+
+describe("renderTaskEmail: nhắc hạn (E4-3)", () => {
+  it("tiếng Việt: 1 ngày, có hạn, không có người làm", () => {
+    const mail = renderTaskEmail({
+      ...base,
+      type: "task_due_soon",
+      locale: "vi",
+      taskTitle: "Nộp báo cáo <tuần>",
+      dueDate: "2026-11-21",
+      daysLeft: 1,
+    });
+    expect(mail.subject).toBe(
+      "[Quản lý dự án] Task Nộp báo cáo <tuần> đến hạn ngày mai",
+    );
+    expect(mail.text).toContain("Task bạn phụ trách đến hạn vào ngày mai.");
+    expect(mail.text).toContain("Hạn: 21/11/2026");
+    expect(mail.text).not.toContain("Người giao");
+    expect(mail.html).toContain("Nộp báo cáo &lt;tuần&gt;");
+    expect(mail.html).not.toContain("<tuần>");
+  });
+
+  it("English: 3 ngày", () => {
+    const mail = renderTaskEmail({
+      ...base,
+      type: "task_due_soon",
+      locale: "en",
+      taskTitle: "Ship report",
+      dueDate: "2026-11-23",
+      daysLeft: 3,
+    });
+    expect(mail.subject).toContain("Task Ship report is due in 3 days");
+    expect(mail.text).toContain("A task you own is due in 3 days.");
+    expect(mail.text).toContain("Due date: 23 Nov 2026");
+  });
+
+  it("hạn hôm nay (gửi trễ trong ngày) và hạn sai dạng thì bỏ dòng hạn", () => {
+    const mail = renderTaskEmail({
+      ...base,
+      type: "task_due_soon",
+      locale: "vi",
+      taskTitle: "Việc C",
+      dueDate: "21/11/2026",
+      daysLeft: 0,
+    });
+    expect(mail.subject).toBe("[Quản lý dự án] Task Việc C đến hạn hôm nay");
+    expect(mail.text).not.toContain("Hạn:");
+  });
+});

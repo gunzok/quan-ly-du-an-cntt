@@ -16,7 +16,21 @@ describe("validatePreferencesPut", () => {
     });
   });
 
+  it("nhận loại nhắc hạn task_due_soon (E4-3)", () => {
+    expect(validatePreferencesPut({ email: { task_due_soon: false } })).toEqual(
+      { ok: true, data: { email: { task_due_soon: false } } },
+    );
+  });
+
   it.each([
+    [
+      { email: { task_due_soon: 1 } },
+      [{ field: "email.task_due_soon", issue: "invalid_value" }],
+    ],
+    [
+      { email: { task_overdue: true } },
+      [{ field: "email.task_overdue", issue: "unknown_field" }],
+    ],
     [null, [{ field: "body", issue: "invalid_format" }]],
     [[], [{ field: "body", issue: "invalid_format" }]],
     [{}, [{ field: "email", issue: "required" }]],
@@ -45,8 +59,21 @@ describe("toEmailPreferences", () => {
       toEmailPreferences([
         { type: "task_assigned", email_enabled: true },
         { type: "task_status_changed", email_enabled: false },
+        { type: "task_due_soon", email_enabled: true },
       ]),
-    ).toEqual({ task_assigned: true, task_status_changed: false });
+    ).toEqual({
+      task_assigned: true,
+      task_status_changed: false,
+      task_due_soon: true,
+    });
+  });
+  it("thiếu loại nhắc hạn (E4-3): null", () => {
+    expect(
+      toEmailPreferences([
+        { type: "task_assigned", email_enabled: true },
+        { type: "task_status_changed", email_enabled: false },
+      ]),
+    ).toBeNull();
   });
   it("thiếu loại (bị khóa, RLS trả rỗng): null", () => {
     expect(toEmailPreferences([])).toBeNull();
