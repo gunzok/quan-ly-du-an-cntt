@@ -34,6 +34,7 @@ import { REPORT_MIME, type ReportFormat } from "@/lib/reports/model";
 import { buildSampleDocxTemplate } from "@/lib/reports/sample-docx-template";
 import { buildSampleXlsxTemplate } from "@/lib/reports/sample-template";
 import { dumpDocx } from "@/tests/fixtures/reports/docx";
+import { acquireSharedLock } from "@/tests/support/shared-lock";
 import { missingIntegrationEnv } from "./env";
 import {
   APP_ORIGIN,
@@ -100,6 +101,16 @@ describe.skipIf(!enabled)("Đo xuất báo cáo 2.000 task (NFR-03)", () => {
   /** Định dạng đang dùng template MẪU (kiểm được số dòng). */
   const usingSample = new Set<ReportFormat>();
   let taskCount = 0;
+
+  // Khóa test dùng chung: bật template mẫu khi chưa có template đang dùng: giữ khóa suốt tệp (QLDA-56).
+  let releaseSharedLock: (() => Promise<void>) | undefined;
+  beforeAll(async () => {
+    releaseSharedLock = await acquireSharedLock("report-templates");
+  }, 300_000);
+  // Đăng ký trước nên chạy SAU afterAll dọn dữ liệu (vitest chạy hook after theo thứ tự ngược).
+  afterAll(async () => {
+    await releaseSharedLock?.();
+  });
 
   beforeAll(async () => {
     assertLocalSupabase();
