@@ -61,7 +61,8 @@ export class TemplateSyntaxError extends Error {
 
 const SEGMENT = "[a-z_][a-z0-9_]*";
 const PATH_RE = new RegExp(`^\\$?${SEGMENT}(?:\\.${SEGMENT})*$`);
-const FOR_RE = new RegExp(`^(${SEGMENT})\\s+IN\\s+(${SEGMENT})$`, "i");
+/** `x IN vùng`: tên biến và vùng chữ thường như khóa; chỉ chữ IN không phân biệt hoa thường. */
+const FOR_RE = new RegExp(`^(${SEGMENT})\\s+[Ii][Nn]\\s+(${SEGMENT})$`);
 const FORBIDDEN_SEGMENTS = new Set(["__proto__", "constructor", "prototype"]);
 const COLLECTIONS = Object.keys(SECTIONS) as SectionName[];
 

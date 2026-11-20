@@ -334,6 +334,7 @@ describe("an toàn: template KHÔNG chạy được mã", () => {
     `{{IF process.env.${canaryName}}}x{{END-IF}}`,
     `{{FOR x IN [process.env.${canaryName}]}}{{x}}{{END-FOR x}}`,
     `{{FOR x IN Object.keys(process.env)}}{{$x}}{{END-FOR x}}`,
+    `{{FOR X IN tasks}}{{X.title}}{{END-FOR X}}`,
   ];
 
   it.each(malicious)("từ chối cả template: %s", async (command) => {
