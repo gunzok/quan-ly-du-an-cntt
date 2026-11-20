@@ -186,8 +186,12 @@ export async function openAs(
   return { page, context, close: () => context.close() };
 }
 
+/** Hộp thoại đang mở: Radix (role="dialog"/"alertdialog") hoặc thẻ <dialog> gốc. */
+export const OPEN_DIALOG =
+  '[role="dialog"], [role="alertdialog"], dialog[open]';
+
 /**
- * Axe WCAG 2.2 AA trên trang (hoặc vùng `include`): không lỗi critical/serious. Chờ hiệu ứng mở hộp
+ * Axe WCAG 2.2 AA trên trang (hoặc vùng `include`, ví dụ OPEN_DIALOG): không lỗi critical/serious. Chờ hiệu ứng mở hộp
  * thoại xong trước (axe đo màu lúc đang mờ sẽ báo sai tương phản).
  */
 export async function expectNoA11yViolations(
