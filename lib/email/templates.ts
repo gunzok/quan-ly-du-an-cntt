@@ -1,5 +1,6 @@
 import { isUuid } from "@/lib/api/request";
 import { isLocale, type Locale } from "@/lib/i18n/config";
+import { formatCalendarDate } from "@/lib/i18n/format";
 import { getMessages } from "@/lib/i18n/messages";
 import { escapeHtml, singleLine } from "./sanitize";
 
@@ -9,7 +10,8 @@ import { escapeHtml, singleLine } from "./sanitize";
  * script). Mọi dữ liệu người dùng (tên task, dự án, người, trạng thái) đi qua `singleLine` rồi
  * `escapeHtml` trong HTML: tên task không bao giờ thành HTML thô, không chèn được dòng tiêu đề.
  */
-export type EmailNotificationType = "task_assigned" | "task_status_changed";
+export type EmailNotificationType =
+  "task_assigned" | "task_status_changed" | "task_due_soon";
 
 export interface TaskEmailInput {
   type: EmailNotificationType;
@@ -21,6 +23,9 @@ export interface TaskEmailInput {
   projectName: string;
   statusName?: string | null;
   actorName?: string | null;
+  /** Nhắc hạn (E4-3): hạn YYYY-MM-DD và số ngày còn lại tính lúc gửi. */
+  dueDate?: string | null;
+  daysLeft?: number | null;
 }
 
 export interface RenderedEmail {
@@ -67,7 +72,13 @@ export function renderTaskEmail(input: TaskEmailInput): RenderedEmail {
     [t.taskLabel, title],
     [t.projectLabel, project],
   ];
-  if (input.type === "task_assigned") {
+  if (input.type === "task_due_soon") {
+    const days = Math.max(0, Math.trunc(input.daysLeft ?? 0));
+    subject = t.dueSoonSubject(subjectTitle, days);
+    intro = t.dueSoonIntro(days);
+    const due = formatCalendarDate(input.dueDate ?? null, locale);
+    if (due) rows.push([t.dueDateLabel, due]);
+  } else if (input.type === "task_assigned") {
     subject = t.assignedSubject(subjectTitle);
     intro = actor ? t.assignedIntro(actor) : t.assignedIntroNoActor;
     if (actor) rows.push([t.assignedByLabel, actor]);

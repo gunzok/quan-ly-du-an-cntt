@@ -7,11 +7,14 @@ import {
 
 /**
  * Tùy chọn email theo loại thông báo (Story E4-2, FR-12, GET/PUT /api/v1/me/notification-preferences).
- * Mặc định khi chưa lưu (CSDL private.email_enabled_default): giao việc BẬT, đổi trạng thái TẮT.
+ * Mặc định khi chưa lưu (CSDL private.email_enabled_default): giao việc BẬT, đổi trạng thái TẮT,
+ * nhắc hạn BẬT (E4-3).
  */
 export const EMAIL_PREFERENCE_TYPES = [
   "task_assigned",
   "task_status_changed",
+  // Story E4-3: nhắc hạn, mặc định BẬT.
+  "task_due_soon",
 ] as const;
 export type EmailPreferenceType = (typeof EMAIL_PREFERENCE_TYPES)[number];
 
@@ -25,7 +28,7 @@ export interface NotificationPreferencesResponse {
 export const PREFERENCES_BODY_MAX_BYTES = 1024;
 
 /**
- * PUT { email: { task_assigned?: boolean, task_status_changed?: boolean } }: ít nhất một loại; loại
+ * PUT { email: { task_assigned?, task_status_changed?, task_due_soon?: boolean } }: ít nhất một loại; loại
  * không nhắc tới giữ nguyên. Từ chối trường lạ ở cả hai cấp.
  */
 export function validatePreferencesPut(

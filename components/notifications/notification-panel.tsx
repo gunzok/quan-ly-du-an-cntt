@@ -267,7 +267,7 @@ export function NotificationPanel({
               data-testid="notification-list"
             >
               {items.map((n) => {
-                const text = notificationText(n, t);
+                const text = notificationText(n, t, locale);
                 const unread = n.read_at === null;
                 const when = formatNotificationTime(
                   n.created_at,

@@ -6,6 +6,8 @@
 export const NOTIFICATION_TYPES = [
   "task_assigned",
   "task_status_changed",
+  // Story E4-3 (QLDA-74): nhắc hạn, do hàm lập lịch public.run_due_reminders tạo.
+  "task_due_soon",
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
@@ -26,6 +28,10 @@ export interface NotificationPayload {
   title?: string;
   actor_id?: string | null;
   status_name?: string;
+  /** Chỉ task_due_soon: hạn YYYY-MM-DD lúc nhắc. */
+  due_date?: string;
+  /** Chỉ task_due_soon: số ngày còn lại lúc nhắc (1 hoặc 3). */
+  days_left?: number;
 }
 
 /**
@@ -37,6 +43,9 @@ export interface Notification extends NotificationRow {
   title: string | null;
   status_name: string | null;
   actor: { id: string; full_name: string | null } | null;
+  /** Nhắc hạn (task_due_soon): hạn YYYY-MM-DD và số ngày còn lại lúc nhắc; loại khác là null. */
+  due_date: string | null;
+  days_left: number | null;
 }
 
 export interface NotificationListResponse {

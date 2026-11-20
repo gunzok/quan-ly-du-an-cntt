@@ -238,7 +238,13 @@ describe.skipIf(!enabled)("Email giao việc (Supabase cục bộ + Mailpit)", (
       );
       expect(res.status).toBe(200);
       expect(await res.json()).toEqual({
-        data: { email: { task_assigned: true, task_status_changed: false } },
+        data: {
+          email: {
+            task_assigned: true,
+            task_status_changed: false,
+            task_due_soon: true,
+          },
+        },
       });
     });
 
@@ -287,7 +293,13 @@ describe.skipIf(!enabled)("Email giao việc (Supabase cục bộ + Mailpit)", (
       );
       expect(res.status).toBe(200);
       expect(await res.json()).toEqual({
-        data: { email: { task_assigned: false, task_status_changed: false } },
+        data: {
+          email: {
+            task_assigned: false,
+            task_status_changed: false,
+            task_due_soon: true,
+          },
+        },
       });
       const other = await handleGetNotificationPreferences(
         new Request(url(path)),
@@ -295,7 +307,11 @@ describe.skipIf(!enabled)("Email giao việc (Supabase cục bộ + Mailpit)", (
       );
       expect(
         ((await other.json()) as { data: { email: unknown } }).data.email,
-      ).toEqual({ task_assigned: true, task_status_changed: false });
+      ).toEqual({
+        task_assigned: true,
+        task_status_changed: false,
+        task_due_soon: true,
+      });
     });
   });
 
