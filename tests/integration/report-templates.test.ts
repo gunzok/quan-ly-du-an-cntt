@@ -193,6 +193,34 @@ describe.skipIf(!enabled)("Template báo cáo (Supabase cục bộ)", () => {
     return ((data ?? []) as { name: string }[]).map((o) => o.name);
   }
 
+  /**
+   * Object mới (so với `before`) KHÔNG có dòng report_templates: tệp mồ côi do lần tải bị từ chối để
+   * lại. Không so tổng số object vì test tích hợp khác (reports.test.ts xlsx/docx) tải template
+   * song song lên cùng bucket. Chờ ngắn phòng lần tải song song đang ở giữa bước ghi Storage và
+   * bước thêm dòng.
+   */
+  async function orphanObjectsSince(before: string[]): Promise<string[]> {
+    let orphans: string[] = [];
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const added = (await storedObjects()).filter((n) => !before.includes(n));
+      if (added.length === 0) return [];
+      const rows = await service
+        .from("report_templates")
+        .select("storage_path")
+        .in("storage_path", added);
+      if (rows.error) throw rows.error;
+      const known = new Set(
+        ((rows.data ?? []) as { storage_path: string }[]).map(
+          (r) => r.storage_path,
+        ),
+      );
+      orphans = added.filter((n) => !known.has(n));
+      if (orphans.length === 0) return [];
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    return orphans;
+  }
+
   beforeAll(async () => {
     assertLocalSupabase();
     service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
@@ -462,7 +490,7 @@ describe.skipIf(!enabled)("Template báo cáo (Supabase cục bộ)", () => {
     const body = (await res.json()) as ErrorBody;
     expect(body.error.message).toBe(strings.reportTemplates.errors[key]);
     expect(body.error.message_key).toBe(`reportTemplates.errors.${key}`);
-    expect((await storedObjects()).length).toBe(before.length);
+    expect(await orphanObjectsSince(before)).toEqual([]);
   });
 
   it("AC2: thiếu tệp, trường lạ, không phải multipart: 400", async () => {

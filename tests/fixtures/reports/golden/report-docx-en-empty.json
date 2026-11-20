@@ -1,0 +1,39 @@
+{
+  "word/document.xml": [
+    "¶ PROJECT PROGRESS REPORT",
+    "¶ Project: Dự án mẫu E5-3",
+    "¶ Period: 01 Nov 2026 – 30 Nov 2026 (30 days)",
+    "¶ Created: 18 Nov 2026 10:04 · By: PM Mẫu",
+    "¶ 1. OVERVIEW (as of export)",
+    "▦",
+    "| Total tasks | Done | Open | Overdue | No due date | Blocked | Progress |",
+    "| 4 | 1 | 3 | 1 | 1 | 0 | 25% |",
+    "¶ 2. IN THIS PERIOD",
+    "▦",
+    "| Tasks in period | Created | Completed | Due |",
+    "| 0 | 0 | 0 | 0 |",
+    "¶ 3. BY STATUS",
+    "▦",
+    "| # | Status | Group | Tasks | Share |",
+    "| 1 | Cần làm | Not started | 2 | 50% |",
+    "| 2 | Đang làm | In progress | 1 | 25% |",
+    "| 3 | Hoàn thành | Done | 1 | 25% |",
+    "¶",
+    "¶ 4. TASKS IN THIS PERIOD",
+    "▦",
+    "| No. | Title | Status | Assignee | Priority | Due | Labels | Completed at |",
+    "¶ No tasks in this period.",
+    "¶ Row count: 0",
+    "¶ 5. BY ASSIGNEE",
+    "▦",
+    "| # | Assignee | Total | Done | Open | Overdue |",
+    "¶ No data.",
+    "¶",
+    "¶ Date 18 Nov 2026",
+    "¶ Prepared by",
+    "¶ PM Mẫu"
+  ],
+  "word/footer1.xml": [
+    "¶ Dự án mẫu E5-3 · Page 1/1"
+  ]
+}

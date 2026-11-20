@@ -243,6 +243,14 @@ function Screen() {
             >
               {strings.reports.dialog.sampleLink}
             </a>
+            {" · "}
+            <a
+              href={sampleTemplateUrl("docx")}
+              download
+              className="font-medium text-primary underline underline-offset-2"
+            >
+              {strings.reportsDocx.dialog.sampleLink}
+            </a>
           </p>
           <div role="alert" className="text-sm text-danger">
             {uploadError}

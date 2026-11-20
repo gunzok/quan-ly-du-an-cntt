@@ -1726,9 +1726,6 @@ export const en: Messages = {
         },
         docx: { label: "Word", hint: "Company report layout", ext: ".DOCX" },
       },
-      comingSoon: "Coming soon",
-      docxComingSoon:
-        "Word export is in progress; only Excel is available now.",
       periodLegend: "02 / Period",
       periodStart: "From",
       periodEnd: "To",
@@ -1829,8 +1826,39 @@ export const en: Messages = {
       timeout: "The report export timed out. Narrow the period and try again.",
       tooManyTasks:
         "The period has too many tasks (at most 10,000). Narrow the period and try again.",
-      formatUnavailable:
-        "Word export is not available yet; only Excel (xlsx) can be exported.",
+    },
+  },
+  /** Xuất báo cáo Word (Story E5-4, S07): hộp thoại, lỗi API, template docx mẫu. */
+  reportsDocx: {
+    dialog: {
+      templateMissing: "No Word template is in use.",
+      templateMissingPm:
+        "Ask an Admin to upload and activate a Word template on the Report templates page.",
+      templateMissingAdmin:
+        "Upload and activate a Word template on the Report templates page (you can start from the sample).",
+      sampleLink: "Download sample template (.docx)",
+    },
+    api: {
+      templateMissing:
+        "No Word template is in use. An Admin needs to upload and activate a docx template.",
+      templateUnreadable:
+        "The Word template in use cannot be read or breaks the conventions. An Admin needs to fix and upload it again.",
+      templateUnsafe:
+        "The Word template in use contains commands that are not allowed (only {{...}} placeholders and FOR/END-FOR). An Admin needs to fix and upload it again.",
+    },
+    /** Template docx mẫu (GET /api/v1/report-templates/sample?format=docx). */
+    sample: {
+      coreTitle: "Progress report template (sample)",
+      assigneesHeading: "5. BY ASSIGNEE",
+      assigneeCols: {
+        name: "Assignee",
+        total: "Total",
+        done: "Done",
+        open: "Open",
+        overdue: "Overdue",
+      },
+      page: "Page",
+      dateLine: "Date {{report.today}}",
     },
   },
 };

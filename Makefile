@@ -23,6 +23,9 @@
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
 
+# Định dạng đo ở perf-report (cách nhau bằng dấu phẩy).
+PERF_REPORT_FORMATS ?= xlsx,docx
+
 # Phiên bản pnpm lấy từ trường packageManager (chỉ dùng cho thông báo cài đặt).
 PNPM_VERSION := $(shell sed -n 's/.*"packageManager": *"pnpm@\([^"]*\)".*/\1/p' package.json)
 
@@ -165,14 +168,15 @@ perf: check-pnpm check-supabase
 	if [ -z "$$PERF_BASE_URL" ]; then pnpm build || exit 1; fi; \
 	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/perf/measure.ts
 
-# Đo xuất báo cáo xlsx trên dự án perf 2.000 task (Story E5-3, NFR-03 < 30 giây). Cần make perf-seed
-# trước; không cần SEED_PASSWORD (tạo PM tạm). PERF_REPORT_ITERATIONS (mặc định 5, tối đa 10).
+# Đo xuất báo cáo xlsx và docx trên dự án perf 2.000 task (Story E5-3, E5-4, E5-5; NFR-03 < 30 giây):
+# thời gian, bộ nhớ, số dòng. Cần make perf-seed trước; không cần SEED_PASSWORD (tạo PM tạm).
+# PERF_REPORT_ITERATIONS (mặc định 5, tối đa 10), PERF_REPORT_FORMATS (mặc định xlsx,docx).
 perf-report: check-pnpm check-supabase
 	@eval "$$(supabase status -o env 2>/dev/null)"; \
 	if [ -z "$$API_URL" ] || [ -z "$$ANON_KEY" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
 		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
 		exit 1; fi; \
-	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" PERF_REPORT=1 \
+	SUPABASE_URL="$$API_URL" SUPABASE_ANON_KEY="$$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" PERF_REPORT=1 PERF_REPORT_FORMATS="$(PERF_REPORT_FORMATS)" \
 	pnpm exec vitest run tests/integration/reports-perf.test.ts --silent=false
 
 # ---------------------------------------------------------------------------

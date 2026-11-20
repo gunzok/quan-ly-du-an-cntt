@@ -126,6 +126,7 @@ Task **trong kỳ** là task có ít nhất một mốc rơi vào kỳ (giờ Vi
 | Không có template xlsx đang dùng | `422 report_template_missing` |
 | Template hỏng, không mở được | `422 business_rule_violated` |
 | Kỳ có hơn 10.000 task | `422 business_rule_violated` (`period_end`) |
-| `format: "docx"` (Story E5-4 chưa làm) | `422 business_rule_violated` (`format`) |
 | Quá 10 lần xuất trong 10 phút | `429 rate_limited` |
 | Xử lý quá 25 giây | `504 report_timeout` |
+
+Xuất Word (`format: "docx"`, Story E5-4) dùng cùng khóa dữ liệu, quy ước riêng ở docs/03-design/report-template-docx.md.
