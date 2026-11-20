@@ -24,6 +24,15 @@ export function isApiPath(pathname: string): boolean {
   return pathname === "/api" || pathname.startsWith("/api/");
 }
 
+/**
+ * Route Handler nội bộ do máy gọi (pg_cron/pg_net, Vercel Cron), ví dụ /api/internal/email/dispatch
+ * (Story E4-2). Không có cookie phiên nên proxy không kiểm Origin hay phiên; handler TỰ xác thực bằng
+ * bí mật CRON_SECRET (lib/email/cron-auth.ts) và từ chối khi thiếu cấu hình.
+ */
+export function isInternalApiPath(pathname: string): boolean {
+  return pathname.startsWith("/api/internal/");
+}
+
 export type AuthGateDecision =
   | { action: "next" }
   | { action: "redirect"; to: string }

@@ -1636,6 +1636,47 @@ const viMessages = {
       saveFailed: "Không lưu được hồ sơ. Thử lại.",
     },
   },
+  emailPreferences: {
+    heading: "Email thông báo",
+    hint: "Chọn loại thông báo muốn nhận thêm qua email. Thông báo trong app vẫn hiện như cũ.",
+    types: {
+      task_assigned: "Được giao việc",
+      task_status_changed: "Task đổi trạng thái",
+    },
+    typeHints: {
+      task_assigned: "Email khi có người giao task cho bạn.",
+      task_status_changed:
+        "Email khi task bạn phụ trách hoặc đã tạo đổi trạng thái.",
+    },
+    on: "Bật",
+    off: "Tắt",
+    saving: "Đang lưu…",
+    saved: (type: string, on: boolean) =>
+      on ? `Đã bật email: ${type}.` : `Đã tắt email: ${type}.`,
+    saveFailed: "Không lưu được cài đặt email. Thử lại.",
+    unavailable: "Không tải được cài đặt email. Tải lại trang để thử lại.",
+  },
+  email: {
+    appName: "Quản lý dự án",
+    someone: "Một thành viên",
+    assignedSubject: (title: string) => `Bạn được giao task: ${title}`,
+    assignedIntro: (actor: string) => `${actor} vừa giao cho bạn một task.`,
+    assignedIntroNoActor: "Bạn vừa được giao một task.",
+    statusSubject: (title: string, status: string) =>
+      `Task ${title} chuyển sang ${status}`,
+    statusIntro: (actor: string, status: string) =>
+      `${actor} đã chuyển task sang trạng thái ${status}.`,
+    statusIntroNoActor: (status: string) =>
+      `Task đã chuyển sang trạng thái ${status}.`,
+    taskLabel: "Task",
+    projectLabel: "Dự án",
+    assignedByLabel: "Người giao",
+    changedByLabel: "Người thay đổi",
+    statusLabel: "Trạng thái",
+    openTask: "Mở task",
+    footer:
+      "Bạn nhận email này vì đã bật email thông báo. Tắt trong trang Hồ sơ cá nhân của ứng dụng.",
+  },
   /** QLDA-81: chặn xóa task cha còn việc con. */
   taskDelete: {
     errors: {

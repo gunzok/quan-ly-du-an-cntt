@@ -18,7 +18,7 @@
 .PHONY: install lint test build security check-pnpm check-gitleaks \
 	check-supabase db-start db-stop db-reset db-seed db-test test-db test-integration \
 	e2e-install test-e2e perf-seed perf-clean perf perf-report \
-	deploy-smoke check-migrations lint-workflows db-backup
+	deploy-smoke check-migrations lint-workflows db-backup email-dispatch
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -205,3 +205,12 @@ lint-workflows:
 db-backup:
 	@test -n "$(DEPLOY_ENV)" || { echo "::error::Thiếu DEPLOY_ENV. Ví dụ: make db-backup DEPLOY_ENV=production"; exit 1; }
 	scripts/deploy/backup.sh "$(DEPLOY_ENV)"
+
+# ---------------------------------------------------------------------------
+# Email (Story E4-2). Chạy tay worker gửi email một lần: gọi /api/internal/email/dispatch của
+# ứng dụng đang chạy (mặc định http://localhost:3000, đổi bằng EMAIL_DISPATCH_URL) với CRON_SECRET
+# (shell hoặc .env.local; ứng dụng phải chạy với cùng giá trị). Cục bộ email vào Mailpit
+# http://127.0.0.1:54324. Môi trường thật do pg_cron + pg_net gọi (migration 20261115370000).
+# ---------------------------------------------------------------------------
+email-dispatch:
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/email-dispatch.ts
