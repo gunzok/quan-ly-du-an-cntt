@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
+import { strings } from "@/lib/strings";
 import { contentDisposition, handleExportReport } from "./handlers";
 
 /**
@@ -10,11 +11,17 @@ import { contentDisposition, handleExportReport } from "./handlers";
 const PROJECT = "00000000-0000-4000-8000-00000000e530";
 const USER = "00000000-0000-4000-8000-0000000000a1";
 
-function fakeSession(tables: Record<string, unknown>): SupabaseClient {
+function fakeSession(
+  tables: Record<string, unknown>,
+  calls: string[] = [],
+): SupabaseClient {
   const builder = (table: string) => {
     const b = {
       select: () => b,
-      eq: () => b,
+      eq: (column: string, value: unknown) => {
+        calls.push(`${table}.${column}=${String(value)}`);
+        return b;
+      },
       maybeSingle: async () => ({ data: tables[table] ?? null, error: null }),
     };
     return b;
@@ -73,6 +80,29 @@ describe("handleExportReport", () => {
     expect(res.status).toBe(422);
     const body = (await res.json()) as { error: { code: string } };
     expect(body.error.code).toBe("report_template_missing");
+  });
+
+  it("không có template docx đang dùng: 422 report_template_missing, báo đúng Word (E5-4)", async () => {
+    const calls: string[] = [];
+    const res = await handleExportReport(
+      request({
+        format: "docx",
+        period_start: "2026-11-01",
+        period_end: "2026-11-30",
+      }),
+      PROJECT,
+      {
+        session: fakeSession(base, calls),
+        rateLimit: async () => ({ ok: true }),
+      },
+    );
+    expect(res.status).toBe(422);
+    const body = (await res.json()) as {
+      error: { code: string; message: string };
+    };
+    expect(body.error.code).toBe("report_template_missing");
+    expect(body.error.message).toBe(strings.reportsDocx.api.templateMissing);
+    expect(calls).toContain("report_templates.kind=docx");
   });
 
   it("PM bị khóa: 403 dù còn là PM", async () => {
