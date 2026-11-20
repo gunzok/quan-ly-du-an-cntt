@@ -5,8 +5,8 @@ import { writeZip } from "./zip-write";
  * Template docx MẪU (Story E5-4, R-005: công ty chưa có template thật). Sinh bằng code (XML
  * WordprocessingML viết tay, nén bằng zip-write.ts), không chứa dữ liệu thật, ra cùng byte mỗi lần
  * sinh. Minh họa đủ quy ước ở docs/03-design/report-template-docx.md: ô giữ chỗ trong chữ, bảng số
- * liệu, ba bảng lặp `{{FOR ... IN ...}}` (theo trạng thái, task trong kỳ, theo người phụ trách)
- * có dòng tiêu đề lặp lại khi sang trang, `{{empty.*}}` khi vùng lặp rỗng, chân trang có ô giữ
+ * liệu, ba bảng lặp `{{FOR ... IN ...}}`/`{{END-FOR ...}}` trên dòng riêng (theo trạng thái, task
+ * trong kỳ, theo người phụ trách) có dòng tiêu đề lặp lại khi sang trang, `{{empty.*}}` khi vùng lặp rỗng, chân trang có ô giữ
  * chỗ và số trang, khối ký tên.
  *
  * Tải về: GET /api/v1/report-templates/sample?format=docx (Admin, PM).
@@ -120,6 +120,24 @@ function table(
   return `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/><w:tblBorders><w:top ${b}/><w:left ${b}/><w:bottom ${b}/><w:right ${b}/><w:insideH ${b}/><w:insideV ${b}/></w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${grid}</w:tblGrid>${head}${body}</w:tbl>`;
 }
 
+/**
+ * Ba dòng của một bảng lặp: dòng `{{FOR v IN vùng}}`, dòng mẫu, dòng `{{END-FOR v}}`. docx-templates
+ * chỉ nhân DÒNG khi FOR và END-FOR nằm ở dòng riêng (hai dòng dấu này bị xóa khi xuất); đặt chung
+ * một dòng thì nó nhân Ô.
+ */
+function loopRows(
+  item: string,
+  collection: string,
+  cells: string[],
+): string[][] {
+  const blank = cells.slice(1).map(() => "");
+  return [
+    [`{{FOR ${item} IN ${collection}}}`, ...blank],
+    cells,
+    [`{{END-FOR ${item}}}`, ...blank],
+  ];
+}
+
 /** Chia đều chiều rộng nội dung theo tỷ lệ. */
 function widthsOf(ratios: number[]): number[] {
   const sum = ratios.reduce((a, r) => a + r, 0);
@@ -204,15 +222,13 @@ function documentXml(t: Messages): string {
         s.statusCols.count,
         s.statusCols.ratio,
       ],
-      [
-        [
-          "{{FOR status IN statuses}}{{status.index}}",
-          "{{status.name}}",
-          "{{status.group}}",
-          "{{status.count}}",
-          "{{status.ratio}}{{END-FOR status}}",
-        ],
-      ],
+      loopRows("status", "statuses", [
+        "{{status.index}}",
+        "{{status.name}}",
+        "{{status.group}}",
+        "{{status.count}}",
+        "{{status.ratio}}",
+      ]),
       [0, 3, 4],
     ),
   );
@@ -233,18 +249,16 @@ function documentXml(t: Messages): string {
         s.taskCols.labels,
         s.taskCols.completed,
       ],
-      [
-        [
-          "{{FOR task IN tasks}}{{task.index}}",
-          "{{task.title}}",
-          "{{task.status}}",
-          "{{task.assignee}}",
-          "{{task.priority}}",
-          "{{task.due_date}}",
-          "{{task.labels}}",
-          "{{task.completed_at}}{{END-FOR task}}",
-        ],
-      ],
+      loopRows("task", "tasks", [
+        "{{task.index}}",
+        "{{task.title}}",
+        "{{task.status}}",
+        "{{task.assignee}}",
+        "{{task.priority}}",
+        "{{task.due_date}}",
+        "{{task.labels}}",
+        "{{task.completed_at}}",
+      ]),
       [0],
     ),
   );
@@ -264,16 +278,14 @@ function documentXml(t: Messages): string {
         d.assigneeCols.open,
         d.assigneeCols.overdue,
       ],
-      [
-        [
-          "{{FOR assignee IN assignees}}{{assignee.index}}",
-          "{{assignee.name}}",
-          "{{assignee.total}}",
-          "{{assignee.done}}",
-          "{{assignee.open}}",
-          "{{assignee.overdue}}{{END-FOR assignee}}",
-        ],
-      ],
+      loopRows("assignee", "assignees", [
+        "{{assignee.index}}",
+        "{{assignee.name}}",
+        "{{assignee.total}}",
+        "{{assignee.done}}",
+        "{{assignee.open}}",
+        "{{assignee.overdue}}",
+      ]),
       [0, 2, 3, 4, 5],
     ),
   );

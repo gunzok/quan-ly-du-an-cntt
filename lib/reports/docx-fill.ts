@@ -1,5 +1,10 @@
 import { randomBytes } from "node:crypto";
-import { createReport, listCommands } from "docx-templates";
+import {
+  CommandSyntaxError,
+  createReport,
+  InvalidCommandError,
+  listCommands,
+} from "docx-templates";
 import type { Locale } from "@/lib/i18n/config";
 import { formatInline } from "./inline-format";
 import { SECTIONS, type SectionName, type ValueMap } from "./placeholders";
@@ -61,7 +66,7 @@ const FORBIDDEN_SEGMENTS = new Set(["__proto__", "constructor", "prototype"]);
 const COLLECTIONS = Object.keys(SECTIONS) as SectionName[];
 
 /** Đối tượng tra khóa: không prototype, chỉ có thuộc tính riêng. */
-type Bag = { [key: string]: string | Bag | Bag[] };
+export type Bag = { [key: string]: string | Bag | Bag[] };
 
 function bag(): Bag {
   return Object.create(null) as Bag;
@@ -134,10 +139,22 @@ function isPath(code: string): boolean {
 export async function checkDocxTemplateCommands(
   template: Uint8Array,
 ): Promise<void> {
-  const commands = await listCommands(
-    template as unknown as ArrayBuffer,
-    DOCX_DELIMITERS,
-  );
+  let commands: Awaited<ReturnType<typeof listCommands>>;
+  try {
+    commands = await listCommands(
+      template as unknown as ArrayBuffer,
+      DOCX_DELIMITERS,
+    );
+  } catch (error) {
+    // Lệnh sai cú pháp (alias không có, FOR thiếu IN...): lỗi quy ước, không phải lỗi hệ thống.
+    if (
+      error instanceof InvalidCommandError ||
+      error instanceof CommandSyntaxError
+    ) {
+      throw new TemplateSyntaxError(error.message);
+    }
+    throw error;
+  }
   for (const { type, code, raw } of commands) {
     const c = code.trim();
     switch (type) {
@@ -202,6 +219,23 @@ function resolvePath(
   return null;
 }
 
+/**
+ * Thay cho bộ chạy JavaScript của docx-templates (tùy chọn `runJs`): KHÔNG chạy mã, chỉ tra đường
+ * dẫn khóa trên dữ liệu do ứng dụng dựng. Không phải đường dẫn: UnsafeTemplateError. Tên vùng lặp
+ * → mảng (cho FOR); khóa có giá trị → chữ; khóa không có → giữ nguyên `{{khóa}}` để người soạn sửa.
+ */
+export function evaluateTemplateExpression(
+  rawCode: string,
+  root: Bag,
+  sandbox: Record<string, unknown>,
+): string | Bag[] {
+  const code = rawCode.trim();
+  if (!isPath(code)) throw new UnsafeTemplateError(code);
+  const value = resolvePath(code, root, sandbox);
+  if (Array.isArray(value) || typeof value === "string") return value;
+  return `${DOCX_DELIMITERS[0]}${code}${DOCX_DELIMITERS[1]}`;
+}
+
 export async function fillDocxTemplate(
   template: Uint8Array,
   input: DocxFillInput,
@@ -222,6 +256,8 @@ export async function fillDocxTemplate(
       cmdDelimiter: DOCX_DELIMITERS,
       literalXmlDelimiter: `␟${randomBytes(16).toString("hex")}␟`,
       processLineBreaks: true,
+      // Ngắt dòng thành </w:t><w:br/><w:t> (mặc định chèn <w:br/> TRONG <w:t>, sai OOXML).
+      processLineBreaksAsNewText: true,
       noSandbox: false,
       failFast: true,
       rejectNullish: false,
@@ -229,26 +265,16 @@ export async function fillDocxTemplate(
       maximumWalkingDepth: 1_000_000 + totalRows * 2_000,
       indentXml: false,
       runJs: ({ sandbox }) => {
-        const code = String(sandbox.__code__ ?? "").trim();
-        if (!isPath(code)) {
-          unsafe = code;
-          throw new UnsafeTemplateError(code);
+        const code = String(sandbox.__code__ ?? "");
+        try {
+          return {
+            modifiedSandbox: { __code__: undefined, __result__: undefined },
+            result: evaluateTemplateExpression(code, root, sandbox),
+          };
+        } catch (error) {
+          if (error instanceof UnsafeTemplateError) unsafe = code;
+          throw error;
         }
-        const value = resolvePath(code, root, sandbox);
-        let result: unknown;
-        if (Array.isArray(value)) {
-          // Chỉ vùng lặp (tên vùng ở gốc) trả mảng; FOR cần mảng.
-          result = value;
-        } else if (typeof value === "string") {
-          result = value;
-        } else {
-          // Khóa sai chính tả: giữ nguyên trong tệp để người soạn thấy và sửa.
-          result = `${DOCX_DELIMITERS[0]}${code}${DOCX_DELIMITERS[1]}`;
-        }
-        return {
-          modifiedSandbox: { __code__: undefined, __result__: undefined },
-          result,
-        };
       },
     });
   } catch (error) {

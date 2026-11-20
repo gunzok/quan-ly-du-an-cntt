@@ -8,6 +8,8 @@ test-results/
 playwright-report/
 blob-report/
 next-env.d.ts
+# Golden file do test sinh (UPDATE_GOLDEN=1), so nguyên văn
+tests/fixtures/reports/golden/
 
 # Tài liệu do phiên điều phối quản lý, không định dạng lại tự động
 docs/

@@ -169,7 +169,7 @@ export async function dumpXlsx(
   return out;
 }
 
-/** Đọc một phần tử trong tệp ZIP (xlsx) theo thư mục trung tâm; không có: null. Chỉ dùng cho test. */
+/** Đọc một phần tử trong tệp ZIP (xlsx, docx) theo thư mục trung tâm; không có: null. Chỉ dùng cho test. */
 export function readZipText(bytes: Uint8Array, name: string): string | null {
   const buf = Buffer.from(bytes);
   const eocd = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
