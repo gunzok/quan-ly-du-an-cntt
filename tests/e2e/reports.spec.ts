@@ -3,15 +3,16 @@ import AxeBuilder from "@axe-core/playwright";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { XLSX_MIME } from "@/lib/reports/model";
+import { DOCX_MIME, XLSX_MIME } from "@/lib/reports/model";
 import { currentMonthPeriod } from "@/lib/reports/period";
+import { buildSampleDocxTemplate } from "@/lib/reports/sample-docx-template";
 import { buildSampleXlsxTemplate } from "@/lib/reports/sample-template";
 import { waitForHydration } from "./hydration";
 import { signInWithPassword } from "./login";
 import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
 
 /**
- * Story E5-3 (QLDA-67): hộp thoại Xuất báo cáo S07 trên dashboard dự án.
+ * Story E5-3 (QLDA-67), E5-4 (QLDA-75): hộp thoại Xuất báo cáo S07 trên dashboard dự án (Excel, Word).
  *
  * Template "đang dùng" là trạng thái TOÀN HỆ THỐNG và CSDL cục bộ dùng chung, spec E5-2 bật/tắt
  * template song song: để không làm hỏng nhau, test chặn GET /api/v1/report-templates để cố định
@@ -20,6 +21,7 @@ import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
  * mẫu và chặn quyền gọi API thật.
  */
 const t = strings.reports.dialog;
+const td = strings.reportsDocx.dialog;
 const BLOCKING_IMPACTS = new Set(["critical", "serious"]);
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const tag = randomUUID().slice(0, 8);
@@ -79,27 +81,27 @@ async function blockingViolations(page: Page) {
     .flatMap((v) => v.nodes.map((n) => `${v.id} @ ${n.target.join(" ")}`));
 }
 
-/** Cố định danh sách template mà hộp thoại thấy. */
-async function stubTemplates(page: Page, active: boolean) {
+/** Cố định danh sách template mà hộp thoại thấy: `true` = có template xlsx đang dùng. */
+async function stubTemplates(
+  page: Page,
+  active: boolean | ("xlsx" | "docx")[],
+) {
+  const kinds = active === true ? ["xlsx"] : active === false ? [] : active;
   await page.route("**/api/v1/report-templates", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        data: active
-          ? [
-              {
-                id: randomUUID(),
-                kind: "xlsx",
-                name: `Mẫu công ty ${tag}`,
-                size_bytes: 9000,
-                is_active: true,
-                uploaded_by: null,
-                created_at: "2026-11-01T00:00:00Z",
-                updated_at: "2026-11-01T00:00:00Z",
-              },
-            ]
-          : [],
+        data: kinds.map((kind) => ({
+          id: randomUUID(),
+          kind,
+          name: `Mẫu công ty ${kind} ${tag}`,
+          size_bytes: 9000,
+          is_active: true,
+          uploaded_by: null,
+          created_at: "2026-11-01T00:00:00Z",
+          updated_at: "2026-11-01T00:00:00Z",
+        })),
       }),
     }),
   );
@@ -148,11 +150,27 @@ test.describe("Xuất báo cáo S07", () => {
       },
     );
     expect(denied.status()).toBe(403);
-    expect(
-      (
-        await page.request.get("/api/v1/report-templates/sample?format=xlsx")
-      ).status(),
-    ).toBe(403);
+    const deniedDocx = await page.request.post(
+      `/api/v1/projects/${projectId}/reports`,
+      {
+        headers: { origin: new URL(baseURL).origin },
+        data: {
+          format: "docx",
+          period_start: "2026-11-01",
+          period_end: "2026-11-30",
+        },
+      },
+    );
+    expect(deniedDocx.status()).toBe(403);
+    for (const format of ["xlsx", "docx"]) {
+      expect(
+        (
+          await page.request.get(
+            `/api/v1/report-templates/sample?format=${format}`,
+          )
+        ).status(),
+      ).toBe(403);
+    }
 
     await page.context().clearCookies();
     await signInWithPassword(page, emails.pm, password);
@@ -161,9 +179,17 @@ test.describe("Xuất báo cáo S07", () => {
     );
     expect(sample.status()).toBe(200);
     expect(sample.headers()["content-type"]).toBe(XLSX_MIME);
+    const sampleDocx = await page.request.get(
+      "/api/v1/report-templates/sample?format=docx",
+    );
+    expect(sampleDocx.status()).toBe(200);
+    expect(sampleDocx.headers()["content-type"]).toBe(DOCX_MIME);
+    expect(sampleDocx.headers()["content-disposition"]).toContain(
+      "template-bao-cao-mau.docx",
+    );
   });
 
-  test("PM: mặc định tháng này, Word sắp có, tải tệp về (sáng)", async ({
+  test("PM: mặc định tháng này và Excel, tải tệp về (sáng)", async ({
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "light" });
@@ -187,8 +213,8 @@ test.describe("Xuất báo cáo S07", () => {
     await expect(dialog.getByLabel(t.periodStart)).toHaveValue(month.start);
     await expect(dialog.getByLabel(t.periodEnd)).toHaveValue(month.end);
     await expect(dialog.getByRole("radio", { name: /^Excel/ })).toBeChecked();
-    await expect(dialog.getByRole("radio", { name: /^Word/ })).toBeDisabled();
-    await expect(dialog.getByText(`Mẫu công ty ${tag}`)).toBeVisible();
+    await expect(dialog.getByRole("radio", { name: /^Word/ })).toBeEnabled();
+    await expect(dialog.getByText(`Mẫu công ty xlsx ${tag}`)).toBeVisible();
     expect(await blockingViolations(page)).toEqual([]);
 
     const requestPromise = page.waitForRequest(
@@ -230,6 +256,101 @@ test.describe("Xuất báo cáo S07", () => {
     ).toHaveCount(0);
     await expect(dialog.getByRole("button", { name: t.submit })).toBeDisabled();
     expect(await blockingViolations(page)).toEqual([]);
+  });
+
+  test("Word (bàn phím, tối): thiếu template Word báo theo định dạng; có template thì xuất .docx", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await signInWithPassword(page, emails.pm, password);
+    // Chỉ có template Excel đang dùng.
+    await stubTemplates(page, ["xlsx"]);
+    await openDashboard(page);
+    const dialog = await openDialog(page);
+    const excel = dialog.getByRole("radio", { name: /^Excel/ });
+    const word = dialog.getByRole("radio", { name: /^Word/ });
+    await expect(dialog.getByText(`Mẫu công ty xlsx ${tag}`)).toBeVisible();
+    // Bàn phím: mũi tên trong nhóm radio chuyển sang Word.
+    await excel.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(word).toBeChecked();
+    const alert = dialog.getByRole("alert");
+    await expect(alert).toContainText(td.templateMissing);
+    await expect(alert).toContainText(td.templateMissingPm);
+    await expect(
+      alert.getByRole("link", { name: td.sampleLink }),
+    ).toHaveAttribute("href", "/api/v1/report-templates/sample?format=docx");
+    await expect(dialog.getByRole("button", { name: t.submit })).toBeDisabled();
+    expect(await blockingViolations(page)).toEqual([]);
+    // Quay lại Excel: hết cảnh báo, nút tạo bật lại.
+    await page.keyboard.press("ArrowLeft");
+    await expect(excel).toBeChecked();
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
+    await expect(dialog.getByRole("button", { name: t.submit })).toBeEnabled();
+
+    // Có template Word đang dùng: gửi format docx, tải tệp .docx.
+    await page.keyboard.press("Escape");
+    await page.unroute("**/api/v1/report-templates");
+    await stubTemplates(page, ["xlsx", "docx"]);
+    const file = buildSampleDocxTemplate(strings);
+    await page.route(`**/api/v1/projects/${projectId}/reports`, (route) =>
+      route.fulfill({
+        status: 200,
+        headers: {
+          "content-type": DOCX_MIME,
+          "content-disposition": `attachment; filename="bao-cao.docx"; filename*=UTF-8''b%C3%A1o-c%C3%A1o.docx`,
+        },
+        body: file,
+      }),
+    );
+    const again = await openDialog(page);
+    await again.getByRole("radio", { name: /^Excel/ }).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(again.getByText(`Mẫu công ty docx ${tag}`)).toBeVisible();
+    const requestPromise = page.waitForRequest(
+      (r) => r.method() === "POST" && r.url().endsWith("/reports"),
+    );
+    const download = page.waitForEvent("download");
+    await again.getByRole("button", { name: t.submit }).click();
+    const month = currentMonthPeriod();
+    expect((await requestPromise).postDataJSON()).toEqual({
+      format: "docx",
+      period_start: month.start,
+      period_end: month.end,
+    });
+    expect((await download).suggestedFilename()).toBe("báo-cáo.docx");
+    await expect(again.getByRole("status")).toHaveText(
+      t.downloaded("báo-cáo.docx"),
+    );
+    expect(await blockingViolations(page)).toEqual([]);
+  });
+
+  test("Word: máy chủ báo thiếu template docx (422) thì hộp thoại chuyển sang báo thiếu", async ({
+    page,
+  }) => {
+    await signInWithPassword(page, emails.pm, password);
+    await stubTemplates(page, ["xlsx", "docx"]);
+    await page.route(`**/api/v1/projects/${projectId}/reports`, (route) =>
+      route.fulfill({
+        status: 422,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: {
+            code: "report_template_missing",
+            message: strings.reportsDocx.api.templateMissing,
+          },
+        }),
+      }),
+    );
+    await openDashboard(page);
+    const dialog = await openDialog(page);
+    await dialog.getByRole("radio", { name: /^Word/ }).check();
+    await dialog.getByRole("button", { name: t.submit }).click();
+    await expect(dialog.getByRole("alert")).toContainText(td.templateMissing);
+    await expect(dialog.getByRole("button", { name: t.submit })).toBeDisabled();
+    // Excel vẫn còn template đang dùng.
+    await dialog.getByRole("radio", { name: /^Excel/ }).check();
+    await expect(dialog.getByRole("button", { name: t.submit })).toBeEnabled();
   });
 
   test("Kỳ sai báo lỗi tại chỗ; quá thời gian báo 504 dễ hiểu", async ({
