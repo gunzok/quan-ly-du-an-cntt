@@ -72,7 +72,7 @@ $f$;
 grant execute on all functions in schema tests to anon, authenticated, service_role;
 grant usage on schema tests to service_role;
 
-select plan(47);
+select plan(48);
 
 -- ===========================================================================
 -- Cấu trúc, quyền, lịch
@@ -97,14 +97,14 @@ select ok(
   and not has_table_privilege('service_role', 'public.task_due_reminders', 'delete'),
   'service_role chỉ đọc sổ nhắc');
 select ok(
-  has_function_privilege('service_role', 'public.run_due_reminders(timestamptz)', 'execute')
-  and not has_function_privilege('authenticated', 'public.run_due_reminders(timestamptz)', 'execute')
-  and not has_function_privilege('anon', 'public.run_due_reminders(timestamptz)', 'execute')
-  and not has_function_privilege('public', 'public.run_due_reminders(timestamptz)', 'execute'),
+  has_function_privilege('service_role', 'public.run_due_reminders(timestamptz, uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.run_due_reminders(timestamptz, uuid)', 'execute')
+  and not has_function_privilege('anon', 'public.run_due_reminders(timestamptz, uuid)', 'execute')
+  and not has_function_privilege('public', 'public.run_due_reminders(timestamptz, uuid)', 'execute'),
   'run_due_reminders chỉ service_role (và chủ hàm postgres) gọi được');
 select is(
   (select prosecdef and proconfig = array['search_path=""'] from pg_proc
-   where oid = 'public.run_due_reminders(timestamptz)'::regprocedure),
+   where oid = 'public.run_due_reminders(timestamptz, uuid)'::regprocedure),
   true, 'run_due_reminders là SECURITY DEFINER với search_path rỗng');
 select is(
   (select prosecdef and proconfig = array['search_path=""'] from pg_proc
@@ -169,6 +169,8 @@ select throws_ok($$select public.run_due_reminders(null)$$, '22004', null,
 -- Chạy lúc 08:00 hôm nay (giờ VN) bằng service_role
 -- ===========================================================================
 select tests.as_service();
+select is(public.run_due_reminders(tests.vn(0, '08:00:00'), gen_random_uuid()), 0,
+  'p_project_id: chỉ xét dự án đó (dự án không tồn tại → 0 nhắc)');
 select is(public.run_due_reminders(tests.vn(0, '08:00:00')), 3,
   'Lần chạy đầu: 3 nhắc (d1, d3 của member_a; pm_off của PM)');
 select tests.logout();

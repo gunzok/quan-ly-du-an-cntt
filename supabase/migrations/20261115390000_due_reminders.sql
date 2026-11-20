@@ -30,9 +30,10 @@
 --   7. payload task_due_soon chỉ có {title ≤ 80, due_date 'YYYY-MM-DD', days_left 1|3}; CHECK mới tách
 --      khóa theo loại (loại khác không được có due_date/days_left, task_due_soon không có actor_id,
 --      status_name). Hiển thị vẫn qua public.notification_payloads (kiểm quyền đọc task).
---   8. public.run_due_reminders(p_now) là SECURITY DEFINER, CHỈ service_role (và postgres, chủ hàm,
---      người chạy job pg_cron) gọi được. p_now để test với "hôm nay" cố định và để chạy tay
---      (`make reminders-run`, REMINDERS_NOW). pg_cron trên Supabase chạy theo GMT/UTC
+--   8. public.run_due_reminders(p_now, p_project_id) là SECURITY DEFINER, CHỈ service_role (và postgres,
+--      chủ hàm, người chạy job pg_cron) gọi được. p_now để test với "hôm nay" cố định và để chạy tay
+--      (`make reminders-run`, REMINDERS_NOW); p_project_id (tùy chọn) giới hạn một dự án khi chạy tay
+--      hoặc khi test trên CSDL dùng chung. Job gọi không tham số. pg_cron trên Supabase chạy theo GMT/UTC
 --      (cron.timezone = GMT), nên lịch '0 1 * * *' = 08:00 giờ Việt Nam (không có giờ mùa hè).
 
 -- ---------------------------------------------------------------------------
@@ -263,7 +264,10 @@ create index tasks_open_due_date_idx on public.tasks (due_date)
 -- ---------------------------------------------------------------------------
 -- Tạo thông báo task_due_soon cho mọi task đúng mốc của "hôm nay" (giờ Việt Nam tại p_now). Trả về
 -- số thông báo mới tạo (0 khi chạy lại cùng ngày). Email do trigger E4-2 ghi hàng đợi.
-create or replace function public.run_due_reminders(p_now timestamptz default now())
+create or replace function public.run_due_reminders(
+  p_now timestamptz default now(),
+  p_project_id uuid default null
+)
 returns integer
 language plpgsql
 volatile
@@ -289,6 +293,7 @@ begin
       and t.due_date is not null
       and t.due_date in (v_today + 1, v_today + 3)
       and pr.status = 'active'
+      and (p_project_id is null or t.project_id = p_project_id)
       and private.notification_recipient_ok(t.assignee_id, t.project_id)
   ),
   logged as (
@@ -312,13 +317,14 @@ begin
   return v_count;
 end;
 $$;
-comment on function public.run_due_reminders(timestamptz) is
+comment on function public.run_due_reminders(timestamptz, uuid) is
   'Nhắc hạn (QLDA-74): task chưa xong có hạn = hôm nay (giờ VN tại p_now) + 1 hoặc + 3, gửi người '
-  'phụ trách còn quyền; chống trùng qua task_due_reminders. pg_cron 01:00 UTC. Chỉ service_role.';
+  'phụ trách còn quyền; chống trùng qua task_due_reminders. p_project_id: chỉ một dự án (chạy tay). '
+  'pg_cron 01:00 UTC. Chỉ service_role.';
 
-revoke all on function public.run_due_reminders(timestamptz)
+revoke all on function public.run_due_reminders(timestamptz, uuid)
   from public, anon, authenticated, service_role;
-grant execute on function public.run_due_reminders(timestamptz) to service_role;
+grant execute on function public.run_due_reminders(timestamptz, uuid) to service_role;
 
 -- ---------------------------------------------------------------------------
 -- 6. Lịch pg_cron: 01:00 UTC = 08:00 giờ Việt Nam, mỗi ngày (quyết định 1, 8)

@@ -6,6 +6,7 @@
  *
  * REMINDERS_NOW (tùy chọn, ISO 8601, ví dụ 2026-11-24T08:00:00+07:00): giả lập "bây giờ" để thử với
  * một ngày cố định; bỏ trống = thời điểm hiện tại. Hàm chống trùng nên chạy lại không nhắc lần hai.
+ * REMINDERS_PROJECT_ID (tùy chọn, UUID): chỉ xét một dự án.
  * Sau đó `make email-dispatch` (ứng dụng đang chạy) để gửi email nhắc vào Mailpit.
  */
 export {};
@@ -32,6 +33,17 @@ if (rawNow) {
   pNow = parsed.toISOString();
 }
 
+const projectId = process.env.REMINDERS_PROJECT_ID?.trim() || undefined;
+if (
+  projectId &&
+  !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    projectId,
+  )
+) {
+  console.error("REMINDERS_PROJECT_ID không phải UUID.");
+  process.exit(1);
+}
+
 const response = await fetch(
   `${url.replace(/\/$/, "")}/rest/v1/rpc/run_due_reminders`,
   {
@@ -41,7 +53,10 @@ const response = await fetch(
       authorization: `Bearer ${key}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify(pNow ? { p_now: pNow } : {}),
+    body: JSON.stringify({
+      ...(pNow ? { p_now: pNow } : {}),
+      ...(projectId ? { p_project_id: projectId } : {}),
+    }),
   },
 ).catch((error: unknown) => {
   console.error(

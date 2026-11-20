@@ -218,7 +218,8 @@ email-dispatch:
 # ---------------------------------------------------------------------------
 # Nhắc hạn (Story E4-3). Chạy tay public.run_due_reminders() một lần trên Supabase CỤC BỘ (khóa
 # service_role lấy từ supabase status, không in ra). REMINDERS_NOW=<ISO 8601> giả lập "bây giờ",
-# ví dụ: make reminders-run REMINDERS_NOW=2026-11-24T08:00:00+07:00. Môi trường thật do pg_cron chạy
+# ví dụ: make reminders-run REMINDERS_NOW=2026-11-24T08:00:00+07:00; REMINDERS_PROJECT_ID=<uuid> chỉ
+# xét một dự án. Môi trường thật do pg_cron chạy
 # 01:00 UTC = 08:00 giờ Việt Nam (migration 20261115390000, docs/05-ops/nhac-han.md).
 # ---------------------------------------------------------------------------
 reminders-run: check-supabase
@@ -227,4 +228,5 @@ reminders-run: check-supabase
 		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
 		exit 1; fi; \
 	SUPABASE_URL="$$API_URL" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" REMINDERS_NOW="$(REMINDERS_NOW)" \
+	REMINDERS_PROJECT_ID="$(REMINDERS_PROJECT_ID)" \
 	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/reminders-run.ts

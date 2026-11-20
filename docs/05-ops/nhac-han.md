@@ -49,8 +49,8 @@ Migration tự chạy `create extension if not exists pg_cron` và `cron.schedul
 
 ## 3. Chạy tay và thử
 
-- **Cục bộ**: `make reminders-run` (gọi hàm với thời điểm hiện tại). Giả lập một ngày cố định: `make reminders-run REMINDERS_NOW=2026-11-24T08:00:00+07:00`. Sau đó `make email-dispatch` (ứng dụng đang chạy, cùng `CRON_SECRET`) để email nhắc vào Mailpit http://127.0.0.1:54324.
-- **Staging/production** (SQL Editor, vai trò postgres): `select public.run_due_reminders();`. Chạy lại an toàn (chống trùng). Chỉ `service_role` và `postgres` gọi được hàm; trình duyệt không gọi được.
+- **Cục bộ**: `make reminders-run` (gọi hàm với thời điểm hiện tại). Giả lập một ngày cố định: `make reminders-run REMINDERS_NOW=2026-11-24T08:00:00+07:00`; thêm `REMINDERS_PROJECT_ID=<uuid>` để chỉ xét một dự án. Sau đó `make email-dispatch` (ứng dụng đang chạy, cùng `CRON_SECRET`) để email nhắc vào Mailpit http://127.0.0.1:54324.
+- **Staging/production** (SQL Editor, vai trò postgres): `select public.run_due_reminders();` (một dự án: `select public.run_due_reminders(now(), '<project_id>');`). Chạy lại an toàn (chống trùng). Chỉ `service_role` và `postgres` gọi được hàm; trình duyệt không gọi được.
 - **Tạm dừng nhắc** (ví dụ sự cố email): `select cron.alter_job((select jobid from cron.job where jobname = 'qlda-due-reminders'), active := false);` Bật lại với `active := true`. Mốc của những ngày tạm dừng không được bù.
 
 ## 4. Vận hành
