@@ -56,6 +56,7 @@ function dataWithAssignees(base = fixtureReportData()): ReportData {
         {
           assignee_id: "00000000-0000-4000-8000-0000000000a1",
           full_name: "Nguyễn Văn An",
+          is_member: true,
           total: 2,
           done: 1,
           open: 1,
@@ -64,6 +65,7 @@ function dataWithAssignees(base = fixtureReportData()): ReportData {
         {
           assignee_id: "00000000-0000-4000-8000-0000000000a2",
           full_name: null,
+          is_member: false,
           total: 1,
           done: 0,
           open: 1,
@@ -72,6 +74,7 @@ function dataWithAssignees(base = fixtureReportData()): ReportData {
         {
           assignee_id: null,
           full_name: null,
+          is_member: false,
           total: 1,
           done: 0,
           open: 1,

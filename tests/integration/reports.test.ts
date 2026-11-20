@@ -6,6 +6,8 @@
  *
  * AC1: dự án, kỳ, template (template MẪU tải lên qua API E5-2) → tệp xlsx đúng mẫu, số liệu khớp.
  * AC2: thiếu template đang dùng → 422 report_template_missing.
+ * E5-4 (QLDA-75): cùng các ca cho docx (template docx MẪU), và template docx độc hại (lệnh chạy mã)
+ * bị từ chối 422 mà không lộ biến môi trường.
  *
  * CSDL cục bộ dùng chung: template "đang dùng" là trạng thái toàn hệ thống. Test chỉ kiểm AC2 khi
  * không có template xlsx đang dùng nào lúc bắt đầu (ca 422 luôn được kiểm ở lib/reports, không cần
@@ -30,8 +32,11 @@ import {
   handleSampleTemplate,
   type ReportDeps,
 } from "@/lib/reports/handlers";
-import { XLSX_MIME } from "@/lib/reports/model";
+import { DOCX_MIME, XLSX_MIME } from "@/lib/reports/model";
+import { buildSampleDocxTemplate } from "@/lib/reports/sample-docx-template";
 import { buildSampleXlsxTemplate } from "@/lib/reports/sample-template";
+import { strings } from "@/lib/strings";
+import { docxFromBody, dumpDocx, p } from "@/tests/fixtures/reports/docx";
 import { missingIntegrationEnv } from "./env";
 import {
   APP_ORIGIN,
@@ -68,6 +73,7 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
   const projectId = randomUUID();
   const projectName = `IT E5-3 ${tag}`;
   let noActiveTemplateAtStart = false;
+  let noActiveDocxAtStart = false;
 
   function deps(
     role: Role | null,
@@ -100,6 +106,46 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
     period_start: "2026-11-01",
     period_end: "2026-11-30",
   };
+  const DOCX_NOV = { ...NOV, format: "docx" };
+
+  /** Admin tải template lên (API E5-2) và bật làm template đang dùng của loại đó. */
+  async function uploadActive(
+    bytes: Uint8Array,
+    fileName: string,
+    mime: string,
+  ): Promise<ReportTemplate> {
+    const form = new FormData();
+    form.set(
+      "file",
+      new File([new Uint8Array(bytes)], fileName, { type: mime }),
+    );
+    form.set("name", `IT ${fileName} ${tag}`);
+    const up = await handleUploadReportTemplate(
+      new Request(new URL("/api/v1/report-templates", APP_ORIGIN), {
+        method: "POST",
+        headers: { origin: APP_ORIGIN },
+        body: form,
+      }),
+      { session: sessionClient(jars.admin) },
+    );
+    expect(up.status).toBe(201);
+    const template = ((await up.json()) as { data: ReportTemplate }).data;
+    createdTemplates.push(template.id);
+    const on = await handlePatchReportTemplate(
+      new Request(
+        new URL(`/api/v1/report-templates/${template.id}`, APP_ORIGIN),
+        {
+          method: "PATCH",
+          headers: { origin: APP_ORIGIN, "content-type": "application/json" },
+          body: JSON.stringify({ is_active: true }),
+        },
+      ),
+      template.id,
+      { session: sessionClient(jars.admin) },
+    );
+    expect(on.status).toBe(200);
+    return template;
+  }
 
   async function exportAs(role: Role | null, body: unknown = NOV, extra = {}) {
     return handleExportReport(
@@ -225,6 +271,13 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
       .eq("is_active", true);
     if (active.error) throw active.error;
     noActiveTemplateAtStart = (active.data ?? []).length === 0;
+    const activeDocx = await service
+      .from("report_templates")
+      .select("id")
+      .eq("kind", "docx")
+      .eq("is_active", true);
+    if (activeDocx.error) throw activeDocx.error;
+    noActiveDocxAtStart = (activeDocx.data ?? []).length === 0;
   });
 
   afterAll(async () => {
@@ -305,12 +358,21 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
     expect(await exportsCount()).toBe(0);
   });
 
-  it("docx chưa làm (E5-4): 422", async () => {
-    const res = await exportAs("pm", { ...NOV, format: "docx" });
+  it("E5-4 AC: thiếu template docx đang dùng → 422 report_template_missing (báo đúng Word)", async () => {
+    if (!noActiveDocxAtStart) {
+      console.warn(
+        "[reports.test] Bỏ qua ca thiếu template docx: CSDL dùng chung đang có template docx đang dùng của phiên khác.",
+      );
+      return;
+    }
+    const res = await exportAs("pm", DOCX_NOV);
     expect(res.status).toBe(422);
-    expect(((await res.json()) as ErrorBody).error.details).toEqual([
-      { field: "format", issue: "invalid_value" },
-    ]);
+    const body = (await res.json()) as ErrorBody & {
+      error: { message: string };
+    };
+    expect(body.error.code).toBe("report_template_missing");
+    expect(body.error.message).toBe(strings.reportsDocx.api.templateMissing);
+    expect(await exportsCount()).toBe(0);
   });
 
   it("AC2: thiếu template xlsx đang dùng → 422 report_template_missing", async () => {
@@ -344,7 +406,17 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
       expect((await res.arrayBuffer()).byteLength).toBeGreaterThan(1000);
     }
     expect((await sample("member")).status).toBe(403);
-    expect((await sample("pm", "?format=docx")).status).toBe(400);
+    // Template Word mẫu (E5-4).
+    const docx = await sample("pm", "?format=docx");
+    expect(docx.status).toBe(200);
+    expect(docx.headers.get("content-type")).toBe(DOCX_MIME);
+    expect(docx.headers.get("content-disposition")).toContain(
+      "template-bao-cao-mau.docx",
+    );
+    expect(dumpDocx(new Uint8Array(await docx.arrayBuffer()))).toEqual(
+      dumpDocx(buildSampleDocxTemplate(getMessages("vi"))),
+    );
+    expect((await sample("pm", "?format=pdf")).status).toBe(400);
     expect((await sample("pm", "?format=xlsx&x=1")).status).toBe(400);
   });
 
@@ -449,6 +521,104 @@ describe.skipIf(!enabled)("Xuất báo cáo xlsx (Supabase cục bộ)", () => {
     expect(res.status).toBe(504);
     expect(await code(res)).toBe("report_timeout");
     expect(await exportsCount()).toBe(before);
+  });
+
+  it("E5-4 AC1: PM xuất Word bằng template docx mẫu → đúng mẫu, dữ liệu khớp, ghi report_exports docx", async () => {
+    const template = await uploadActive(
+      buildSampleDocxTemplate(getMessages("vi")),
+      "mau.docx",
+      DOCX_MIME,
+    );
+    // Thứ tự kiểm như xlsx: người ngoài 404, Thành viên/Người xem 403, kỳ sai 400.
+    expect((await exportAs("outsider", DOCX_NOV)).status).toBe(404);
+    expect((await exportAs("member", DOCX_NOV)).status).toBe(403);
+    expect((await exportAs("viewer", DOCX_NOV)).status).toBe(403);
+    const reversed = await exportAs("pm", {
+      ...DOCX_NOV,
+      period_start: "2026-12-01",
+    });
+    expect(reversed.status).toBe(400);
+    expect(await code(reversed)).toBe("validation_failed");
+    const before = await exportsCount();
+
+    const res = await exportAs("pm", DOCX_NOV);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe(DOCX_MIME);
+    expect(res.headers.get("content-disposition")).toContain(
+      `bao-cao-it-e5-3-${tag}-2026-11-01-2026-11-30.docx`,
+    );
+    const lines = dumpDocx(new Uint8Array(await res.arrayBuffer()))[
+      "word/document.xml"
+    ];
+    expect(lines).toContain(`¶ Dự án: ${projectName}`);
+    expect(lines).toContain("¶ Kỳ báo cáo: 01/11/2026 – 30/11/2026 (30 ngày)");
+    // Tổng quan toàn dự án: 3 task, 1 xong, 2 mở, 2 trễ (theo ngày 18/11), 0 chưa có hạn.
+    const overview = lines[lines.indexOf("¶ 1. TỔNG QUAN (tại lúc xuất)") + 3];
+    expect(overview).toBe("| 3 | 1 | 2 | 2 | 0 | 0 | 33% |");
+    const taskRows = lines.filter((l) => /^\| \d+ \| /.test(l));
+    expect(taskRows.some((l) => l.includes(`| IT E5-3 xong ${tag} | `))).toBe(
+      true,
+    );
+    expect(
+      taskRows.some((l) => l.includes("| =1+1 tiêu đề giống công thức | ")),
+    ).toBe(true);
+    expect(lines).toContain(`¶ IT E5-3 pm ${tag}`);
+
+    const log = await service
+      .from("report_exports")
+      .select("template_id, format, period_start, period_end, requested_by")
+      .eq("project_id", projectId)
+      .eq("format", "docx");
+    expect(log.error).toBeNull();
+    expect(log.data).toEqual([
+      {
+        template_id: template.id,
+        format: "docx",
+        period_start: "2026-11-01",
+        period_end: "2026-11-30",
+        requested_by: ids.pm,
+      },
+    ]);
+
+    // Admin (không là thành viên) cũng xuất được Word.
+    expect((await exportAs("admin", DOCX_NOV)).status).toBe(200);
+    expect(await exportsCount()).toBe(before + 2);
+
+    // Quá thời gian: 504, không ghi thêm.
+    const slow = await exportAs("pm", DOCX_NOV, { timeoutMs: 1 });
+    expect(slow.status).toBe(504);
+    expect(await code(slow)).toBe("report_timeout");
+    expect(await exportsCount()).toBe(before + 2);
+  });
+
+  it("E5-4 an toàn: template docx có lệnh chạy mã → 422, không xuất, không lộ biến môi trường", async () => {
+    const canaryName = `QLDA_IT_CANARY_${tag.toUpperCase()}`;
+    const canary = `bi-mat-${randomUUID()}`;
+    process.env[canaryName] = canary;
+    try {
+      // Tệp docx hợp lệ: qua được kiểm tra tải lên của E5-2 (không macro), độc ở nội dung lệnh.
+      await uploadActive(
+        docxFromBody(
+          p(`{{EXEC require('fs').readFileSync('/etc/hosts', 'utf8')}}`) +
+            p(`{{= process.env.${canaryName}}}`),
+        ),
+        "doc-hai.docx",
+        DOCX_MIME,
+      );
+      const before = await exportsCount();
+      const res = await exportAs("pm", DOCX_NOV);
+      expect(res.status).toBe(422);
+      const text = await res.text();
+      expect(text).not.toContain(canary);
+      const body = JSON.parse(text) as ErrorBody & {
+        error: { message: string };
+      };
+      expect(body.error.code).toBe("business_rule_violated");
+      expect(body.error.message).toBe(strings.reportsDocx.api.templateUnsafe);
+      expect(await exportsCount()).toBe(before);
+    } finally {
+      delete process.env[canaryName];
+    }
   });
 
   it("report_exports: không ai sửa hay xóa, kể cả PM và Admin", async () => {
