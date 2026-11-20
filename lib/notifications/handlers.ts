@@ -126,6 +126,8 @@ async function present(
         title: null,
         status_name: null,
         actor: null,
+        due_date: null,
+        days_left: null,
       };
     }
     const actorId = payload.actor_id ?? null;
@@ -138,6 +140,16 @@ async function present(
       actor:
         actorId && names.has(actorId)
           ? { id: actorId, full_name: names.get(actorId) ?? null }
+          : null,
+      due_date:
+        typeof payload.due_date === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(payload.due_date)
+          ? payload.due_date
+          : null,
+      days_left:
+        typeof payload.days_left === "number" &&
+        Number.isInteger(payload.days_left)
+          ? payload.days_left
           : null,
     };
   });

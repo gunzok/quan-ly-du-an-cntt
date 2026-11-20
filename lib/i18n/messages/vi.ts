@@ -1131,7 +1131,7 @@ const viMessages = {
     emptyUnreadBody: "Bạn đã xem hết. Chọn “Tất cả” để xem lại thông báo cũ.",
     emptyAllTitle: "Chưa có thông báo",
     emptyAllBody:
-      "Bạn sẽ nhận thông báo ở đây khi được giao task hoặc task của bạn đổi trạng thái.",
+      "Bạn sẽ nhận thông báo ở đây khi được giao task, task của bạn đổi trạng thái hoặc sắp đến hạn.",
     someone: "Một người",
     assigned: (actor: string, title: string) =>
       `${actor} giao cho bạn task ${title}`,
@@ -1143,6 +1143,15 @@ const viMessages = {
     hiddenAssigned:
       "Bạn từng được giao một task mà nay bạn không còn quyền xem.",
     hiddenStatusChanged: "Một task bạn không còn quyền xem đã đổi trạng thái.",
+    /** Story E4-3: nhắc hạn. days là số ngày còn lại lúc nhắc, due là hạn đã định dạng. */
+    dueSoon: (title: string, days: number, due: string) =>
+      days <= 0
+        ? `Task ${title} đến hạn hôm nay (${due})`
+        : days === 1
+          ? `Task ${title} đến hạn ngày mai (${due})`
+          : `Task ${title} còn ${days} ngày đến hạn (${due})`,
+    dueSoonNoDate: (title: string) => `Task ${title} sắp đến hạn`,
+    hiddenDueSoon: "Một task bạn không còn quyền xem sắp đến hạn.",
     today: (time: string) => `Hôm nay ${time}`,
     yesterday: (time: string) => `Hôm qua ${time}`,
   },
@@ -1642,11 +1651,14 @@ const viMessages = {
     types: {
       task_assigned: "Được giao việc",
       task_status_changed: "Task đổi trạng thái",
+      task_due_soon: "Nhắc hạn",
     },
     typeHints: {
       task_assigned: "Email khi có người giao task cho bạn.",
       task_status_changed:
         "Email khi task bạn phụ trách hoặc đã tạo đổi trạng thái.",
+      task_due_soon:
+        "Email lúc 08:00, 3 ngày và 1 ngày trước hạn task bạn phụ trách.",
     },
     on: "Bật",
     off: "Tắt",
@@ -1668,6 +1680,20 @@ const viMessages = {
       `${actor} đã chuyển task sang trạng thái ${status}.`,
     statusIntroNoActor: (status: string) =>
       `Task đã chuyển sang trạng thái ${status}.`,
+    /** Story E4-3: nhắc hạn. */
+    dueSoonSubject: (title: string, days: number) =>
+      days <= 0
+        ? `Task ${title} đến hạn hôm nay`
+        : days === 1
+          ? `Task ${title} đến hạn ngày mai`
+          : `Task ${title} còn ${days} ngày đến hạn`,
+    dueSoonIntro: (days: number) =>
+      days <= 0
+        ? "Task bạn phụ trách đến hạn hôm nay."
+        : days === 1
+          ? "Task bạn phụ trách đến hạn vào ngày mai."
+          : `Task bạn phụ trách còn ${days} ngày đến hạn.`,
+    dueDateLabel: "Hạn",
     taskLabel: "Task",
     projectLabel: "Dự án",
     assignedByLabel: "Người giao",

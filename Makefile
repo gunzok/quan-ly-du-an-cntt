@@ -18,7 +18,7 @@
 .PHONY: install lint test build security check-pnpm check-gitleaks \
 	check-supabase db-start db-stop db-reset db-seed db-test test-db test-integration \
 	e2e-install test-e2e perf-seed perf-clean perf perf-report \
-	deploy-smoke check-migrations lint-workflows db-backup email-dispatch
+	deploy-smoke check-migrations lint-workflows db-backup email-dispatch reminders-run
 
 # Lỗi mức này trở lên trong pnpm audit sẽ làm security đỏ.
 AUDIT_LEVEL ?= high
@@ -218,3 +218,19 @@ db-backup:
 # ---------------------------------------------------------------------------
 email-dispatch:
 	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env.local scripts/email-dispatch.ts
+
+# ---------------------------------------------------------------------------
+# Nhắc hạn (Story E4-3). Chạy tay public.run_due_reminders() một lần trên Supabase CỤC BỘ (khóa
+# service_role lấy từ supabase status, không in ra). REMINDERS_NOW=<ISO 8601> giả lập "bây giờ",
+# ví dụ: make reminders-run REMINDERS_NOW=2026-11-24T08:00:00+07:00; REMINDERS_PROJECT_ID=<uuid> chỉ
+# xét một dự án. Môi trường thật do pg_cron chạy
+# 01:00 UTC = 08:00 giờ Việt Nam (migration 20261115390000, docs/05-ops/nhac-han.md).
+# ---------------------------------------------------------------------------
+reminders-run: check-supabase
+	@eval "$$(supabase status -o env 2>/dev/null)"; \
+	if [ -z "$$API_URL" ] || [ -z "$$SERVICE_ROLE_KEY" ]; then \
+		echo "::error::Không đọc được URL/khóa từ supabase status. Chạy make db-start trước."; \
+		exit 1; fi; \
+	SUPABASE_URL="$$API_URL" SUPABASE_SERVICE_ROLE_KEY="$$SERVICE_ROLE_KEY" REMINDERS_NOW="$(REMINDERS_NOW)" \
+	REMINDERS_PROJECT_ID="$(REMINDERS_PROJECT_ID)" \
+	node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/reminders-run.ts

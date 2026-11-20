@@ -1128,7 +1128,7 @@ export const en: Messages = {
       "You're all caught up. Choose “All” to see older notifications.",
     emptyAllTitle: "No notifications yet",
     emptyAllBody:
-      "You'll be notified here when a task is assigned to you or your task changes status.",
+      "You'll be notified here when a task is assigned to you, your task changes status or is due soon.",
     someone: "Someone",
     assigned: (actor: string, title: string) =>
       `${actor} assigned you the task ${title}`,
@@ -1139,6 +1139,14 @@ export const en: Messages = {
       `The task ${title} moved to ${status}`,
     hiddenAssigned: "You were assigned a task that you can no longer view.",
     hiddenStatusChanged: "A task you can no longer view changed status.",
+    dueSoon: (title: string, days: number, due: string) =>
+      days <= 0
+        ? `Task ${title} is due today (${due})`
+        : days === 1
+          ? `Task ${title} is due tomorrow (${due})`
+          : `Task ${title} is due in ${days} days (${due})`,
+    dueSoonNoDate: (title: string) => `Task ${title} is due soon`,
+    hiddenDueSoon: "A task you can no longer view is due soon.",
     today: (time: string) => `Today ${time}`,
     yesterday: (time: string) => `Yesterday ${time}`,
   },
@@ -1642,11 +1650,14 @@ export const en: Messages = {
     types: {
       task_assigned: "Assigned to me",
       task_status_changed: "Task status changed",
+      task_due_soon: "Due date reminders",
     },
     typeHints: {
       task_assigned: "Email when someone assigns a task to you.",
       task_status_changed:
         "Email when a task you own or created changes status.",
+      task_due_soon:
+        "Email at 08:00 (Vietnam time), 3 days and 1 day before a task you own is due.",
     },
     on: "On",
     off: "Off",
@@ -1667,6 +1678,19 @@ export const en: Messages = {
     statusIntro: (actor: string, status: string) =>
       `${actor} moved the task to ${status}.`,
     statusIntroNoActor: (status: string) => `The task moved to ${status}.`,
+    dueSoonSubject: (title: string, days: number) =>
+      days <= 0
+        ? `Task ${title} is due today`
+        : days === 1
+          ? `Task ${title} is due tomorrow`
+          : `Task ${title} is due in ${days} days`,
+    dueSoonIntro: (days: number) =>
+      days <= 0
+        ? "A task you own is due today."
+        : days === 1
+          ? "A task you own is due tomorrow."
+          : `A task you own is due in ${days} days.`,
+    dueDateLabel: "Due date",
     taskLabel: "Task",
     projectLabel: "Project",
     assignedByLabel: "Assigned by",

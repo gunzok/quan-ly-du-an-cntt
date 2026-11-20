@@ -115,6 +115,45 @@ describe("notificationText", () => {
   });
 });
 
+describe("notificationText: nhắc hạn (E4-3)", () => {
+  const due = {
+    type: "task_due_soon" as const,
+    task_visible: true,
+    title: "Nộp báo cáo",
+    status_name: null,
+    actor: null,
+    due_date: "2026-11-21",
+    days_left: 1,
+  };
+  it("1 ngày và 3 ngày, ngày theo ngôn ngữ", () => {
+    expect(notificationText(due, vi.notifications, "vi")).toBe(
+      "Task Nộp báo cáo đến hạn ngày mai (21/11/2026)",
+    );
+    expect(
+      notificationText(
+        { ...due, days_left: 3, due_date: "2026-11-23" },
+        vi.notifications,
+        "vi",
+      ),
+    ).toBe("Task Nộp báo cáo còn 3 ngày đến hạn (23/11/2026)");
+    expect(notificationText(due, en.notifications, "en")).toBe(
+      "Task Nộp báo cáo is due tomorrow (21 Nov 2026)",
+    );
+  });
+  it("thiếu hạn: câu chung; không còn quyền xem: câu trung tính", () => {
+    expect(
+      notificationText({ ...due, due_date: null }, vi.notifications, "vi"),
+    ).toBe("Task Nộp báo cáo sắp đến hạn");
+    expect(
+      notificationText(
+        { ...due, task_visible: false, title: null },
+        en.notifications,
+        "en",
+      ),
+    ).toBe(en.notifications.hiddenDueSoon);
+  });
+});
+
 describe("badgeLabel", () => {
   it("ẩn khi 0, tối đa 99+", () => {
     expect(badgeLabel(0, "99+")).toBeNull();

@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   });
 }
 
-/** PUT /api/v1/me/notification-preferences { email: { task_assigned?, task_status_changed? } }. */
+/** PUT /api/v1/me/notification-preferences { email: { task_assigned?, task_status_changed?, task_due_soon? } }. */
 export async function PUT(request: Request) {
   return handlePutNotificationPreferences(request, {
     session: await createClient(),

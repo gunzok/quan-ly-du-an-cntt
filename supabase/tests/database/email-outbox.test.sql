@@ -140,14 +140,14 @@ select is((select count(*)::int from cron.job
 select tests.login_as(tests.uid('member_a'));
 select results_eq(
   'select type, email_enabled from public.my_notification_preferences()',
-  $$values ('task_assigned', true), ('task_status_changed', false)$$,
-  'Mặc định: giao việc BẬT, đổi trạng thái TẮT');
+  $$values ('task_assigned', true), ('task_due_soon', true), ('task_status_changed', false)$$,
+  'Mặc định: giao việc BẬT, nhắc hạn BẬT (E4-3), đổi trạng thái TẮT');
 select lives_ok(
   $$select public.set_my_notification_preferences('{"task_status_changed": true}')$$,
   'Thành viên bật email đổi trạng thái');
 select results_eq(
   'select type, email_enabled from public.my_notification_preferences()',
-  $$values ('task_assigned', true), ('task_status_changed', true)$$,
+  $$values ('task_assigned', true), ('task_due_soon', true), ('task_status_changed', true)$$,
   'Đọc lại thấy giá trị đã lưu');
 select lives_ok(
   $$select public.set_my_notification_preferences('{"task_status_changed": true, "task_assigned": true}')$$,

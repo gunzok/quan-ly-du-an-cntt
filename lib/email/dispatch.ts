@@ -19,6 +19,9 @@ export interface ClaimedEmail {
   project_name: string;
   status_name: string | null;
   actor_name: string | null;
+  /** Chỉ task_due_soon (E4-3): hạn và số ngày còn lại tính lúc nhận việc. */
+  due_date?: string | null;
+  days_left?: number | null;
 }
 
 export interface DispatchSummary {
@@ -162,6 +165,8 @@ async function sendOne(
       projectName: row.project_name,
       statusName: row.status_name,
       actorName: row.actor_name,
+      dueDate: row.due_date ?? null,
+      daysLeft: row.days_left ?? null,
     });
   } catch {
     return { ok: false, retryable: false, code: "render_error" };
