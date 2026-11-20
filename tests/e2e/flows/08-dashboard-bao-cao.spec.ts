@@ -227,7 +227,8 @@ test("Luồng 8: dashboard khớp số liệu → thiếu template báo lỗi �
         t.downloaded(file.suggestedFilename()),
       );
       const wb = new ExcelJS.Workbook();
-      await wb.xlsx.load(await readFile((await file.path())!));
+      const bytes = new Uint8Array(await readFile((await file.path())!));
+      await wb.xlsx.load(bytes.buffer);
       const ws = wb.worksheets[0];
       expect(ws.getCell("A2").value).toBe(`Dự án: ${projectName}`);
       const cells = [...Array(ws.rowCount).keys()].flatMap(
