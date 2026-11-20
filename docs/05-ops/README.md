@@ -5,6 +5,7 @@ Story E0-2 (QLDA-33). Tài liệu này hướng dẫn **từng bước** để �
 Tài liệu liên quan trong thư mục này:
 
 - [migration-va-sao-luu.md](migration-va-sao-luu.md): quy trình đưa thay đổi CSDL lên staging rồi production, sao lưu và khôi phục (E0-10).
+- [nhac-han.md](nhac-han.md): nhắc hạn task bằng bộ lập lịch (pg_cron, 08:00 giờ Việt Nam), bật/tắt và vận hành (E4-3).
 - [giam-sat.md](giam-sat.md): đề xuất công cụ giám sát lỗi, uptime và log (E0-4), chờ sếp chọn.
 
 > **Trạng thái (2026-11-18):** mã CD, script và tài liệu đã sẵn sàng; **chưa có tài khoản Supabase/Vercel thật** nên CD đang tự bỏ qua (xám). Những chỗ ghi **[CHƯA KIỂM CHỨNG]** là chỗ chỉ xác nhận được khi có tài khoản thật. Giá dịch vụ lấy từ [tech-stack-matrix.md mục 4](../02-ba/tech-stack-matrix.md) và [ADR-002](../adr/ADR-002-email.md), **chưa đối chiếu trang giá chính thức** (R-008): tra lại trước khi mua.
