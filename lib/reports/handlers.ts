@@ -16,20 +16,23 @@ import { requireTemplateReader } from "@/lib/report-templates/handlers";
 import { REPORT_TEMPLATE_BUCKET } from "@/lib/report-templates/model";
 import { strings } from "@/lib/strings";
 import { loadDashboard, loadPeriodTasks, TooManyTasksError } from "./data";
+import { TemplateSyntaxError, UnsafeTemplateError } from "./docx-fill";
 import {
+  REPORT_FORMATS,
+  REPORT_MIME,
   REPORT_TIMEOUT_MS,
   reportFileName,
-  SUPPORTED_REPORT_FORMATS,
-  XLSX_MIME,
   type ExportReportInput,
+  type ReportFormat,
 } from "./model";
 import type { ReportProject } from "./placeholders";
-import { renderXlsxReport } from "./render";
+import { renderDocxReport, renderXlsxReport } from "./render";
+import { buildSampleDocxTemplate } from "./sample-docx-template";
 import { buildSampleXlsxTemplate } from "./sample-template";
 import { EXPORT_REPORT_MAX_BODY_BYTES, validateExportReport } from "./validate";
 
 /**
- * Lõi của POST /api/v1/projects/{id}/reports (Story E5-3, FR-14, S07). Route Handler chỉ tạo client
+ * Lõi của POST /api/v1/projects/{id}/reports (Story E5-3 xlsx FR-14, Story E5-4 docx FR-15, S07). Route Handler chỉ tạo client
  * phiên rồi gọi hàm này; test tích hợp gọi thẳng.
  *
  * Client PHIÊN của người gọi (RLS áp dụng), không service_role (riêng bộ đếm giới hạn tần suất dùng
@@ -40,10 +43,12 @@ import { EXPORT_REPORT_MAX_BODY_BYTES, validateExportReport } from "./validate";
  *   4. Vai trò: PM của dự án hoặc Admin, đang hoạt động; Thành viên, Người xem: 403.
  *   5. Thân JSON: `format`, `period_start`, `period_end`; sai hoặc trường lạ: 400.
  *   6. Giới hạn tần suất `export` 10 lần / 10 phút / người dùng: 429 (bộ đếm lỗi: cho qua, ghi log).
- *   7. docx chưa làm (E5-4): 422. Không có template xlsx đang dùng: 422 report_template_missing.
+ *   7. Không có template đang dùng CỦA ĐỊNH DẠNG được chọn: 422 report_template_missing.
  *   8. Xuất (đọc template, số liệu, task trong kỳ, điền, ghi report_exports) trong trần
  *      REPORT_TIMEOUT_MS; quá: 504 report_timeout. Kỳ có quá REPORT_MAX_TASKS task: 422.
- * Thành công: 200, thân là tệp xlsx, Content-Disposition attachment.
+ *      Template hỏng/sai quy ước: 422 business_rule_violated. Template docx có lệnh cấm (chạy mã,
+ *      chèn ảnh/HTML/liên kết...): 422 business_rule_violated, không chạy gì (docx-fill.ts).
+ * Thành công: 200, thân là tệp xlsx/docx, Content-Disposition attachment.
  */
 export interface ReportDeps {
   /** Client theo phiên cookie của người gọi (khóa anon, RLS áp dụng). */
@@ -84,11 +89,15 @@ export function contentDisposition(fileName: string): string {
   return `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(fileName)}`;
 }
 
-function fileResponse(bytes: Buffer, fileName: string): Response {
+function fileResponse(
+  bytes: Buffer,
+  fileName: string,
+  format: ReportFormat,
+): Response {
   return new Response(new Uint8Array(bytes), {
     status: 200,
     headers: {
-      "content-type": XLSX_MIME,
+      "content-type": REPORT_MIME[format],
       "content-disposition": contentDisposition(fileName),
       "content-length": String(bytes.length),
       "cache-control": "private, no-store",
@@ -109,6 +118,11 @@ class TemplateUnreadableError extends Error {
     super("template unreadable");
     this.name = "TemplateUnreadableError";
   }
+}
+
+/** Chữ lỗi theo định dạng (xlsx giữ nguyên chữ của E5-3). */
+function templateMessages(format: ReportFormat) {
+  return format === "docx" ? strings.reportsDocx.api : strings.reports.api;
 }
 
 /** Chạy `work` trong trần thời gian; quá thì hủy (AbortSignal) và ném ExportTimeoutError. */
@@ -217,17 +231,6 @@ export async function handleExportReport(
     logRateLimitUnavailable("export", limit.detail, ctx.requestId);
   }
 
-  if (!SUPPORTED_REPORT_FORMATS.includes(input.format)) {
-    return fail(
-      apiError(
-        "business_rule_violated",
-        strings.reports.api.formatUnavailable,
-        [{ field: "format", issue: "invalid_value" }],
-      ),
-      ctx,
-    );
-  }
-
   let template: { id: string; storage_path: string } | null;
   try {
     const { data, error } = await deps.session
@@ -243,7 +246,10 @@ export async function handleExportReport(
   }
   if (!template) {
     return fail(
-      apiError("report_template_missing", strings.reports.api.templateMissing),
+      apiError(
+        "report_template_missing",
+        templateMessages(input.format).templateMissing,
+      ),
       ctx,
     );
   }
@@ -269,8 +275,10 @@ export async function handleExportReport(
         );
         signal.throwIfAborted();
         let out: Buffer;
+        const render =
+          input.format === "docx" ? renderDocxReport : renderXlsxReport;
         try {
-          out = await renderXlsxReport(
+          out = await render(
             file,
             {
               project,
@@ -283,6 +291,7 @@ export async function handleExportReport(
             locale,
           );
         } catch (error) {
+          if (error instanceof UnsafeTemplateError) throw error;
           throw new TemplateUnreadableError(error);
         }
         signal.throwIfAborted();
@@ -296,7 +305,11 @@ export async function handleExportReport(
         return out;
       },
     );
-    return fileResponse(bytes, reportFileName(project.name, input));
+    return fileResponse(
+      bytes,
+      reportFileName(project.name, input),
+      input.format,
+    );
   } catch (error) {
     if (error instanceof ExportTimeoutError) {
       console.error(
@@ -312,12 +325,27 @@ export async function handleExportReport(
         ctx,
       );
     }
-    if (error instanceof TemplateUnreadableError) {
-      internal(ctx, "render", error.cause);
+    if (error instanceof UnsafeTemplateError) {
+      // Ghi log để Admin/vận hành truy ra template; chỉ tên lệnh, không ghi dữ liệu dự án.
+      console.error(
+        `[api/v1/reports] unsafe-template request_id=${ctx.requestId} template=${activeTemplate.id} command=${JSON.stringify(error.command.slice(0, 40))}`,
+      );
       return fail(
         apiError(
           "business_rule_violated",
-          strings.reports.api.templateUnreadable,
+          strings.reportsDocx.api.templateUnsafe,
+        ),
+        ctx,
+      );
+    }
+    if (error instanceof TemplateUnreadableError) {
+      if (!(error.cause instanceof TemplateSyntaxError)) {
+        internal(ctx, "render", error.cause);
+      }
+      return fail(
+        apiError(
+          "business_rule_violated",
+          templateMessages(input.format).templateUnreadable,
         ),
         ctx,
       );
@@ -365,7 +393,7 @@ async function recordExport(
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/report-templates/sample?format=xlsx — template mẫu (Admin, PM)
+// GET /api/v1/report-templates/sample?format=xlsx|docx — template mẫu (Admin, PM)
 // ---------------------------------------------------------------------------
 export async function handleSampleTemplate(
   request: Request,
@@ -393,7 +421,7 @@ export async function handleSampleTemplate(
       ctx,
     );
   }
-  if (format !== "xlsx") {
+  if (!REPORT_FORMATS.includes(format as ReportFormat)) {
     return fail(
       apiError("validation_failed", undefined, [
         { field: "format", issue: format ? "invalid_value" : "required" },
@@ -403,12 +431,18 @@ export async function handleSampleTemplate(
   }
   try {
     const locale = deps.locale ?? "vi";
-    const bytes = await buildSampleXlsxTemplate(getMessages(locale));
+    const kind = format as ReportFormat;
+    const t = getMessages(locale);
+    const bytes =
+      kind === "docx"
+        ? buildSampleDocxTemplate(t)
+        : await buildSampleXlsxTemplate(t);
     return fileResponse(
       bytes,
       locale === "vi"
-        ? "template-bao-cao-mau.xlsx"
-        : "sample-report-template.xlsx",
+        ? `template-bao-cao-mau.${kind}`
+        : `sample-report-template.${kind}`,
+      kind,
     );
   } catch (error) {
     return internal(ctx, "sample", error);

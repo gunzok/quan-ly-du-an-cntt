@@ -26,7 +26,6 @@ import {
 import {
   REPORT_FORMATS,
   REPORT_MAX_PERIOD_DAYS,
-  SUPPORTED_REPORT_FORMATS,
   type ReportFormat,
 } from "@/lib/reports/model";
 import {
@@ -40,6 +39,13 @@ type TemplateState =
   | { status: "active"; name: string }
   | { status: "missing" }
   | { status: "error" };
+
+type TemplateStates = Record<ReportFormat, TemplateState>;
+
+const LOADING: TemplateStates = {
+  xlsx: { status: "loading" },
+  docx: { status: "loading" },
+};
 
 type PeriodError = "periodRequired" | "periodOrder" | "periodTooLong";
 
@@ -59,9 +65,10 @@ export function periodError(start: string, end: string): PeriodError | null {
 }
 
 /**
- * Hộp thoại xuất báo cáo S07 (Story E5-3, mockup v3 bp-Report.dc.html). Chọn định dạng (Word
- * "sắp có" ở E5-4), kỳ báo cáo (mặc định tháng này, giờ Việt Nam), xem template đang dùng; gọi
- * POST /api/v1/projects/{id}/reports rồi lưu tệp. Chỉ PM của dự án và Admin thấy nút mở.
+ * Hộp thoại xuất báo cáo S07 (Story E5-3 Excel, E5-4 Word; mockup v3 bp-Report.dc.html). Chọn định
+ * dạng, kỳ báo cáo (mặc định tháng này, giờ Việt Nam), xem template đang dùng CỦA ĐỊNH DẠNG đã chọn
+ * (thiếu thì báo theo định dạng, kèm template mẫu đúng loại); gọi POST /api/v1/projects/{id}/reports
+ * rồi lưu tệp. Chỉ PM của dự án và Admin thấy nút mở.
  */
 export function ExportReportDialog({
   projectId,
@@ -75,9 +82,8 @@ export function ExportReportDialog({
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [touched, setTouched] = useState(false);
-  const [template, setTemplate] = useState<TemplateState>({
-    status: "loading",
-  });
+  const [templates, setTemplates] = useState<TemplateStates>(LOADING);
+  const template = templates[format];
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -94,7 +100,7 @@ export function ExportReportDialog({
       setTouched(false);
       setError(null);
       setDone(null);
-      setTemplate({ status: "loading" });
+      setTemplates(LOADING);
     } else {
       abortRef.current?.abort();
       abortRef.current = null;
@@ -109,21 +115,28 @@ export function ExportReportDialog({
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!result.ok) {
-          setTemplate({ status: "error" });
+          setTemplates({
+            xlsx: { status: "error" },
+            docx: { status: "error" },
+          });
           return;
         }
-        const active = result.data.data.find(
-          (tpl) => tpl.kind === "xlsx" && tpl.is_active,
-        );
-        setTemplate(
-          active
+        const stateOf = (kind: ReportFormat): TemplateState => {
+          const active = result.data.data.find(
+            (tpl) => tpl.kind === kind && tpl.is_active,
+          );
+          return active
             ? { status: "active", name: active.name }
-            : { status: "missing" },
-        );
+            : { status: "missing" };
+        };
+        setTemplates({ xlsx: stateOf("xlsx"), docx: stateOf("docx") });
       })
       .catch((e: unknown) => {
         if ((e as { name?: string }).name !== "AbortError") {
-          setTemplate({ status: "error" });
+          setTemplates({
+            xlsx: { status: "error" },
+            docx: { status: "error" },
+          });
         }
       });
     return () => controller.abort();
@@ -131,10 +144,7 @@ export function ExportReportDialog({
 
   const invalid = periodError(start, end);
   const shownPeriodError = touched && invalid ? t.errors[invalid] : null;
-  const canSubmit =
-    !busy &&
-    SUPPORTED_REPORT_FORMATS.includes(format) &&
-    template.status !== "missing";
+  const canSubmit = !busy && template.status !== "missing";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -160,7 +170,7 @@ export function ExportReportDialog({
       if (result.network) setError(t.errors.network);
       else if (!result.error) setError(t.errors.failed);
       else if (result.error.code === "report_template_missing") {
-        setTemplate({ status: "missing" });
+        setTemplates((prev) => ({ ...prev, [format]: { status: "missing" } }));
       } else if (result.error.code === "report_timeout") {
         setError(t.errors.timeout);
       } else {
@@ -212,7 +222,6 @@ export function ExportReportDialog({
             <legend className="label mb-2 p-0">{t.formatLegend}</legend>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {REPORT_FORMATS.map((f) => {
-                const supported = SUPPORTED_REPORT_FORMATS.includes(f);
                 const info = t.formats[f];
                 return (
                   <label
@@ -220,11 +229,9 @@ export function ExportReportDialog({
                     className={cn(
                       "relative flex min-h-11 flex-col gap-0.5 rounded-md border border-solid p-3",
                       "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary has-[:focus-visible]:outline-solid",
-                      !supported
-                        ? "cursor-not-allowed border-border bg-bg-subtle text-text-muted"
-                        : f === format
-                          ? "cursor-pointer border-primary bg-bg-muted"
-                          : "cursor-pointer border-border-strong bg-bg hover:bg-bg-muted",
+                      f === format
+                        ? "cursor-pointer border-primary bg-bg-muted"
+                        : "cursor-pointer border-border-strong bg-bg hover:bg-bg-muted",
                     )}
                   >
                     <input
@@ -232,7 +239,6 @@ export function ExportReportDialog({
                       name={formatName}
                       value={f}
                       checked={f === format}
-                      disabled={!supported}
                       aria-describedby={`${formatName}-${f}-hint`}
                       onChange={() => setFormat(f)}
                       className="absolute inset-0 m-0 cursor-[inherit] opacity-0"
@@ -241,20 +247,20 @@ export function ExportReportDialog({
                       <span
                         className={cn(
                           "font-semibold",
-                          supported && f === format && "text-primary",
+                          f === format && "text-primary",
                         )}
                       >
                         {info.label}
                       </span>
                       <span className="font-mono text-xs text-text-muted">
-                        {supported ? info.ext : t.comingSoon}
+                        {info.ext}
                       </span>
                     </span>
                     <span
                       id={`${formatName}-${f}-hint`}
                       className="text-xs text-text-muted"
                     >
-                      {supported ? info.hint : t.docxComingSoon}
+                      {info.hint}
                     </span>
                   </label>
                 );
@@ -308,7 +314,11 @@ export function ExportReportDialog({
             <h3 id={`${formatName}-tpl`} className="label m-0">
               {t.templateLegend}
             </h3>
-            <TemplateStatus state={template} isAdmin={isAdmin} />
+            <TemplateStatus
+              state={template}
+              format={format}
+              isAdmin={isAdmin}
+            />
             <p className="m-0 text-xs text-text-muted">{t.scopeHint}</p>
           </section>
 
@@ -350,13 +360,17 @@ export function ExportReportDialog({
 
 function TemplateStatus({
   state,
+  format,
   isAdmin,
 }: {
   state: TemplateState;
+  format: ReportFormat;
   isAdmin: boolean;
 }) {
   const strings = useStrings();
   const t = strings.reports.dialog;
+  /** Chữ "thiếu template" theo định dạng: Excel giữ khóa của E5-3, Word ở nhóm reportsDocx. */
+  const m = format === "docx" ? strings.reportsDocx.dialog : t;
   const box =
     "flex items-start gap-2 rounded-md border border-solid p-3 text-sm";
   switch (state.status) {
@@ -396,10 +410,10 @@ function TemplateStatus({
         >
           <p className="m-0 flex items-start gap-2 font-medium">
             <AlertIcon className="mt-0.5 size-4 shrink-0 text-warning" />
-            {t.templateMissing}
+            {m.templateMissing}
           </p>
           <p className="m-0">
-            {isAdmin ? t.templateMissingAdmin : t.templateMissingPm}
+            {isAdmin ? m.templateMissingAdmin : m.templateMissingPm}
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {isAdmin ? (
@@ -411,11 +425,11 @@ function TemplateStatus({
               </Link>
             ) : null}
             <a
-              href={sampleTemplateUrl("xlsx")}
+              href={sampleTemplateUrl(format)}
               download
               className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-2 sm:min-h-0"
             >
-              {t.sampleLink}
+              {m.sampleLink}
             </a>
           </div>
         </div>

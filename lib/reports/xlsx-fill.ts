@@ -1,11 +1,6 @@
 import ExcelJS from "exceljs";
 import type { Locale } from "@/lib/i18n/config";
-import {
-  formatCalendarDate,
-  formatDateInZone,
-  formatNumber,
-  formatTimeInZone,
-} from "@/lib/i18n/format";
+import { formatInline } from "./inline-format";
 import { calendarDateValue, vnWallClock } from "./period";
 import {
   type CellValue,
@@ -86,22 +81,6 @@ type RowSnapshot = {
   style: Partial<ExcelJS.Style>;
   cells: CellSnapshot[];
 };
-
-function formatInline(v: CellValue | null, locale: Locale): string {
-  if (!v) return "";
-  switch (v.kind) {
-    case "text":
-      return v.value;
-    case "number":
-      return formatNumber(v.value, locale);
-    case "ratio":
-      return `${formatNumber(Math.round(v.value * 100), locale)}%`;
-    case "date":
-      return formatCalendarDate(v.value, locale) ?? v.value;
-    case "datetime":
-      return `${formatDateInZone(v.value, locale)} ${formatTimeInZone(v.value, locale)}`;
-  }
-}
 
 /** Thay mọi `{{khóa}}` đã biết trong một chuỗi; khóa lạ giữ nguyên. */
 function replaceInline(s: string, values: ValueMap, locale: Locale): string {

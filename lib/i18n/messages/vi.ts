@@ -1705,8 +1705,6 @@ const viMessages = {
         },
         docx: { label: "Word", hint: "Báo cáo theo mẫu công ty", ext: ".DOCX" },
       },
-      comingSoon: "Sắp có",
-      docxComingSoon: "Xuất Word đang được làm, hiện chỉ xuất được Excel.",
       periodLegend: "02 / Khoảng thời gian",
       periodStart: "Từ ngày",
       periodEnd: "Đến ngày",
@@ -1808,7 +1806,39 @@ const viMessages = {
         "Xuất báo cáo quá thời gian chờ. Thu hẹp kỳ báo cáo rồi thử lại.",
       tooManyTasks:
         "Kỳ báo cáo có quá nhiều task (tối đa 10.000). Thu hẹp kỳ báo cáo rồi thử lại.",
-      formatUnavailable: "Xuất Word chưa có, hiện chỉ xuất được Excel (xlsx).",
+    },
+  },
+  /** Xuất báo cáo Word (Story E5-4, S07): hộp thoại, lỗi API, template docx mẫu. */
+  reportsDocx: {
+    dialog: {
+      templateMissing: "Chưa có template Word đang dùng.",
+      templateMissingPm:
+        "Nhờ Admin tải lên và bật một template Word ở trang Template báo cáo.",
+      templateMissingAdmin:
+        "Tải lên và bật một template Word ở trang Template báo cáo (có thể bắt đầu từ template mẫu).",
+      sampleLink: "Tải template mẫu (.docx)",
+    },
+    api: {
+      templateMissing:
+        "Chưa có template Word đang dùng. Admin cần tải lên và bật một template docx.",
+      templateUnreadable:
+        "Template Word đang dùng không đọc được hoặc sai quy ước. Admin cần sửa rồi tải lên lại.",
+      templateUnsafe:
+        "Template Word đang dùng có lệnh không được phép (chỉ dùng ô giữ chỗ {{...}} và FOR/END-FOR). Admin cần sửa rồi tải lên lại.",
+    },
+    /** Template docx mẫu (GET /api/v1/report-templates/sample?format=docx). */
+    sample: {
+      coreTitle: "Template báo cáo tiến độ (mẫu)",
+      assigneesHeading: "5. THEO NGƯỜI PHỤ TRÁCH",
+      assigneeCols: {
+        name: "Người phụ trách",
+        total: "Tổng",
+        done: "Đã xong",
+        open: "Chưa xong",
+        overdue: "Trễ hạn",
+      },
+      page: "Trang",
+      dateLine: "Ngày {{report.today}}",
     },
   },
 } as const;

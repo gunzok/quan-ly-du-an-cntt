@@ -1,5 +1,5 @@
 import type { ApiError, ApiErrorBody } from "@/lib/api/errors";
-import type { ExportReportInput } from "./model";
+import type { ExportReportInput, ReportFormat } from "./model";
 
 /**
  * Gọi POST /api/v1/projects/{id}/reports từ trình duyệt (Story E5-3). Thành công: thân là tệp, lấy
@@ -71,7 +71,7 @@ export async function exportReport(
 }
 
 /** Đường dẫn tải template mẫu (Admin, PM). */
-export function sampleTemplateUrl(format: "xlsx" = "xlsx") {
+export function sampleTemplateUrl(format: ReportFormat = "xlsx") {
   return `/api/v1/report-templates/sample?format=${format}`;
 }
 
