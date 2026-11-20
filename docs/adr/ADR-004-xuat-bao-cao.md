@@ -30,6 +30,10 @@ Thử **A** trước bằng spike nhỏ ở đầu Story E5-3: điền dữ li�
 - Dễ hơn: báo cáo sinh hoàn toàn bằng TypeScript, kiểm thử bằng tệp chuẩn (golden file).
 - Khó hơn hoặc rủi ro mới: R-006 (giới hạn serverless) và R-005 (chưa có template thật) vẫn mở; có thể phải đổi thư viện sau spike.
 
+## Kết quả spike (E5-3 và E5-4, 2026-11-18)
+
+Phương án A được giữ: exceljs 4.4.0 (MIT) cho xlsx, docx-templates 4.15.0 (MIT, phụ thuộc jszip và sax, khoảng 1,3 MB, không có cảnh báo `pnpm audit`) cho docx. Đo trên dự án 2.000 task, Supabase cục bộ, M1 Pro: xlsx P50 136 ms, RSS 218 MB; docx P50 465 ms, RSS 399 MB. Cả hai dưới NFR-03 (30 giây) rất xa; RSS dưới giới hạn bộ nhớ hàm serverless mặc định. Còn mở: R-005 (chưa có template thật của sếp) và R-006 (chưa đo trên Vercel thật, chờ staging). Biện pháp bảo mật docx (ba lớp: danh sách lệnh cho phép, tra khóa thay vì chạy mã, dấu phân cách XML ngẫu nhiên) ở [security.md](../03-design/security.md) mục F4.
+
 ## Điều kiện xem xét lại
 
 - Spike không đạt NFR-03 hoặc không giữ đúng định dạng template thật.
@@ -39,4 +43,4 @@ Thử **A** trước bằng spike nhỏ ở đầu Story E5-3: điền dữ li�
 
 - docxtemplater: MIT cho phần cốt lõi, có module PRO trả phí — [trang dự án](https://www.docxtemplater.com/faq), [GitHub](https://github.com/open-xml-templating/docxtemplater) — ngày tra 2026-11-13.
 - docx-templates: MIT, bảo trì "healthy" theo [Snyk Advisor](https://dev.snyk.io/advisor/npm-package/docx-templates) (có thể cũ) — ngày tra 2026-11-13.
-- exceljs: **chưa xác minh** (tra cứu không trả về kết quả).
+- exceljs: 4.4.0, giấy phép MIT, đã xác minh khi làm E5-3 (PR 63) — ngày 2026-11-18.
