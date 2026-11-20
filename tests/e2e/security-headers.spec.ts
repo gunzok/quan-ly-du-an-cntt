@@ -1,13 +1,33 @@
+import { randomUUID } from "node:crypto";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { expect, test, type ConsoleMessage } from "@playwright/test";
 import { vi as strings } from "@/lib/i18n/messages/vi";
-import { E2E_EMAIL } from "./env";
-import { signIn } from "./login";
+import { signInWithPassword } from "./login";
+import { cleanupTempData, createTempUsers, serviceClient } from "./temp-data";
 
 /**
  * Story E0-5 (QLDA-44) tiêu chí 1: trang có CSP chặt và header an toàn; CSP không làm hỏng trang.
  * Chạy trên bản production (`next build` + `next start`, xem playwright.config.ts) vì chế độ dev
- * nới CSP ('unsafe-eval').
+ * nới CSP ('unsafe-eval'). Người đăng nhập là tài khoản tạm (QLDA-56; trước dùng persona seed).
  */
+const tag = randomUUID().slice(0, 8);
+const user = {
+  email: `e2e-e0-5-${tag}@example.com`,
+  password: `E2e-${randomUUID()}`,
+  fullName: `E2E CSP ${tag}`,
+};
+let service: SupabaseClient | null = null;
+const ids: { user?: string } = {};
+
+test.beforeAll(async () => {
+  service = serviceClient();
+  await createTempUsers(service, { user }, ids);
+});
+
+test.afterAll(async () => {
+  await cleanupTempData(service, { userIds: [ids.user] });
+});
+
 function isCspViolation(message: ConsoleMessage) {
   return /content security policy/i.test(message.text());
 }
@@ -64,9 +84,9 @@ test("đăng nhập và trang chủ chạy dưới CSP, không có lỗi CSP", a
     if (isCspViolation(m)) violations.push(m.text());
   });
 
-  await signIn(page, E2E_EMAIL);
+  await signInWithPassword(page, user.email, user.password);
   await expect(page.getByText(strings.home.signedInAs)).toContainText(
-    E2E_EMAIL,
+    user.email,
   );
 
   expect(violations, "Lỗi CSP trong console").toEqual([]);
