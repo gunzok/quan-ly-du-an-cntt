@@ -138,7 +138,7 @@ Muốn hiện/ẩn theo điều kiện thì dùng bảng lặp (bảng rỗng t�
 
 ## 6. Thư viện
 
-`docx-templates` 4.15.0 (giấy phép MIT, kho github.com/guigrpa/docx-templates, bản 2025-12-03), phụ thuộc `jszip` 3.10 (MIT hoặc GPL-3.0, dùng theo MIT, đã có sẵn qua `exceljs`) và `sax` 1.3.0 (ISC). Kích thước giải nén khoảng 1,3 MB, chỉ chạy ở máy chủ (Route Handler Node, ADR-004). `pnpm audit` không có cảnh báo cho ba gói này (2026-11-20). Đo trên máy phát triển: điền template mẫu với 2.000 task khoảng 0,7 giây, 10.000 task khoảng 3,3 giây (chỉ bước điền, không gồm đọc CSDL); số đo đầu-cuối ở PR QLDA-75.
+`docx-templates` 4.15.0 (giấy phép MIT, kho github.com/guigrpa/docx-templates, bản 2025-12-03), phụ thuộc `jszip` 3.10 (MIT hoặc GPL-3.0, dùng theo MIT, đã có sẵn qua `exceljs`) và `sax` 1.3.0 (ISC). Kích thước giải nén khoảng 1,3 MB, chỉ chạy ở máy chủ (Route Handler Node, ADR-004). `pnpm audit` không có cảnh báo cho ba gói này (2026-11-20). Số đo trên máy phát triển (2026-11-20): bước điền template mẫu 2.000 task khoảng 0,4 giây, 10.000 task (trần) khoảng 1,7 giây, RSS đỉnh khoảng 0,5 GB; đầu-cuối có đọc CSDL (`make perf-seed && make perf-report`) 2.000 task P50 khoảng 0,47 giây. Test `lib/reports/export-2000.test.ts` (E5-5) giữ golden ổn định cho cả xlsx và docx.
 
 ## 7. API và lỗi
 
