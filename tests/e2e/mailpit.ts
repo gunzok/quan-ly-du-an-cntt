@@ -16,7 +16,9 @@ export interface MailpitMessage {
 }
 
 /** Tóm tắt các email gửi tới `to` (mới nhất trước). */
-export async function mailboxOf(to: string): Promise<{ ID: string; Subject: string }[]> {
+export async function mailboxOf(
+  to: string,
+): Promise<{ ID: string; Subject: string }[]> {
   const query = encodeURIComponent(`to:"${to}"`);
   const res = await fetch(`${MAILPIT_URL}/api/v1/search?query=${query}`);
   if (!res.ok) throw new Error(`Mailpit search lỗi ${res.status}`);
@@ -38,7 +40,10 @@ export async function mailpitMessage(id: string): Promise<MailpitMessage> {
  */
 export async function waitForMail(
   to: string,
-  { subject, timeoutMs = 10_000 }: { subject?: string; timeoutMs?: number } = {},
+  {
+    subject,
+    timeoutMs = 10_000,
+  }: { subject?: string; timeoutMs?: number } = {},
 ): Promise<MailpitMessage> {
   const deadline = Date.now() + timeoutMs;
   let seen: string[] = [];
