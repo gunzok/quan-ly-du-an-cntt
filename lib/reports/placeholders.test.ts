@@ -19,6 +19,10 @@ const DOC = readFileSync(
   new URL("../../docs/03-design/report-template-xlsx.md", import.meta.url),
   "utf8",
 );
+const DOCX_DOC = readFileSync(
+  new URL("../../docs/03-design/report-template-docx.md", import.meta.url),
+  "utf8",
+);
 const t = getMessages("vi");
 
 describe("hợp đồng ô giữ chỗ", () => {
@@ -35,6 +39,23 @@ describe("hợp đồng ô giữ chỗ", () => {
     expect(new Set(inDoc)).toEqual(new Set(inCode));
     for (const section of Object.keys(SECTIONS)) {
       expect(DOC).toContain(`{{#${section}}}`);
+    }
+  });
+
+  it("tài liệu docx (E5-4) liệt kê đủ cùng các ô giữ chỗ, thêm empty.* của Word", () => {
+    const inCode = [
+      ...SCALAR_PLACEHOLDERS,
+      ...Object.entries(SECTION_FIELDS).flatMap(([section, fields]) =>
+        fields.map((f) => `${SECTIONS[section as keyof typeof SECTIONS]}.${f}`),
+      ),
+      ...Object.keys(SECTIONS).map((section) => `empty.${section}`),
+    ];
+    const inDoc = [...DOCX_DOC.matchAll(/\| `\{\{([a-z_.]+)\}\}` \|/g)].map(
+      (m) => m[1],
+    );
+    expect(new Set(inDoc)).toEqual(new Set(inCode));
+    for (const [section, item] of Object.entries(SECTIONS)) {
+      expect(DOCX_DOC).toContain(`{{FOR ${item} IN ${section}}}`);
     }
   });
 

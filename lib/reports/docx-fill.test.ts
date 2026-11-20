@@ -212,6 +212,34 @@ describe("quy ước ô giữ chỗ docx", () => {
     ]);
   });
 
+  it("nhiều dòng mẫu giữa hai dòng dấu; lặp đoạn văn ngoài bảng", async () => {
+    const out = await fill(
+      docxFromBody(
+        tbl([
+          ["{{FOR task IN tasks}}", ""],
+          ["{{task.index}}", "{{task.title}}"],
+          ["", "{{task.priority}}"],
+          ["{{END-FOR task}}", ""],
+        ]) +
+          p("{{FOR s IN statuses}}") +
+          p("- {{s.name}}: {{s.count}}") +
+          p("{{END-FOR s}}"),
+      ),
+    );
+    expect(dumpDocx(out)["word/document.xml"]).toEqual([
+      "▦",
+      "| 1 | Thiết kế CSDL báo cáo |",
+      "|  | Cao |",
+      "| 2 | =1+1 tiêu đề giống công thức |",
+      "|  | Khẩn cấp |",
+      "| 3 | +SUM(A1) và chữ có dấu: Ưu tiên |",
+      "|  | Thấp |",
+      "¶ - Cần làm: 2",
+      "¶ - Đang làm: 1",
+      "¶ - Hoàn thành: 1",
+    ]);
+  });
+
   it("ô giữ chỗ bị Word cắt qua nhiều run (đổi kiểu giữa chừng) vẫn điền được", async () => {
     const body =
       '<w:p><w:r><w:t xml:space="preserve">Dự án: {{proj</w:t></w:r><w:r><w:rPr><w:b/></w:rPr><w:t>ect.na</w:t></w:r><w:r><w:t>me}} xong</w:t></w:r></w:p>';
