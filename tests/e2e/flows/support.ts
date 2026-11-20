@@ -207,6 +207,9 @@ export async function expectNoA11yViolations(
         .map((a) => a.finished.catch(() => undefined)),
     ),
   );
+  // Sau điều hướng phía client, <title> có thể tạm rỗng khi Next.js nạp metadata: axe sẽ báo
+  // "document-title" giả. Chờ có tiêu đề trước khi quét.
+  await expect(page).toHaveTitle(/\S/);
   let builder = new AxeBuilder({ page }).withTags(WCAG_TAGS);
   if (include) builder = builder.include(include);
   const results = await builder.analyze();

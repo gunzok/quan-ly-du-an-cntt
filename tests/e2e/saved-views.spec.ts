@@ -124,6 +124,9 @@ async function blockingViolations(page: Page) {
         .map((a) => a.finished.catch(() => undefined)),
     ),
   );
+  // Chọn chế độ xem đổi ?view= bằng điều hướng phía client: trong lúc Next.js nạp lại metadata,
+  // <title> tạm rỗng và axe báo "document-title" (chập chờn trên CI, QLDA-56). Chờ có tiêu đề.
+  await expect(page).toHaveTitle(/\S/);
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   return results.violations
     .filter((v) => v.impact && BLOCKING_IMPACTS.has(v.impact))
