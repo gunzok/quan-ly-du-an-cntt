@@ -3,7 +3,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ApiError } from "@/lib/api/errors";
 import { isSameOrigin, isUuid, readJsonBody } from "@/lib/api/request";
 import { apiError, errorResponse, jsonResponse } from "@/lib/api/respond";
+import {
+  limitUser,
+  logRateLimitUnavailable,
+  rateLimitedResponse,
+  type RateLimitOutcome,
+} from "@/lib/api/rate-limit";
 import { calcProgressPercent } from "@/lib/progress";
+import { mapCreateFromTemplateError } from "@/lib/project-templates/policy";
 import { strings } from "@/lib/strings";
 import { todayIso } from "./format";
 import {
@@ -51,6 +58,8 @@ export interface ProjectDeps {
   requestId?: string;
   /** Ngày "hôm nay" YYYY-MM-DD để tính trễ hạn; mặc định theo giờ Việt Nam (test truyền cố định). */
   today?: string;
+  /** Giới hạn tần suất khi tạo TỪ TEMPLATE (E7-1); test truyền bản giả. */
+  rateLimit?: (userId: string) => Promise<RateLimitOutcome>;
 }
 
 interface Ctx {
@@ -314,18 +323,44 @@ export async function handleCreateProject(
       return fail(projectDateOrderError(), ctx);
     }
 
+    if (input.template_id) {
+      // Nhân bản tới 2.000 task trong một giao dịch: giới hạn tần suất riêng (như xuất báo cáo).
+      const limit = await (
+        deps.rateLimit ?? ((id) => limitUser(id, "projectTemplate"))
+      )(user.value);
+      if (!limit.ok) {
+        if (limit.reason === "limited") {
+          return rateLimitedResponse(limit.retryAfterSeconds, ctx.requestId);
+        }
+        logRateLimitUnavailable("projectTemplate", limit.detail, ctx.requestId);
+      }
+    }
+
     // INSERT ... RETURNING bị chính sách SELECT chặn với PM không phải Admin (database.md mục 5):
-    // dùng public.create_project() (SECURITY INVOKER, RLS và quyền cột vẫn áp dụng).
-    const { data, error } = await deps.session
-      .rpc("create_project", {
-        p_name: input.name,
-        p_description: input.description,
-        p_start_date: input.start_date,
-        p_end_date: input.end_date,
-      })
-      .single();
+    // dùng public.create_project() (SECURITY INVOKER, RLS và quyền cột vẫn áp dụng). Có template:
+    // public.create_project_from_template (SECURITY DEFINER, tự kiểm quyền tạo dự án như
+    // projects_insert, nhân bản trạng thái, loại, nhãn, cây task trong cùng giao dịch; E7-1).
+    const { data, error } = input.template_id
+      ? await deps.session
+          .rpc("create_project_from_template", {
+            p_template_id: input.template_id,
+            p_name: input.name,
+            p_description: input.description,
+            p_start_date: input.start_date,
+            p_end_date: input.end_date,
+          })
+          .single()
+      : await deps.session
+          .rpc("create_project", {
+            p_name: input.name,
+            p_description: input.description,
+            p_start_date: input.start_date,
+            p_end_date: input.end_date,
+          })
+          .single();
     if (error) {
-      const mapped = mapProjectWriteError(error);
+      const mapped =
+        mapCreateFromTemplateError(error) ?? mapProjectWriteError(error);
       return mapped ? fail(mapped, ctx) : internal(ctx, "create", error);
     }
     const row = data as ProjectRow | null;

@@ -32,6 +32,8 @@ export interface RateLimitRule {
  * - api: mọi request /api/v1/* của một người dùng đã đăng nhập.
  * - export: xuất báo cáo (Story sau), chặt hơn api; Route Handler xuất báo cáo gọi thêm
  *   `limitUser(userId, "export")` ngoài giới hạn api chung.
+ * - projectTemplate: lưu dự án thành template và tạo dự án từ template (Story E7-1): mỗi lượt có
+ *   thể ghi tới 2.000 task trong một giao dịch, nên chặt hơn api.
  */
 export const RATE_LIMITS = {
   loginIp: { limit: 50, windowSeconds: 300 },
@@ -39,6 +41,7 @@ export const RATE_LIMITS = {
   acceptInviteIp: { limit: 20, windowSeconds: 900 },
   api: { limit: 300, windowSeconds: 60 },
   export: { limit: 10, windowSeconds: 600 },
+  projectTemplate: { limit: 20, windowSeconds: 600 },
 } as const satisfies Record<string, RateLimitRule>;
 
 export type RateLimitName = keyof typeof RATE_LIMITS;

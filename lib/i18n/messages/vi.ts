@@ -1867,6 +1867,118 @@ const viMessages = {
       dateLine: "Ngày {{report.today}}",
     },
   },
+  /** Template dự án (Story E7-1, FR-04, UC-04): lưu dự án thành template, tạo dự án từ template, S17. */
+  projectTemplates: {
+    pageTitle: "Template dự án",
+    navLink: "Template dự án",
+    eyebrow: "Dự án / Template",
+    heading: "Template dự án",
+    intro:
+      "Template dự án gồm trạng thái, loại task, nhãn và cây task, do PM hoặc Admin lưu từ một dự án có sẵn. Mọi PM và Admin đều dùng được khi tạo dự án; chỉ người lưu hoặc Admin được đổi tên, lưu trữ, xóa.",
+    tabs: {
+      label: "Loại template",
+      report: "Template báo cáo",
+      project: "Template dự án",
+    },
+    tableCaption: "Danh sách template dự án",
+    columns: {
+      name: "Tên",
+      contents: "Nội dung",
+      createdBy: "Lưu bởi",
+      date: "Ngày lưu",
+      status: "Trạng thái",
+      actions: "Thao tác",
+    },
+    summary: (statuses: string, types: string, labels: string, tasks: string) =>
+      `${statuses} trạng thái · ${types} loại · ${labels} nhãn · ${tasks} task`,
+    status: {
+      active: "Đang dùng",
+      archived: "Đã lưu trữ",
+    },
+    unknownCreator: "Không rõ",
+    showArchived: "Hiện template đã lưu trữ",
+    readOnlyHint: "Chỉ người lưu hoặc Admin sửa được",
+    actions: {
+      rename: "Đổi tên",
+      renameLabel: (name: string) => `Đổi tên ${name}`,
+      archive: "Lưu trữ",
+      archiveLabel: (name: string) => `Lưu trữ ${name}`,
+      restore: "Khôi phục",
+      restoreLabel: (name: string) => `Khôi phục ${name}`,
+      delete: "Xóa",
+      deleteLabel: (name: string) => `Xóa ${name}`,
+    },
+    renamed: (name: string) => `Đã đổi tên thành “${name}”.`,
+    archivedToast: (name: string) => `Đã lưu trữ “${name}”.`,
+    restoredToast: (name: string) => `Đã khôi phục “${name}”.`,
+    deleted: (name: string) => `Đã xóa “${name}”.`,
+    renameDialog: {
+      title: "Đổi tên template",
+      nameLabel: "Tên template",
+      submit: "Lưu tên",
+      saving: "Đang lưu…",
+    },
+    confirmDelete: {
+      title: (name: string) => `Xóa template “${name}”?`,
+      description:
+        "Template bị xóa vĩnh viễn. Dự án đã tạo từ template này không bị ảnh hưởng. Nếu chỉ muốn ẩn khỏi danh sách chọn, hãy chọn “Lưu trữ”.",
+      confirm: "Xóa template",
+    },
+    empty: {
+      title: "Chưa có template dự án",
+      description:
+        "Mở cài đặt một dự án bạn là PM rồi chọn “Lưu thành template” để dùng lại cấu trúc khi tạo dự án mới.",
+    },
+    loading: "Đang tải danh sách template dự án",
+    loadFailed: "Không tải được danh sách template dự án.",
+    retry: "Thử lại",
+    save: {
+      action: "Lưu thành template",
+      eyebrow: "Dự án / Template",
+      title: "Lưu dự án thành template",
+      description:
+        "Tạo template từ cấu trúc hiện tại của dự án để dùng lại khi tạo dự án mới.",
+      nameLabel: "Tên template",
+      includes:
+        "Gồm: trạng thái, loại task, nhãn và cây task (tiêu đề, mô tả, loại, trạng thái, ưu tiên, nhãn, thứ tự; ngày tính theo ngày bắt đầu dự án).",
+      excludes:
+        "Không sao chép: người phụ trách, thành viên, bình luận, tệp, nhật ký, thông báo, quan hệ giữa task.",
+      sharedWarning:
+        "Template dùng chung cho mọi PM và Admin: họ sẽ thấy tiêu đề và mô tả task. Đừng lưu dự án có thông tin nhạy cảm.",
+      submit: "Lưu template",
+      saving: "Đang lưu…",
+      saved: (name: string) => `Đã lưu template “${name}”.`,
+      manageLink: "Xem template dự án",
+    },
+    create: {
+      startFrom: "Bắt đầu từ",
+      blank: "Dự án trống",
+      blankNote: "Trạng thái và loại task mặc định, chưa có task.",
+      loading: "Đang tải template dự án…",
+      loadFailed: "Không tải được template; vẫn tạo được dự án trống.",
+      datesHint:
+        "Ngày của task tính theo ngày bắt đầu dự án. Để trống ngày bắt đầu thì task không có ngày.",
+      creating: "Đang tạo dự án từ template…",
+    },
+    errors: {
+      nameRequired: "Nhập tên template.",
+      nameTooLong: "Tên template tối đa 200 ký tự.",
+      nameTaken: "Đã có template dự án cùng tên. Chọn tên khác.",
+      tooManyTasks:
+        "Dự án có quá nhiều task để lưu thành template (tối đa 2.000 task).",
+      tooLarge:
+        "Dự án quá lớn để lưu thành template (tối đa 4 MB, 50 trạng thái, 50 loại task, 200 nhãn).",
+      templateNotFound:
+        "Template này không còn dùng được (đã xóa hoặc lưu trữ). Chọn template khác.",
+      templateInvalid:
+        "Template bị hỏng nên không tạo được dự án từ nó. Báo Admin kiểm tra.",
+      forbiddenRead: "Chỉ PM và Admin xem được template dự án.",
+      forbiddenSave:
+        "Chỉ PM của dự án hoặc Admin được lưu dự án thành template.",
+      forbiddenManage:
+        "Chỉ người lưu template hoặc Admin được đổi tên, lưu trữ, xóa.",
+    },
+  },
 } as const;
 
 /** Nới kiểu chữ cố định thành string (giữ cấu trúc, chữ ký hàm) để en.ts khai báo theo. */

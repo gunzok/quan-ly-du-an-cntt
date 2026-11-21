@@ -1,6 +1,7 @@
 import type { ApiErrorDetail } from "@/lib/api/errors";
 import {
   isPlainObject,
+  isUuid,
   unknownFields,
   type Validation,
 } from "@/lib/api/request";
@@ -19,7 +20,8 @@ import { PROJECT_STATUSES, type ProjectStatus } from "./model";
  * Từ chối trường lạ (`unknown_field`). Giới hạn độ dài khớp ràng buộc CHECK của bảng projects
  * (projects_name_not_blank, projects_description_length).
  *
- * Chưa nhận `template_id` khi tạo (chọn template là Story E7-1): gửi lên là `unknown_field`.
+ * Tạo có thể kèm `template_id` (uuid hoặc null, Story E7-1): nhân bản cấu trúc template trong cùng
+ * giao dịch (public.create_project_from_template). Chỉ nhận khi TẠO; PATCH gửi lên là `unknown_field`.
  * Tạo mới luôn ở trạng thái `active`; lưu trữ, khôi phục bằng PATCH `status`.
  */
 
@@ -110,14 +112,12 @@ export interface ProjectCreateInput {
   description: string | null;
   start_date: string | null;
   end_date: string | null;
+  /** Template dự án để nhân bản (E7-1); null: dự án trống. */
+  template_id: string | null;
 }
 
-const CREATE_FIELDS = [
-  "name",
-  "description",
-  "start_date",
-  "end_date",
-] as const;
+const EDIT_FIELDS = ["name", "description", "start_date", "end_date"] as const;
+const CREATE_FIELDS = [...EDIT_FIELDS, "template_id"] as const;
 
 export function validateProjectCreate(
   body: unknown,
@@ -132,7 +132,13 @@ export function validateProjectCreate(
     description: null,
     start_date: null,
     end_date: null,
+    template_id: null,
   };
+  if (body.template_id !== undefined && body.template_id !== null) {
+    if (isUuid(body.template_id))
+      input.template_id = body.template_id.toLowerCase();
+    else details.push({ field: "template_id", issue: "invalid_format" });
+  }
   if (body.description !== undefined) {
     input.description = readDescription(body.description, details) ?? null;
   }
@@ -158,7 +164,7 @@ export interface ProjectPatch {
   status?: ProjectStatus;
 }
 
-const PATCH_FIELDS = [...CREATE_FIELDS, "status"] as const;
+const PATCH_FIELDS = [...EDIT_FIELDS, "status"] as const;
 
 export function validateProjectPatch(body: unknown): Validation<ProjectPatch> {
   if (!isPlainObject(body)) {

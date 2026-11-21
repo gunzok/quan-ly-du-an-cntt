@@ -61,7 +61,10 @@ export interface ProjectInput {
   end_date: string | null;
 }
 
-export function createProject(body: ProjectInput) {
+/** Tạo dự án; `template_id` (E7-1) nhân bản cấu trúc template, null hoặc vắng: dự án trống. */
+export function createProject(
+  body: ProjectInput & { template_id?: string | null },
+) {
   return call<{ data: Project }>("/api/v1/projects", {
     method: "POST",
     headers: { "content-type": "application/json" },
