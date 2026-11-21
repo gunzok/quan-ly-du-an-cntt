@@ -42,10 +42,13 @@
 -- 1. Kiểm schema structure (quyết định 3, 4, 5)
 -- ---------------------------------------------------------------------------
 -- Trả null khi hợp lệ, hoặc mã lý do ngắn. IMMUTABLE (chỉ đọc tham số) để dùng được trong CHECK.
+-- SECURITY DEFINER theo quy ước mọi hàm schema private (rls-profiles.test.sql); hàm không đọc bảng
+-- nào nên quyền chủ hàm không mở thêm gì.
 create or replace function private.project_template_structure_error(p jsonb)
 returns text
 language plpgsql
 immutable
+security definer
 set search_path = ''
 as $$
 declare
