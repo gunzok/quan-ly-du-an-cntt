@@ -9,6 +9,7 @@ import { HOME_PATH } from "@/lib/auth/routes";
 import type { ConfigKind } from "@/lib/project-config/model";
 import { useStrings } from "@/lib/i18n/client";
 import { MembersPanel } from "@/components/project-members/members-panel";
+import { SaveTemplateDialog } from "@/components/project-templates/save-template-dialog";
 import { ConfigPanel } from "./config-panel";
 
 const KINDS: readonly ConfigKind[] = ["statuses", "task-types", "labels"];
@@ -55,12 +56,21 @@ function Screen({
         <span className="label [overflow-wrap:anywhere]">
           {t.eyebrow(projectName)}
         </span>
-        <h1 className="font-display text-display-sm">
-          {t.heading}
-          <span aria-hidden="true" className="text-accent">
-            .
-          </span>
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="font-display text-display-sm">
+            {t.heading}
+            <span aria-hidden="true" className="text-accent">
+              .
+            </span>
+          </h1>
+          {/* Lưu thành template (E7-1): PM của dự án hoặc Admin, cùng điều kiện với sửa cấu hình. */}
+          {canEdit ? (
+            <SaveTemplateDialog
+              projectId={projectId}
+              projectName={projectName}
+            />
+          ) : null}
+        </div>
         <p className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
           {canEdit ? null : <Badge tone="neutral">{t.readOnly}</Badge>}
           {t.canEditNote}

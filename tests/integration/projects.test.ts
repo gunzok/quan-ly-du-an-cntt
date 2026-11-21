@@ -335,7 +335,7 @@ describe.skipIf(!enabled)("API dự án (Supabase cục bộ)", () => {
     expect(count).toBe(0);
   });
 
-  it("400: thiếu tên, trường lạ (template_id, status, created_by), sai định dạng, JSON hỏng", async () => {
+  it("400: thiếu tên, trường lạ (status, created_by), template_id sai định dạng (E7-1), sai định dạng, JSON hỏng", async () => {
     let error = await expectError(
       await create("pm", { name: "   " }),
       400,
@@ -346,17 +346,18 @@ describe.skipIf(!enabled)("API dự án (Supabase cục bộ)", () => {
     error = await expectError(
       await create("pm", {
         name: "x",
-        template_id: randomUUID(),
+        template_id: "khong-phai-uuid",
         status: "archived",
         created_by: users.member,
       }),
       400,
       "validation_failed",
     );
+    // template_id là trường hợp lệ từ E7-1 (tạo từ template), chỉ sai định dạng.
     expect(error.details).toEqual([
-      { field: "template_id", issue: "unknown_field" },
       { field: "status", issue: "unknown_field" },
       { field: "created_by", issue: "unknown_field" },
+      { field: "template_id", issue: "invalid_format" },
     ]);
 
     error = await expectError(

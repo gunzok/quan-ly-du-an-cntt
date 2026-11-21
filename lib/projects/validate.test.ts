@@ -28,14 +28,38 @@ describe("validateProjectCreate", () => {
         description: null,
         start_date: "2026-11-16",
         end_date: "2027-04-30",
+        template_id: null,
       },
     });
+  });
+
+  it("nhận template_id (uuid, chữ thường hóa) hoặc null (E7-1)", () => {
+    const id = "6F1C2D3E-4A5B-4C6D-8E7F-0123456789AB";
+    expect(validateProjectCreate({ name: "A", template_id: id })).toEqual({
+      ok: true,
+      data: {
+        name: "A",
+        description: null,
+        start_date: null,
+        end_date: null,
+        template_id: id.toLowerCase(),
+      },
+    });
+    expect(
+      validateProjectCreate({ name: "A", template_id: null }),
+    ).toMatchObject({ ok: true, data: { template_id: null } });
   });
 
   it("chỉ có tên: các trường khác là null", () => {
     expect(validateProjectCreate({ name: "A" })).toEqual({
       ok: true,
-      data: { name: "A", description: null, start_date: null, end_date: null },
+      data: {
+        name: "A",
+        description: null,
+        start_date: null,
+        end_date: null,
+        template_id: null,
+      },
     });
   });
 
@@ -67,9 +91,13 @@ describe("validateProjectCreate", () => {
     [
       { name: "A", template_id: "x", status: "archived" },
       [
-        { field: "template_id", issue: "unknown_field" },
         { field: "status", issue: "unknown_field" },
+        { field: "template_id", issue: "invalid_format" },
       ],
+    ],
+    [
+      { name: "A", template_id: 5 },
+      [{ field: "template_id", issue: "invalid_format" }],
     ],
   ])("từ chối %j", (body, details) => {
     expect(validateProjectCreate(body)).toEqual({ ok: false, details });

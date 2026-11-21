@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { TemplatePicker } from "@/components/project-templates/template-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +35,8 @@ type Errors = Partial<Record<FieldName, string>>;
 function errorsFromApi(strings: Messages, error: ApiError): Errors {
   const t = strings.projects;
   const out: Errors = {};
+  // Lỗi template (không còn dùng được, hỏng): hiện ở cuối form, không gắn vào ô ngày.
+  if (error.details?.some((d) => d.field === "template_id")) return out;
   if (error.code === "business_rule_violated") {
     out.end_date = apiErrorText(strings, error);
     return out;
@@ -68,8 +71,9 @@ function validate(strings: Messages, input: ProjectInput): Errors {
 }
 
 /**
- * Hộp thoại tạo hoặc sửa dự án (mockup v3 bp-CreateProject.dc.html, S13). Phần "Bắt đầu từ"
- * (chọn template) thuộc Story E7-1, chưa có ở đây.
+ * Hộp thoại tạo hoặc sửa dự án (mockup v3 bp-CreateProject.dc.html, S13). Khi tạo mới có phần
+ * "Bắt đầu từ": dự án trống hoặc một template dự án (Story E7-1); máy chủ nhân bản cấu trúc template
+ * trong cùng giao dịch tạo dự án.
  */
 export function ProjectFormDialog({
   open,
@@ -110,6 +114,7 @@ function FormBody({
   const [description, setDescription] = useState(project?.description ?? "");
   const [startDate, setStartDate] = useState(project?.start_date ?? "");
   const [endDate, setEndDate] = useState(project?.end_date ?? "");
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -131,7 +136,7 @@ function FormBody({
     setPending(true);
     const result = editing
       ? await patchProject(project.id, input)
-      : await createProject(input);
+      : await createProject({ ...input, template_id: templateId });
     setPending(false);
     if (result.ok) {
       onSaved(result.data.data, editing ? "updated" : "created");
@@ -218,6 +223,20 @@ function FormBody({
             )}
           </Field>
         </div>
+        {editing ? null : (
+          <>
+            <TemplatePicker
+              value={templateId}
+              onChange={setTemplateId}
+              disabled={pending}
+            />
+            {templateId ? (
+              <p className="text-xs text-text-muted">
+                {strings.projectTemplates.create.datesHint}
+              </p>
+            ) : null}
+          </>
+        )}
         {formError ? (
           <p role="alert" className="text-sm text-danger">
             {formError}
@@ -232,7 +251,11 @@ function FormBody({
           <Button
             type="submit"
             loading={pending}
-            loadingText={t.form.saving}
+            loadingText={
+              templateId && !editing
+                ? strings.projectTemplates.create.creating
+                : t.form.saving
+            }
             trailing={editing ? undefined : "→"}
           >
             {editing ? t.form.submitEdit : t.form.submitCreate}

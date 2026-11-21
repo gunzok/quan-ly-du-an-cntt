@@ -1861,4 +1861,119 @@ export const en: Messages = {
       dateLine: "Date {{report.today}}",
     },
   },
+  /** Template dự án (Story E7-1, FR-04, UC-04): lưu dự án thành template, tạo dự án từ template, S17. */
+  projectTemplates: {
+    pageTitle: "Project templates",
+    navLink: "Project templates",
+    eyebrow: "Projects / Templates",
+    heading: "Project templates",
+    intro:
+      "A project template holds statuses, task types, labels and the task tree, saved by a PM or Admin from an existing project. Every PM and Admin can use it when creating a project; only the person who saved it or an Admin can rename, archive or delete it.",
+    tabs: {
+      label: "Template type",
+      report: "Report templates",
+      project: "Project templates",
+    },
+    tableCaption: "Project template list",
+    columns: {
+      name: "Name",
+      contents: "Contents",
+      createdBy: "Saved by",
+      date: "Saved on",
+      status: "Status",
+      actions: "Actions",
+    },
+    summary: (statuses: string, types: string, labels: string, tasks: string) =>
+      `${statuses} statuses · ${types} types · ${labels} labels · ${tasks} tasks`,
+    status: {
+      active: "In use",
+      archived: "Archived",
+    },
+    unknownCreator: "Unknown",
+    showArchived: "Show archived templates",
+    readOnlyHint: "Only the person who saved it or an Admin can edit",
+    actions: {
+      rename: "Rename",
+      renameLabel: (name: string) => `Rename ${name}`,
+      archive: "Archive",
+      archiveLabel: (name: string) => `Archive ${name}`,
+      restore: "Restore",
+      restoreLabel: (name: string) => `Restore ${name}`,
+      delete: "Delete",
+      deleteLabel: (name: string) => `Delete ${name}`,
+    },
+    renamed: (name: string) => `Renamed to “${name}”.`,
+    archivedToast: (name: string) => `Archived “${name}”.`,
+    restoredToast: (name: string) => `Restored “${name}”.`,
+    deleted: (name: string) => `Deleted “${name}”.`,
+    renameDialog: {
+      title: "Rename template",
+      nameLabel: "Template name",
+      submit: "Save name",
+      saving: "Saving…",
+    },
+    confirmDelete: {
+      title: (name: string) => `Delete template “${name}”?`,
+      description:
+        "The template is deleted permanently. Projects already created from it are not affected. To only hide it from the picker, choose “Archive”.",
+      confirm: "Delete template",
+    },
+    empty: {
+      title: "No project templates yet",
+      description:
+        "Open the settings of a project you manage and choose “Save as template” to reuse its structure for new projects.",
+    },
+    loading: "Loading project templates",
+    loadFailed: "Could not load project templates.",
+    retry: "Try again",
+    save: {
+      action: "Save as template",
+      eyebrow: "Project / Template",
+      title: "Save project as template",
+      description:
+        "Create a template from this project's current structure to reuse when creating new projects.",
+      nameLabel: "Template name",
+      includes:
+        "Includes: statuses, task types, labels and the task tree (title, description, type, status, priority, labels, order; dates relative to the project start date).",
+      excludes:
+        "Not copied: assignees, members, comments, files, activity log, notifications, task relations.",
+      sharedWarning:
+        "Templates are shared with every PM and Admin: they will see task titles and descriptions. Do not save projects with sensitive information.",
+      submit: "Save template",
+      saving: "Saving…",
+      saved: (name: string) => `Saved template “${name}”.`,
+      manageLink: "View project templates",
+    },
+    create: {
+      startFrom: "Start from",
+      optionCode: (n: string) => `TPL / ${n}`,
+      blank: "Blank project",
+      blankNote: "Default statuses and task types, no tasks.",
+      loading: "Loading project templates…",
+      loadFailed:
+        "Could not load templates; you can still create a blank project.",
+      datesHint:
+        "Task dates are relative to the project start date. Leave the start date empty and tasks get no dates.",
+      creating: "Creating project from template…",
+    },
+    errors: {
+      nameRequired: "Enter a template name.",
+      nameTooLong: "Template name can be at most 200 characters.",
+      nameTaken:
+        "A project template with this name already exists. Choose another name.",
+      tooManyTasks:
+        "The project has too many tasks to save as a template (at most 2,000 tasks).",
+      tooLarge:
+        "The project is too large to save as a template (at most 4 MB, 50 statuses, 50 task types, 200 labels).",
+      templateNotFound:
+        "This template is no longer available (deleted or archived). Choose another template.",
+      templateInvalid:
+        "This template is damaged, so no project can be created from it. Ask an Admin to check it.",
+      forbiddenRead: "Only PMs and Admins can see project templates.",
+      forbiddenSave:
+        "Only the project's PM or an Admin can save the project as a template.",
+      forbiddenManage:
+        "Only the person who saved the template or an Admin can rename, archive or delete it.",
+    },
+  },
 };

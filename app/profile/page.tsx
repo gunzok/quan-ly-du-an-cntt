@@ -69,6 +69,7 @@ async function ProfileGate() {
       email={email}
       roleLabel={roleLabel}
       isAdmin={me.is_admin}
+      canUseTemplates={me.is_admin || isPm}
     >
       <ProfileScreen
         profile={{ ...me, email }}

@@ -72,6 +72,7 @@ async function ProjectsGate() {
       email={data.user.email ?? ""}
       roleLabel={roleLabel}
       isAdmin={isAdmin}
+      canUseTemplates={canCreate}
     >
       <ProjectsScreen isAdmin={isAdmin} canCreate={canCreate} />
     </AppShell>
