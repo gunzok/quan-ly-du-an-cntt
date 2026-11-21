@@ -7,6 +7,11 @@ export const PROJECT_TEMPLATE_NAME_MAX = 200;
 /** Khớp giới hạn trong private.project_template_structure_error (quyết định 5 của migration). */
 export const PROJECT_TEMPLATE_MAX_TASKS = 2000;
 
+/** Chuẩn hóa tên: NFC, gộp khoảng trắng, cắt hai đầu (trình duyệt và máy chủ dùng chung). */
+export function normalizeTemplateName(value: string): string {
+  return value.normalize("NFC").replace(/\s+/g, " ").trim();
+}
+
 /**
  * Cột trình duyệt đọc được (không có `structure`: không cấp quyền cột SELECT). Người lưu nhúng qua
  * khóa ngoại created_by (RLS profiles: PM và Admin đọc mọi hồ sơ).

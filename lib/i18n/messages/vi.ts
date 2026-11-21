@@ -1952,6 +1952,7 @@ const viMessages = {
     },
     create: {
       startFrom: "Bắt đầu từ",
+      optionCode: (n: string) => `TPL / ${n}`,
       blank: "Dự án trống",
       blankNote: "Trạng thái và loại task mặc định, chưa có task.",
       loading: "Đang tải template dự án…",

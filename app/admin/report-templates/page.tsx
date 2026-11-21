@@ -9,7 +9,10 @@ import { HOME_PATH, LOGIN_PATH } from "@/lib/auth/routes";
 import { getStrings } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import styles from "../users/admin-users.module.css";
-import { ReportTemplatesScreen } from "./report-templates-screen";
+import {
+  ReportTemplatesScreen,
+  type TemplatesTab,
+} from "./report-templates-screen";
 
 export async function generateMetadata(): Promise<Metadata> {
   const strings = await getStrings();
@@ -19,11 +22,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * S17 Quản lý template, tab "Template báo cáo" (Story E5-2; mockup v3 bp-Templates.dc.html). Tab
- * "Template dự án" thuộc E7-1, chưa làm. Chỉ Admin vào được trang quản trị: người khác nhận "không
- * tìm thấy" (BR-10). PM đọc template qua API khi xuất báo cáo (E5-3/E5-4), không qua trang này.
+ * S17 Quản lý template (mockup v3 bp-Templates.dc.html): tab "Template báo cáo" (Story E5-2) và
+ * "Template dự án" (Story E7-1, `?tab=project`). Chỉ Admin vào được trang quản trị: người khác nhận
+ * "không tìm thấy" (BR-10). PM đọc template báo cáo qua API khi xuất báo cáo (E5-3/E5-4) và quản lý
+ * template dự án ở /project-templates.
  */
-export default async function AdminReportTemplatesPage() {
+export default async function AdminReportTemplatesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string | string[] }>;
+}) {
   const strings = await getStrings();
   return (
     <div className={styles.canvas}>
@@ -35,15 +43,21 @@ export default async function AdminReportTemplatesPage() {
             </p>
           }
         >
-          <Gate />
+          <Gate searchParams={searchParams} />
         </Suspense>
       </div>
     </div>
   );
 }
 
-async function Gate() {
+async function Gate({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string | string[] }>;
+}) {
   await connection();
+  const { tab } = await searchParams;
+  const initialTab: TemplatesTab = tab === "project" ? "project" : "report";
   const strings = await getStrings();
   const supabase = await createClient();
   const gate = await requireAdmin(supabase);
@@ -93,7 +107,7 @@ async function Gate() {
         </div>
         <LanguageSwitcher className="items-start" />
       </aside>
-      <ReportTemplatesScreen />
+      <ReportTemplatesScreen initialTab={initialTab} />
     </>
   );
 }

@@ -17,6 +17,8 @@ const navCurrent =
   "bg-bg-muted font-semibold shadow-[inset_2px_0_0_var(--color-primary)]";
 /** Trang hồ sơ cá nhân (Story E1-7). */
 const PROFILE_PATH = "/profile";
+/** Trang template dự án (Story E7-1); trùng PROJECT_TEMPLATES_PATH ở lib/project-templates. */
+const TEMPLATES_PATH = "/project-templates";
 
 /**
  * Khung trang Blueprint (mockup v3 bp-Projects.dc.html): thanh bên (thương hiệu, điều hướng, người
@@ -28,17 +30,23 @@ export function AppShell({
   email,
   roleLabel,
   isAdmin,
+  canUseTemplates = false,
   children,
 }: {
   userName: string;
   email: string;
   roleLabel: string | null;
   isAdmin: boolean;
+  /** Hiện liên kết "Template dự án" (Admin hoặc PM ở ≥ 1 dự án, Story E7-1). */
+  canUseTemplates?: boolean;
   children: ReactNode;
 }) {
   const strings = useStrings();
   const t = strings.projects;
-  const onProfile = usePathname() === PROFILE_PATH;
+  const pathname = usePathname();
+  const onProfile = pathname === PROFILE_PATH;
+  const onTemplates = pathname === TEMPLATES_PATH;
+  const onProjects = !onProfile && !onTemplates;
   return (
     <div className="flex flex-1 flex-col bg-canvas lg:p-3">
       <div className="flex min-h-full flex-1 flex-col overflow-hidden bg-bg lg:flex-row lg:rounded-xl lg:border lg:border-solid lg:border-border">
@@ -59,11 +67,20 @@ export function AppShell({
           <nav aria-label={t.navLabel} className="flex flex-col gap-0.5">
             <Link
               href={HOME_PATH}
-              aria-current={onProfile ? undefined : "page"}
-              className={cn(navLink, !onProfile && navCurrent)}
+              aria-current={onProjects ? "page" : undefined}
+              className={cn(navLink, onProjects && navCurrent)}
             >
               {t.navProjects}
             </Link>
+            {canUseTemplates || isAdmin ? (
+              <Link
+                href={TEMPLATES_PATH}
+                aria-current={onTemplates ? "page" : undefined}
+                className={cn(navLink, onTemplates && navCurrent)}
+              >
+                {strings.projectTemplates.navLink}
+              </Link>
+            ) : null}
             <Link
               href={PROFILE_PATH}
               aria-current={onProfile ? "page" : undefined}

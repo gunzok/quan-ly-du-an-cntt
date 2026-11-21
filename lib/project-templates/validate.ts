@@ -4,7 +4,7 @@ import {
   unknownFields,
   type Validation,
 } from "@/lib/api/request";
-import { PROJECT_TEMPLATE_NAME_MAX } from "./model";
+import { normalizeTemplateName, PROJECT_TEMPLATE_NAME_MAX } from "./model";
 
 /**
  * Kiểm đầu vào thuần (không I/O) cho /api/v1/project-templates và
@@ -16,10 +16,7 @@ export const PROJECT_TEMPLATE_BODY_MAX_BYTES = 2048;
 // Ký tự điều khiển C0/C1, ký tự định hướng (bidi), ký tự không độ rộng.
 const FORBIDDEN_CHARS = /[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩﻿]/;
 
-/** Chuẩn hóa tên: NFC, gộp khoảng trắng, cắt hai đầu. */
-export function normalizeTemplateName(value: string): string {
-  return value.normalize("NFC").replace(/\s+/g, " ").trim();
-}
+export { normalizeTemplateName };
 
 function readName(
   value: unknown,

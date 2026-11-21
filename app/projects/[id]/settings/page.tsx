@@ -95,6 +95,7 @@ async function SettingsGate({ params }: Params) {
       email={data.user.email ?? ""}
       roleLabel={roleLabel}
       isAdmin={isAdmin}
+      canUseTemplates={isAdmin || (pmRows ?? []).length > 0}
     >
       <ProjectSettingsScreen
         projectId={project.id as string}

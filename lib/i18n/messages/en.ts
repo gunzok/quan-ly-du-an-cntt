@@ -1946,6 +1946,7 @@ export const en: Messages = {
     },
     create: {
       startFrom: "Start from",
+      optionCode: (n: string) => `TPL / ${n}`,
       blank: "Blank project",
       blankNote: "Default statuses and task types, no tasks.",
       loading: "Loading project templates…",
